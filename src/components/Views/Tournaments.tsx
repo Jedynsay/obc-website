@@ -107,7 +107,7 @@ export function Tournaments() {
                 </div>
               </div>
 
-              {tournament.status === 'upcoming' && user?.role === 'user' && (
+              {tournament.status === 'upcoming' && (
                 <button
                   onClick={() => setSelectedTournament(tournament.id)}
                   disabled={tournament.currentParticipants >= tournament.maxParticipants}

@@ -405,6 +405,12 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
               <User className="text-blue-600 mr-2" size={20} />
               <h3 className="text-lg font-semibold text-blue-900">Player Information</h3>
             </div>
+            <div className="mb-4 p-3 bg-white rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                <strong>No account required!</strong> Simply provide your blader name and Beyblade details to register for this tournament. 
+                Your registration will be saved for tournament organizers.
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -420,7 +426,7 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  This is the name that will appear in tournament brackets and match results.
+                  This is your blader name that will appear in tournament brackets and match results.
                 </p>
               </div>
 
