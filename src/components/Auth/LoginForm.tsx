@@ -8,7 +8,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [currentView, setCurrentView] = useState<'login' | 'signup' | 'dev'>('login');
+  const [currentView, setCurrentView] = useState<'login' | 'signup' | 'demo'>('login');
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,6 +27,32 @@ export function LoginForm() {
     return <SignupForm onBackToLogin={() => setCurrentView('login')} />;
   }
 
+  if (currentView === 'demo') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-orange-600 flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-white text-2xl font-bold">B</span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Demo Portal</h2>
+            <p className="text-gray-600 mt-2">Experience different user roles</p>
+          </div>
+
+          <DeveloperLogin />
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setCurrentView('login')}
+              className="text-blue-600 hover:text-blue-800 text-sm underline"
+            >
+              ← Back to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-orange-600 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
@@ -97,12 +123,19 @@ export function LoginForm() {
             >
               Create New Account
             </button>
+            
+            <button
+              onClick={() => setCurrentView('demo')}
+              className="w-full flex justify-center py-2 px-4 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            >
+              Demo Different Roles
+            </button>
           </div>
         </div>
 
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
-            Create an account to participate in tournaments and save your progress.
+            Create an account to participate in tournaments, or try the demo to explore features.
           </p>
         </div>
       </div>

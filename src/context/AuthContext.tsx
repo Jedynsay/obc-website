@@ -121,7 +121,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async (): Promise<void> => {
     await supabase.auth.signOut();
-    // After signout, the auth state change listener will handle signing in anonymously
+    // After signout, create a new guest user
+    setUser({
+      id: 'guest-' + crypto.randomUUID(),
+      username: 'Guest User',
+      email: '',
+      role: 'user',
+      joinedDate: new Date().toISOString()
+    });
   };
 
   const updateUserRole = (role: User['role']) => {

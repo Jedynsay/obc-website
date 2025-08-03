@@ -17,11 +17,34 @@ export function Dashboard() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
+      {/* Demo Mode Banner */}
+      {user?.id.startsWith('guest-') && (
+        <div className="mb-6 bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-lg">🎭 Demo Mode Active</h3>
+              <p className="text-purple-100">
+                You're currently viewing as: <span className="font-semibold capitalize">{user.role.replace('_', ' ')}</span>
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-purple-200">
+                Switch roles using the demo button in the header
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Welcome back, {user?.username}!
         </h1>
-        <p className="text-gray-600">Here's what's happening in the Beyblade community</p>
+        <p className="text-gray-600">
+          {user?.id.startsWith('guest-') 
+            ? `Exploring the ${user.role.replace('_', ' ')} dashboard - Here's what's happening in the Beyblade community`
+            : "Here's what's happening in the Beyblade community"
+          }
+        </p>
       </div>
 
       {/* Stats Grid */}
