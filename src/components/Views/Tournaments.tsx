@@ -110,13 +110,11 @@ export function Tournaments() {
               {tournament.status === 'upcoming' && user?.role === 'user' && (
                 <button
                   onClick={() => setSelectedTournament(tournament.id)}
-                  disabled={tournament.currentParticipants >= tournament.maxParticipants || user.id.startsWith('guest-')}
+                  disabled={tournament.currentParticipants >= tournament.maxParticipants}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   {tournament.currentParticipants >= tournament.maxParticipants 
                     ? 'Tournament Full' 
-                    : user.id.startsWith('guest-') 
-                    ? 'Please log in to register' 
                     : 'Register for Tournament'}
                 </button>
               )}
