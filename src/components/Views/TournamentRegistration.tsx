@@ -239,23 +239,64 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
     setIsSubmitting(true);
     
     try {
-      // For now, we'll simulate the registration process
-      // In a real implementation, this would save to a tournament-specific registration system
-      console.log('Tournament Registration:', {
-        tournamentId: tournament.id,
-        playerName: playerName.trim(),
-        paymentMode,
-        beyblades: beyblades.map(beyblade => ({
-          name: generateBeybladeName(beyblade.bladeLine, beyblade.parts),
-          bladeLine: beyblade.bladeLine,
-          parts: beyblade.parts
-        }))
-      });
+      // Save registration to Supabase
+      const { data: registration, error: registrationError } = await supabase
+        .from('tournament_registrations')
+        .insert({
+          tournament_id: tournament.id,
+          player_name: playerName.trim(),
+          payment_mode: paymentMode
+        })
+        .select()
+        .single();
+
+      if (registrationError) {
+        throw new Error(`Registration failed: ${registrationError.message}`);
+      }
+
+      // Save each Beyblade
+      for (const beyblade of beyblades) {
+        const beybladeName = generateBeybladeName(beyblade.bladeLine, beyblade.parts);
+        
+        // Insert Beyblade
+        const { data: beybladeData, error: beybladeError } = await supabase
+          .from('tournament_beyblades')
+          .insert({
+            registration_id: registration.id,
+            beyblade_name: beybladeName,
+            blade_line: beyblade.bladeLine
+          })
+          .select()
+          .single();
+
+        if (beybladeError) {
+          throw new Error(`Beyblade registration failed: ${beybladeError.message}`);
+        }
+
+        // Insert Beyblade parts
+        const partsToInsert = Object.entries(beyblade.parts).map(([partType, partData]) => ({
+          beyblade_id: beybladeData.id,
+          part_type: partType,
+          part_name: getPartDisplayName(partData, partType),
+          part_data: partData
+        }));
+
+        const { error: partsError } = await supabase
+          .from('tournament_beyblade_parts')
+          .insert(partsToInsert);
+
+        if (partsError) {
+          throw new Error(`Parts registration failed: ${partsError.message}`);
+        }
+      }
+
+      // Success message
+      alert(`Successfully registered ${playerName} for ${tournament.name}! Registration ID: ${registration.id}`);
 
       onSubmit(playerName, beyblades);
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Failed to register for tournament. Please try again.');
+      alert(`Failed to register for tournament: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }

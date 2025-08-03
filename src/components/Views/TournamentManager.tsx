@@ -1,13 +1,31 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Users, Eye } from 'lucide-react';
 import { mockTournaments } from '../../data/mockData';
+import { supabase } from '../../lib/supabase';
 import type { Tournament } from '../../types';
+
+interface TournamentRegistration {
+  registration_id: string;
+  player_name: string;
+  payment_mode: string;
+  registered_at: string;
+  status: string;
+  beyblades: Array<{
+    beyblade_id: string;
+    beyblade_name: string;
+    blade_line: string;
+    parts: any[];
+  }>;
+}
 
 export function TournamentManager() {
   const [tournaments, setTournaments] = useState(mockTournaments);
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Tournament>>({});
+  const [viewingRegistrations, setViewingRegistrations] = useState<string | null>(null);
+  const [registrations, setRegistrations] = useState<TournamentRegistration[]>([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
 
   const startCreate = () => {
     setIsCreating(true);
@@ -50,6 +68,59 @@ export function TournamentManager() {
     setIsCreating(false);
     setEditingId(null);
     setFormData({});
+  };
+
+  const viewRegistrations = async (tournamentId: string) => {
+    setLoadingRegistrations(true);
+    setViewingRegistrations(tournamentId);
+    
+    try {
+      const { data, error } = await supabase
+        .from('tournament_registration_details')
+        .select('*')
+        .eq('tournament_id', tournamentId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Group registrations by registration_id
+      const groupedRegistrations: { [key: string]: TournamentRegistration } = {};
+      
+      data?.forEach((row: any) => {
+        if (!groupedRegistrations[row.registration_id]) {
+          groupedRegistrations[row.registration_id] = {
+            registration_id: row.registration_id,
+            player_name: row.player_name,
+            payment_mode: row.payment_mode,
+            registered_at: row.registered_at,
+            status: row.status,
+            beyblades: []
+          };
+        }
+
+        if (row.beyblade_id) {
+          const existingBeyblade = groupedRegistrations[row.registration_id].beyblades
+            .find(b => b.beyblade_id === row.beyblade_id);
+          
+          if (!existingBeyblade) {
+            groupedRegistrations[row.registration_id].beyblades.push({
+              beyblade_id: row.beyblade_id,
+              beyblade_name: row.beyblade_name,
+              blade_line: row.blade_line,
+              parts: row.beyblade_parts || []
+            });
+          }
+        }
+      });
+
+      setRegistrations(Object.values(groupedRegistrations));
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+      alert('Failed to load registrations. Please try again.');
+    } finally {
+      setLoadingRegistrations(false);
+    }
   };
 
   const deleteTournament = (id: string) => {
@@ -260,12 +331,21 @@ export function TournamentManager() {
                 <button
                   onClick={() => startEdit(tournament)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  title="Edit Tournament"
                 >
                   <Edit size={16} />
                 </button>
                 <button
+                  onClick={() => viewRegistrations(tournament.id)}
+                  className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                  title="View Registrations"
+                >
+                  <Eye size={16} />
+                </button>
+                <button
                   onClick={() => deleteTournament(tournament.id)}
                   className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  title="Delete Tournament"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -281,6 +361,89 @@ export function TournamentManager() {
           </div>
         ))}
       </div>
+
+      {/* Registrations Modal */}
+      {viewingRegistrations && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Tournament Registrations</h2>
+                <p className="text-gray-600">
+                  {tournaments.find(t => t.id === viewingRegistrations)?.name}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewingRegistrations(null)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {loadingRegistrations ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading registrations...</p>
+                </div>
+              ) : registrations.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users size={48} className="mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">No registrations yet for this tournament</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {registrations.map((registration) => (
+                    <div key={registration.registration_id} className="border border-gray-200 rounded-lg p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">{registration.player_name}</h3>
+                          <p className="text-sm text-gray-600">
+                            Registered: {new Date(registration.registered_at).toLocaleString()}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Payment: <span className="capitalize">{registration.payment_mode.replace('_', ' ')}</span>
+                          </p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          registration.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                          registration.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {registration.status}
+                        </span>
+                      </div>
+
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-gray-900">Registered Beyblades:</h4>
+                        {registration.beyblades.map((beyblade) => (
+                          <div key={beyblade.beyblade_id} className="bg-gray-50 rounded-lg p-4">
+                            <div className="flex justify-between items-center mb-2">
+                              <h5 className="font-medium text-gray-900">{beyblade.beyblade_name}</h5>
+                              <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded">
+                                {beyblade.blade_line} Line
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 text-sm">
+                              {beyblade.parts.map((part: any, index: number) => (
+                                <div key={index} className="bg-white p-2 rounded border">
+                                  <div className="font-medium text-gray-700">{part.part_type}</div>
+                                  <div className="text-gray-600">{part.part_name}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
