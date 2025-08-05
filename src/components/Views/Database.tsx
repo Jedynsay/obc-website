@@ -204,16 +204,26 @@ export function DatabaseView() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!isAdmin || !confirm('Are you sure you want to delete this record?')) return;
+    if (!isAdmin) {
+      alert('Only admins and developers can delete records.');
+      return;
+    }
+    
+    if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+      return;
+    }
 
     try {
       const supabaseTableName = selectedTable === 'registrations' ? 'tournament_registrations' : selectedTable;
       const { error } = await supabase
         .from(supabaseTableName)
         .delete()
-        .eq('id', id);
+        .eq(selectedTable === 'registrations' ? 'id' : 'id', id);
 
       if (error) throw error;
+
+      // Show success message
+      alert('Record deleted successfully!');
 
       await Promise.all([
         fetchTableCounts(),
@@ -221,7 +231,7 @@ export function DatabaseView() {
       ]);
     } catch (error) {
       console.error('Error deleting row:', error);
-      alert('Failed to delete record. Please try again.');
+      alert(`Failed to delete record: ${error.message}. Please try again.`);
     }
   };
 

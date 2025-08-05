@@ -94,7 +94,14 @@ export function UserManagement() {
   };
 
   const deleteUser = async (userId: string) => {
-    if (!isAdmin || !confirm('Are you sure you want to delete this user?')) return;
+    if (!isAdmin) {
+      alert('Only admins and developers can delete users.');
+      return;
+    }
+    
+    if (!confirm('Are you sure you want to delete this user? This will also delete all their registrations and data. This action cannot be undone.')) {
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -103,10 +110,12 @@ export function UserManagement() {
         .eq('id', userId);
 
       if (error) throw error;
+      
+      alert('User deleted successfully!');
       await fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Failed to delete user');
+      alert(`Failed to delete user: ${error.message}. Please try again.`);
     }
   };
 

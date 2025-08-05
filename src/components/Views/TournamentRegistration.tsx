@@ -196,11 +196,13 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   };
 
   const addBeyblade = () => {
-    if (beyblades.length < tournament.beybladesPerPlayer) {
+    if (beyblades.length < tournament.beyblades_per_player) {
       setBeyblades([
         ...beyblades,
         { id: Date.now().toString(), bladeLine: '', parts: {} }
       ]);
+    } else {
+      alert(`Maximum ${tournament.beyblades_per_player} Beyblades allowed for this tournament.`);
     }
   };
 
@@ -423,7 +425,7 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
             <h2 className="text-2xl font-bold text-gray-900">Tournament Registration</h2>
             <p className="text-gray-600">{tournament.name}</p>
             <p className="text-sm text-gray-500">
-              Register with up to {tournament.beybladesPerPlayer} Beyblades for this tournament
+              Configure your Beyblades for this tournament. You can register up to {tournament.beyblades_per_player} Beyblades.
             </p>
           </div>
           <button
@@ -683,13 +685,13 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
             ))}
           </div>
 
-          {beyblades.length < tournament.beybladesPerPlayer && (
+          {beyblades.length < tournament.beyblades_per_player && (
             <button
               onClick={addBeyblade}
               className="mt-6 w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center space-x-2"
             >
               <Plus size={20} />
-              <span>Add Another Beyblade ({beyblades.length}/{tournament.beybladesPerPlayer})</span>
+              <span>Add Another Beyblade ({beyblades.length}/{tournament.beyblades_per_player})</span>
             </button>
           )}
 

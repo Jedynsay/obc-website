@@ -177,7 +177,14 @@ export function TournamentManager() {
   };
 
   const deleteTournament = async (id: string) => {
-    if (!isAdmin || !confirm('Are you sure you want to delete this tournament?')) return;
+    if (!isAdmin) {
+      alert('Only admins and developers can delete tournaments.');
+      return;
+    }
+    
+    if (!confirm('Are you sure you want to delete this tournament? This will also delete all associated registrations and matches. This action cannot be undone.')) {
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -186,10 +193,12 @@ export function TournamentManager() {
         .eq('id', id);
 
       if (error) throw error;
+      
+      alert('Tournament deleted successfully!');
       await fetchTournaments();
     } catch (error) {
       console.error('Error deleting tournament:', error);
-      alert('Failed to delete tournament. Please try again.');
+      alert(`Failed to delete tournament: ${error.message}. Please try again.`);
     }
   };
 
