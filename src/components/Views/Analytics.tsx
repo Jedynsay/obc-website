@@ -1,25 +1,117 @@
 import React from 'react';
 import { BarChart3, TrendingUp, Trophy, Users, Calendar, Target } from 'lucide-react';
-import { mockAnalytics, mockTournaments, mockMatches } from '../../data/mockData';
+import { supabase } from '../../lib/supabase';
 
 export function Analytics() {
-  const completedTournaments = mockTournaments.filter(t => t.status === 'completed');
-  const activeTournaments = mockTournaments.filter(t => t.status === 'active').length;
-  const upcomingTournaments = mockTournaments.filter(t => t.status === 'upcoming').length;
+  const [analytics, setAnalytics] = React.useState({
+    totalTournaments: 0,
+    activePlayers: 0,
+    completedMatches: 0,
+    upcomingEvents: 0,
+    completedTournaments: [],
+    activeTournaments: 0,
+    upcomingTournaments: 0
+  });
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const [tournamentsRes, usersRes, matchesRes] = await Promise.all([
+          supabase.from('tournaments').select('*'),
+          supabase.from('users').select('*', { count: 'exact', head: true }),
+          supabase.from('matches').select('*')
+        ]);
+
+        const tournaments = tournamentsRes.data || [];
+        const matches = matchesRes.data || [];
+        
+        const completedTournaments = tournaments.filter(t => t.status === 'completed');
+        const activeTournaments = tournaments.filter(t => t.status === 'active').length;
+        const upcomingTournaments = tournaments.filter(t => t.status === 'upcoming').length;
+        const completedMatches = matches.filter(m => m.status === 'completed').length;
+
+        setAnalytics({
+          totalTournaments: tournaments.length,
+          activePlayers: usersRes.count || 0,
+          completedMatches,
+          upcomingEvents: upcomingTournaments,
+          completedTournaments,
+          activeTournaments,
+          upcomingTournaments
+        });
+      } catch (error) {
+        console.error('Error fetching analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
   
-  const winRates = [
-    { player: 'BladeSpinner', wins: 8, matches: 10, winRate: 80 },
-    { player: 'StormBreaker', wins: 6, matches: 9, winRate: 67 },
-    { player: 'FlamePhoenix', wins: 7, matches: 12, winRate: 58 },
-    { player: 'IronDefender', wins: 5, matches: 8, winRate: 63 },
-  ];
+  const [winRates, setWinRates] = React.useState([]);
+
+  React.useEffect(() => {
+    const calculateWinRates = async () => {
+      try {
+        const { data: matches } = await supabase
+          .from('matches')
+          .select('player1_name, player2_name, winner_name')
+          .eq('status', 'completed');
+
+        if (!matches) return;
+
+        const playerStats = {};
+        
+        matches.forEach(match => {
+          [match.player1_name, match.player2_name].forEach(player => {
+            if (!playerStats[player]) {
+              playerStats[player] = { wins: 0, matches: 0 };
+            }
+            playerStats[player].matches++;
+            if (match.winner_name === player) {
+              playerStats[player].wins++;
+            }
+          });
+        });
+
+        const rates = Object.entries(playerStats)
+          .map(([player, stats]) => ({
+            player,
+            wins: stats.wins,
+            matches: stats.matches,
+            winRate: Math.round((stats.wins / stats.matches) * 100)
+          }))
+          .sort((a, b) => b.winRate - a.winRate)
+          .slice(0, 4);
+
+        setWinRates(rates);
+      } catch (error) {
+        console.error('Error calculating win rates:', error);
+      }
+    };
+
+    calculateWinRates();
+  }, []);
 
   const stats = [
-    { icon: Trophy, label: 'Total Tournaments', value: mockAnalytics.totalTournaments, color: 'text-blue-600', bgColor: 'bg-blue-100' },
-    { icon: Users, label: 'Active Players', value: mockAnalytics.activePlayers, color: 'text-green-600', bgColor: 'bg-green-100' },
-    { icon: Target, label: 'Completed Matches', value: mockAnalytics.completedMatches, color: 'text-purple-600', bgColor: 'bg-purple-100' },
-    { icon: Calendar, label: 'Upcoming Events', value: mockAnalytics.upcomingEvents, color: 'text-orange-600', bgColor: 'bg-orange-100' },
+    { icon: Trophy, label: 'Total Tournaments', value: analytics.totalTournaments, color: 'text-blue-600', bgColor: 'bg-blue-100' },
+    { icon: Users, label: 'Active Players', value: analytics.activePlayers, color: 'text-green-600', bgColor: 'bg-green-100' },
+    { icon: Target, label: 'Completed Matches', value: analytics.completedMatches, color: 'text-purple-600', bgColor: 'bg-purple-100' },
+    { icon: Calendar, label: 'Upcoming Events', value: analytics.upcomingEvents, color: 'text-orange-600', bgColor: 'bg-orange-100' },
   ];
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -57,27 +149,27 @@ export function Analytics() {
               <span className="text-gray-700">Completed</span>
               <div className="flex items-center space-x-2">
                 <div className="w-32 bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: `${(completedTournaments.length / mockTournaments.length) * 100}%` }}></div>
+                  <div className="bg-green-500 h-2 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.completedTournaments.length / analytics.totalTournaments) * 100 : 0}%` }}></div>
                 </div>
-                <span className="text-sm font-medium">{completedTournaments.length}</span>
+                <span className="text-sm font-medium">{analytics.completedTournaments.length}</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-700">Active</span>
               <div className="flex items-center space-x-2">
                 <div className="w-32 bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${(activeTournaments / mockTournaments.length) * 100}%` }}></div>
+                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.activeTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
                 </div>
-                <span className="text-sm font-medium">{activeTournaments}</span>
+                <span className="text-sm font-medium">{analytics.activeTournaments}</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-700">Upcoming</span>
               <div className="flex items-center space-x-2">
                 <div className="w-32 bg-gray-200 rounded-full h-2">
-                  <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${(upcomingTournaments / mockTournaments.length) * 100}%` }}></div>
+                  <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.upcomingTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
                 </div>
-                <span className="text-sm font-medium">{upcomingTournaments}</span>
+                <span className="text-sm font-medium">{analytics.upcomingTournaments}</span>
               </div>
             </div>
           </div>
@@ -122,19 +214,19 @@ export function Analytics() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600 mb-2">
-              {mockMatches.filter(m => m.status === 'completed').length}
+              {analytics.completedMatches}
             </div>
             <p className="text-gray-600">Completed Matches</p>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-orange-600 mb-2">
-              {mockMatches.filter(m => m.status === 'in_progress').length}
+              0
             </div>
             <p className="text-gray-600">Ongoing Matches</p>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600 mb-2">
-              {mockMatches.filter(m => m.status === 'pending').length}
+              0
             </div>
             <p className="text-gray-600">Scheduled Matches</p>
           </div>

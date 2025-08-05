@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Users, Edit, Trash2, Shield, Mail, Calendar } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 interface User {
   id: string;
@@ -11,58 +13,45 @@ interface User {
   lastLogin?: string;
 }
 
-const mockUsers: User[] = [
-  {
-    id: '1',
-    username: 'BladeSpinner',
-    email: 'user@beyblade.com',
-    role: 'user',
-    joinedDate: '2024-01-15',
-    status: 'active',
-    lastLogin: '2024-01-25T10:30:00'
-  },
-  {
-    id: '2',
-    username: 'TechOfficer',
-    email: 'officer@beyblade.com',
-    role: 'technical_officer',
-    joinedDate: '2023-11-20',
-    status: 'active',
-    lastLogin: '2024-01-25T09:15:00'
-  },
-  {
-    id: '3',
-    username: 'AdminMaster',
-    email: 'admin@beyblade.com',
-    role: 'admin',
-    joinedDate: '2023-08-10',
-    status: 'active',
-    lastLogin: '2024-01-25T11:45:00'
-  },
-  {
-    id: '4',
-    username: 'StormBreaker',
-    email: 'storm@beyblade.com',
-    role: 'user',
-    joinedDate: '2024-01-10',
-    status: 'active',
-    lastLogin: '2024-01-24T16:20:00'
-  },
-  {
-    id: '5',
-    username: 'FlamePhoenix',
-    email: 'flame@beyblade.com',
-    role: 'user',
-    joinedDate: '2024-01-08',
-    status: 'suspended',
-    lastLogin: '2024-01-22T14:10:00'
-  }
-];
-
 export function UserManagement() {
-  const [users, setUsers] = useState(mockUsers);
+  const { user: currentUser } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const [filter, setFilter] = useState<'all' | 'active' | 'suspended' | 'pending'>('all');
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'technical_officer' | 'admin' | 'developer'>('all');
+  const [loading, setLoading] = useState(true);
+
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'developer';
+
+  React.useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const formattedUsers = (data || []).map(user => ({
+        id: user.id,
+        username: user.username,
+        email: user.email || '',
+        role: user.role,
+        joinedDate: user.created_at,
+        status: user.status,
+        lastLogin: user.last_login
+      }));
+      
+      setUsers(formattedUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredUsers = users.filter(user => {
     const statusMatch = filter === 'all' || user.status === filter;
@@ -70,21 +59,54 @@ export function UserManagement() {
     return statusMatch && roleMatch;
   });
 
-  const updateUserStatus = (userId: string, status: User['status']) => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, status } : user
-    ));
+  const updateUserStatus = async (userId: string, status: User['status']) => {
+    if (!isAdmin) return;
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ status })
+        .eq('id', userId);
+
+      if (error) throw error;
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      alert('Failed to update user status');
+    }
   };
 
-  const updateUserRole = (userId: string, role: User['role']) => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, role } : user
-    ));
+  const updateUserRole = async (userId: string, role: User['role']) => {
+    if (!isAdmin) return;
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ role })
+        .eq('id', userId);
+
+      if (error) throw error;
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      alert('Failed to update user role');
+    }
   };
 
-  const deleteUser = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      setUsers(prev => prev.filter(user => user.id !== userId));
+  const deleteUser = async (userId: string) => {
+    if (!isAdmin || !confirm('Are you sure you want to delete this user?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user');
     }
   };
 
@@ -106,6 +128,17 @@ export function UserManagement() {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -234,6 +267,7 @@ export function UserManagement() {
                     <select
                       value={user.role}
                       onChange={(e) => updateUserRole(user.id, e.target.value as User['role'])}
+                      disabled={!isAdmin}
                       className={`text-xs font-medium px-2 py-1 rounded-full border-0 ${getRoleColor(user.role)}`}
                     >
                       <option value="user">User</option>
@@ -246,6 +280,7 @@ export function UserManagement() {
                     <select
                       value={user.status}
                       onChange={(e) => updateUserStatus(user.id, e.target.value as User['status'])}
+                      disabled={!isAdmin}
                       className={`text-xs font-medium px-2 py-1 rounded-full border-0 ${getStatusColor(user.status)}`}
                     >
                       <option value="active">Active</option>
@@ -264,15 +299,19 @@ export function UserManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50">
-                        <Edit size={16} />
-                      </button>
-                      <button 
-                        onClick={() => deleteUser(user.id)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <button className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50">
+                            <Edit size={16} />
+                          </button>
+                          <button 
+                            onClick={() => deleteUser(user.id)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
