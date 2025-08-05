@@ -55,7 +55,7 @@ export function Tournaments() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Tournaments</h1>
-        <p className="text-gray-600">Compete in exciting Beyblade tournaments</p>
+        <p className="text-gray-600">Upcoming tournaments!</p>
       </div>
 
       {/* Filter Tabs */}
