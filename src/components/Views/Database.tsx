@@ -401,7 +401,7 @@ export function DatabaseView() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {tableData.length > 0 && Object.keys(tableData[0]).map((key) => (
+              {tableData.length > 0 && tableData[0] && Object.keys(tableData[0]).map((key) => (
                 <th key={key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {key.replace(/_/g, ' ')}
                 </th>
