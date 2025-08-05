@@ -99,21 +99,35 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   const getPartOptions = (bladeLine: BeybladeForm['bladeLine'], partType: string) => {
     if (!bladeLine) return [];
     
+    let options: any[] = [];
+    
     switch (partType) {
       case 'Blade':
       case 'Main Blade':
-        return partsData.blades.filter(blade => blade.Line === bladeLine);
+        options = partsData.blades.filter(blade => blade.Line === bladeLine);
+        break;
       case 'Ratchet':
-        return partsData.ratchets;
+        options = partsData.ratchets;
+        break;
       case 'Bit':
-        return partsData.bits;
+        options = partsData.bits;
+        break;
       case 'Lockchip':
-        return partsData.lockchips;
+        options = partsData.lockchips;
+        break;
       case 'Assist Blade':
-        return partsData.assistBlades;
+        options = partsData.assistBlades;
+        break;
       default:
-        return [];
+        options = [];
     }
+    
+    // Sort options alphabetically by display name
+    return options.sort((a, b) => {
+      const aName = getPartDisplayName(a, partType);
+      const bName = getPartDisplayName(b, partType);
+      return aName.localeCompare(bName);
+    });
   };
 
   const getPartDisplayName = (part: any, partType: string): string => {

@@ -13,6 +13,7 @@ interface TableInfo {
 interface RegistrationWithBeyblades {
   registration_id: string;
   tournament_id: string;
+  tournament_name?: string;
   player_name: string;
   payment_mode: string;
   registered_at: string;
@@ -27,7 +28,8 @@ interface RegistrationWithBeyblades {
 
 export function DatabaseView() {
   const { user } = useAuth();
-  const [selectedTable, setSelectedTable] = useState<string>('users');
+  const [selectedTable, setSelectedTable] = useState<string>('tournaments');
+  const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [tableData, setTableData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,6 +38,7 @@ export function DatabaseView() {
   const [editingRow, setEditingRow] = useState<string | null>(null);
   const [editData, setEditData] = useState<any>({});
   const [viewingRegistration, setViewingRegistration] = useState<RegistrationWithBeyblades | null>(null);
+  const [tournaments, setTournaments] = useState<any[]>([]);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'developer';
 
@@ -54,23 +57,32 @@ export function DatabaseView() {
         { name: 'matches', records: matchesRes.count || 0, icon: <Calendar size={16} />, description: 'Match results and schedules' },
         { name: 'registrations', records: registrationsRes.count || 0, icon: <Table size={16} />, description: 'Tournament registrations with Beyblades' }
       ]);
+
+      // Also fetch tournaments for the registration view
+      const { data: tournamentData } = await supabase
+        .from('tournaments')
+        .select('id, name')
+        .order('name');
+      
+      setTournaments(tournamentData || []);
     } catch (error) {
       console.error('Error fetching table counts:', error);
     }
   };
 
-  const fetchTableData = async (tableName: string) => {
+  const fetchTableData = async (tableName: string, tournamentId?: string) => {
     setLoading(true);
     setError(null);
     
     try {
       let data: any[] = [];
       
-      if (tableName === 'registrations') {
-        // Fetch registrations with their beyblades
+      if (tableName === 'registrations' && tournamentId) {
+        // Fetch registrations with their beyblades for a specific tournament
         const { data: registrationData, error } = await supabase
           .from('tournament_registration_details')
           .select('*')
+          .eq('tournament_id', tournamentId)
           .order('registered_at', { ascending: false });
 
         if (error) throw error;
@@ -83,6 +95,7 @@ export function DatabaseView() {
             groupedData[row.registration_id] = {
               registration_id: row.registration_id,
               tournament_id: row.tournament_id,
+              tournament_name: tournaments.find(t => t.id === row.tournament_id)?.name || 'Unknown Tournament',
               player_name: row.player_name,
               payment_mode: row.payment_mode,
               registered_at: row.registered_at,
@@ -107,23 +120,33 @@ export function DatabaseView() {
         });
 
         data = Object.values(groupedData);
+      } else if (tableName === 'registrations' && !tournamentId) {
+        // Show tournament selection instead of registrations
+        data = tournaments;
       } else {
         const supabaseTableName = tableName === 'registrations' ? 'tournament_registrations' : tableName;
         const { data: fetchedData, error } = await supabase
           .from(supabaseTableName)
           .select('*')
-          .order('created_at', { ascending: false });
+          .order(
+            tableName === 'tournaments' ? 'tournament_date' : 
+            tableName === 'matches' ? 'created_at' : 
+            'created_at', 
+            { ascending: false }
+          );
 
         if (error) throw error;
         data = fetchedData || [];
       }
 
       // Sort data alphabetically by the first text field
-      data.sort((a, b) => {
-        const aValue = Object.values(a).find(val => typeof val === 'string') as string || '';
-        const bValue = Object.values(b).find(val => typeof val === 'string') as string || '';
-        return aValue.localeCompare(bValue);
-      });
+      if (tableName !== 'registrations' || tournamentId) {
+        data.sort((a, b) => {
+          const aValue = Object.values(a).find(val => typeof val === 'string') as string || '';
+          const bValue = Object.values(b).find(val => typeof val === 'string') as string || '';
+          return aValue.localeCompare(bValue);
+        });
+      }
 
       setTableData(data);
     } catch (error) {
@@ -138,7 +161,7 @@ export function DatabaseView() {
     setIsRefreshing(true);
     await Promise.all([
       fetchTableCounts(),
-      fetchTableData(selectedTable)
+      fetchTableData(selectedTable, selectedTournament || undefined)
     ]);
     setIsRefreshing(false);
   };
@@ -194,12 +217,22 @@ export function DatabaseView() {
 
       await Promise.all([
         fetchTableCounts(),
-        fetchTableData(selectedTable)
+        fetchTableData(selectedTable, selectedTournament || undefined)
       ]);
     } catch (error) {
       console.error('Error deleting row:', error);
       alert('Failed to delete record. Please try again.');
     }
+  };
+
+  const handleTournamentSelect = (tournamentId: string) => {
+    setSelectedTournament(tournamentId);
+    fetchTableData('registrations', tournamentId);
+  };
+
+  const handleBackToTournaments = () => {
+    setSelectedTournament(null);
+    fetchTableData('registrations');
   };
 
   const handleViewRegistration = (registration: RegistrationWithBeyblades) => {
@@ -211,7 +244,12 @@ export function DatabaseView() {
   }, []);
 
   useEffect(() => {
-    fetchTableData(selectedTable);
+    if (selectedTable === 'registrations') {
+      setSelectedTournament(null);
+      fetchTableData(selectedTable);
+    } else {
+      fetchTableData(selectedTable);
+    }
   }, [selectedTable]);
 
   const renderTableContent = () => {
@@ -219,7 +257,9 @@ export function DatabaseView() {
       return (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading {selectedTable} data...</p>
+          <p className="text-gray-600">
+            Loading {selectedTable === 'registrations' && selectedTournament ? 'registration' : selectedTable} data...
+          </p>
         </div>
       );
     }
@@ -230,7 +270,7 @@ export function DatabaseView() {
           <div className="text-red-500 mb-4">⚠️</div>
           <p className="text-red-600">{error}</p>
           <button
-            onClick={() => fetchTableData(selectedTable)}
+            onClick={() => fetchTableData(selectedTable, selectedTournament || undefined)}
             className="mt-4 text-blue-600 hover:text-blue-800 underline"
           >
             Try Again
@@ -243,25 +283,70 @@ export function DatabaseView() {
       return (
         <div className="text-center py-12">
           <Database size={48} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-500">No data available for {selectedTable}</p>
+          <p className="text-gray-500">
+            No data available for {selectedTable === 'registrations' && selectedTournament ? 'this tournament' : selectedTable}
+          </p>
         </div>
       );
     }
 
-    if (selectedTable === 'registrations') {
+    if (selectedTable === 'registrations' && !selectedTournament) {
+      // Show tournament selection
       return (
         <div className="space-y-4">
+          <div className="text-center py-8">
+            <Trophy size={48} className="mx-auto text-blue-500 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Select Tournament</h3>
+            <p className="text-gray-600 mb-6">Choose a tournament to view its registrations</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {tableData.map((tournament) => (
+              <button
+                key={tournament.id}
+                onClick={() => handleTournamentSelect(tournament.id)}
+                className="text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              >
+                <h4 className="font-semibold text-gray-900 mb-1">{tournament.name}</h4>
+                <p className="text-sm text-gray-600">{tournament.location}</p>
+                <p className="text-sm text-gray-500">
+                  {new Date(tournament.tournament_date).toLocaleDateString()}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (selectedTable === 'registrations' && selectedTournament) {
+      // Show registrations for selected tournament
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={handleBackToTournaments}
+              className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+            >
+              <span>←</span>
+              <span>Back to Tournaments</span>
+            </button>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {tournaments.find(t => t.id === selectedTournament)?.name || 'Tournament'} Registrations
+            </h3>
+          </div>
+          
           {(tableData as RegistrationWithBeyblades[]).map((registration) => (
             <div key={registration.registration_id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-bold text-lg text-gray-900">{registration.player_name}</h3>
-                  <p className="text-sm text-gray-600">Tournament ID: {registration.tournament_id}</p>
+                  <p className="text-sm text-gray-600">{registration.tournament_name}</p>
                   <p className="text-sm text-gray-600">
                     Registered: {new Date(registration.registered_at).toLocaleString()}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Payment: <span className="capitalize">{registration.payment_mode.replace('_', ' ')}</span>
+                    Payment: <span className="capitalize">{registration.payment_mode?.replace('_', ' ') || 'N/A'}</span>
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -477,10 +562,18 @@ export function DatabaseView() {
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-bold text-gray-900 capitalize">
-                  {selectedTable} Table
+                  {selectedTable === 'registrations' && selectedTournament 
+                    ? `${tournaments.find(t => t.id === selectedTournament)?.name || 'Tournament'} Registrations`
+                    : selectedTable === 'registrations' 
+                    ? 'Select Tournament for Registrations'
+                    : `${selectedTable} Table`
+                  }
                 </h2>
                 <span className="text-sm text-gray-500">
-                  {tables.find(t => t.name === selectedTable)?.records || 0} records
+                  {selectedTable === 'registrations' && !selectedTournament
+                    ? `${tournaments.length} tournaments`
+                    : `${tableData.length} records`
+                  }
                 </span>
               </div>
             </div>
