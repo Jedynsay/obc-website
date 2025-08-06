@@ -61,13 +61,6 @@ export function UserManagement() {
 
   const updateUserStatus = async (userId: string, status: User['status']) => {
     try {
-      // Check if user is authenticated and has proper role
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        alert('You must be logged in to update user status.');
-        return;
-      }
-
       const { error } = await supabase
         .from('users')
         .update({ status })
@@ -92,13 +85,6 @@ export function UserManagement() {
 
   const updateUserRole = async (userId: string, role: User['role']) => {
     try {
-      // Check if user is authenticated and has proper role
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        alert('You must be logged in to update user roles.');
-        return;
-      }
-
       const { error } = await supabase
         .from('users')
         .update({ role })
@@ -127,13 +113,6 @@ export function UserManagement() {
     }
 
     try {
-      // Check if user is authenticated and has proper role
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        alert('You must be logged in to delete users.');
-        return;
-      }
-
       const { error } = await supabase
         .from('users')
         .delete()

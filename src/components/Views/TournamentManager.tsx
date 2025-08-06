@@ -74,13 +74,6 @@ export function TournamentManager() {
 
   const saveChanges = async () => {
     try {
-      // Check if user is authenticated and has proper role
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        alert('You must be logged in to save tournaments.');
-        return;
-      }
-
       if (isCreating) {
         const { error } = await supabase
           .from('tournaments')
@@ -205,13 +198,6 @@ export function TournamentManager() {
     }
 
     try {
-      // Check if user is authenticated and has proper role
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        alert('You must be logged in to delete tournaments.');
-        return;
-      }
-
       const { error } = await supabase
         .from('tournaments')
         .delete()

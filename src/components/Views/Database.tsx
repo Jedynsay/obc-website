@@ -194,13 +194,6 @@ export function DatabaseView() {
     if (!editingRow || !isAdmin) return;
 
     try {
-      // Check if user is authenticated and has proper role
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        alert('You must be logged in to edit records.');
-        return;
-      }
-
       const supabaseTableName = selectedTable === 'registrations' ? 'tournament_registrations' : selectedTable;
       const { error } = await supabase
         .from(supabaseTableName)
@@ -232,13 +225,6 @@ export function DatabaseView() {
     }
 
     try {
-      // Check if user is authenticated and has proper role
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (!authUser) {
-        alert('You must be logged in to delete records.');
-        return;
-      }
-
       const supabaseTableName = selectedTable === 'registrations' ? 'tournament_registrations' : selectedTable;
       const { error } = await supabase
         .from(supabaseTableName)
