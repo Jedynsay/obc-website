@@ -87,8 +87,8 @@ export function Dashboard() {
         </h1>
         <p className="text-gray-600">
           {user?.id.startsWith('guest-') 
-            ? `Exploring the ${user.role.replace('_', ' ')} dashboard - Here's what's happening in the Beyblade community`
-            : "Here's what's happening in the Beyblade community"
+            ? `Check out the latest news and announcements, and register in upcoming tournaments!`
+            : "You can also check your player stats at the left."
           }
         </p>
       </div>
