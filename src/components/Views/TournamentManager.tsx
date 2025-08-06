@@ -74,19 +74,42 @@ export function TournamentManager() {
 
   const saveChanges = async () => {
     try {
+      // Check if user is authenticated and has proper role
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('You must be logged in to save tournaments.');
+        return;
+      }
+
       if (isCreating) {
         const { error } = await supabase
           .from('tournaments')
           .insert([formData]);
         
-        if (error) throw error;
+        if (error) {
+          console.error('Insert error:', error);
+          if (error.code === '42501' || error.message.includes('RLS')) {
+            alert('Permission denied. You need admin or developer role to create tournaments.');
+          } else {
+            alert(`Failed to create tournament: ${error.message}`);
+          }
+          return;
+        }
       } else if (editingId) {
         const { error } = await supabase
           .from('tournaments')
           .update(formData)
           .eq('id', editingId);
         
-        if (error) throw error;
+        if (error) {
+          console.error('Update error:', error);
+          if (error.code === '42501' || error.message.includes('RLS') || error.code === '42883') {
+            alert('Permission denied. You need admin or developer role to edit tournaments.');
+          } else {
+            alert(`Failed to update tournament: ${error.message}`);
+          }
+          return;
+        }
       }
 
       await fetchTournaments();
@@ -95,7 +118,7 @@ export function TournamentManager() {
       setFormData({});
     } catch (error) {
       console.error('Error saving tournament:', error);
-      alert('Failed to save tournament. Please try again.');
+      alert(`Failed to save tournament: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 
@@ -177,28 +200,38 @@ export function TournamentManager() {
   };
 
   const deleteTournament = async (id: string) => {
-    if (!isAdmin) {
-      alert('Only admins and developers can delete tournaments.');
-      return;
-    }
-    
     if (!confirm('Are you sure you want to delete this tournament? This will also delete all associated registrations and matches. This action cannot be undone.')) {
       return;
     }
 
     try {
+      // Check if user is authenticated and has proper role
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('You must be logged in to delete tournaments.');
+        return;
+      }
+
       const { error } = await supabase
         .from('tournaments')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete error:', error);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to delete tournaments.');
+        } else {
+          alert(`Failed to delete tournament: ${error.message}`);
+        }
+        return;
+      }
       
       alert('Tournament deleted successfully!');
       await fetchTournaments();
     } catch (error) {
       console.error('Error deleting tournament:', error);
-      alert(`Failed to delete tournament: ${error.message}. Please try again.`);
+      alert(`Failed to delete tournament: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 

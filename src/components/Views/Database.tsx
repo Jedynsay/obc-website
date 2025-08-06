@@ -40,6 +40,14 @@ export function DatabaseView() {
   const [viewingRegistration, setViewingRegistration] = useState<RegistrationWithBeyblades | null>(null);
   const [tournaments, setTournaments] = useState<any[]>([]);
 
+  // Reset state when switching tables
+  React.useEffect(() => {
+    setSelectedTournament(null);
+    setViewingRegistration(null);
+    setEditingRow(null);
+    setEditData({});
+  }, [selectedTable]);
+
   const isAdmin = user?.role === 'admin' || user?.role === 'developer';
 
   const fetchTableCounts = async () => {
@@ -186,41 +194,66 @@ export function DatabaseView() {
     if (!editingRow || !isAdmin) return;
 
     try {
+      // Check if user is authenticated and has proper role
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('You must be logged in to edit records.');
+        return;
+      }
+
       const supabaseTableName = selectedTable === 'registrations' ? 'tournament_registrations' : selectedTable;
       const { error } = await supabase
         .from(supabaseTableName)
         .update(editData)
         .eq('id', editingRow);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to edit records.');
+        } else {
+          alert(`Failed to update record: ${error.message}`);
+        }
+        return;
+      }
 
       setEditingRow(null);
       setEditData({});
       await fetchTableData(selectedTable);
     } catch (error) {
       console.error('Error updating row:', error);
-      alert('Failed to update record. Please try again.');
+      alert(`Failed to update record: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!isAdmin) {
-      alert('Only admins and developers can delete records.');
-      return;
-    }
-    
     if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
       return;
     }
 
     try {
+      // Check if user is authenticated and has proper role
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('You must be logged in to delete records.');
+        return;
+      }
+
       const supabaseTableName = selectedTable === 'registrations' ? 'tournament_registrations' : selectedTable;
       const { error } = await supabase
         .from(supabaseTableName)
         .delete()
-        .eq(selectedTable === 'registrations' ? 'id' : 'id', id);
+        .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete error:', error);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to delete records.');
+        } else {
+          alert(`Failed to delete record: ${error.message}`);
+        }
+        return;
+      }
 
       // Show success message
       alert('Record deleted successfully!');
@@ -231,7 +264,7 @@ export function DatabaseView() {
       ]);
     } catch (error) {
       console.error('Error deleting row:', error);
-      alert(`Failed to delete record: ${error.message}. Please try again.`);
+      alert(`Failed to delete record: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 

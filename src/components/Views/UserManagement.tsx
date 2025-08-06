@@ -60,62 +60,100 @@ export function UserManagement() {
   });
 
   const updateUserStatus = async (userId: string, status: User['status']) => {
-    if (!isAdmin) return;
-
     try {
+      // Check if user is authenticated and has proper role
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('You must be logged in to update user status.');
+        return;
+      }
+
       const { error } = await supabase
         .from('users')
         .update({ status })
         .eq('id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to update users.');
+        } else {
+          alert(`Failed to update user status: ${error.message}`);
+        }
+        return;
+      }
+
       await fetchUsers();
     } catch (error) {
       console.error('Error updating user status:', error);
-      alert('Failed to update user status');
+      alert(`Failed to update user status: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const updateUserRole = async (userId: string, role: User['role']) => {
-    if (!isAdmin) return;
-
     try {
+      // Check if user is authenticated and has proper role
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('You must be logged in to update user roles.');
+        return;
+      }
+
       const { error } = await supabase
         .from('users')
         .update({ role })
         .eq('id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to update users.');
+        } else {
+          alert(`Failed to update user role: ${error.message}`);
+        }
+        return;
+      }
+
       await fetchUsers();
     } catch (error) {
       console.error('Error updating user role:', error);
-      alert('Failed to update user role');
+      alert(`Failed to update user role: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const deleteUser = async (userId: string) => {
-    if (!isAdmin) {
-      alert('Only admins and developers can delete users.');
-      return;
-    }
-    
     if (!confirm('Are you sure you want to delete this user? This will also delete all their registrations and data. This action cannot be undone.')) {
       return;
     }
 
     try {
+      // Check if user is authenticated and has proper role
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        alert('You must be logged in to delete users.');
+        return;
+      }
+
       const { error } = await supabase
         .from('users')
         .delete()
         .eq('id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete error:', error);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to delete users.');
+        } else {
+          alert(`Failed to delete user: ${error.message}`);
+        }
+        return;
+      }
       
       alert('User deleted successfully!');
       await fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert(`Failed to delete user: ${error.message}. Please try again.`);
+      alert(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 
