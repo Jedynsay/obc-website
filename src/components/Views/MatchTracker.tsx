@@ -1,265 +1,763 @@
-import React, { useState } from 'react';
-import { Play, Pause, CheckCircle, Clock, Trophy, Users } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, CheckCircle, Clock, Trophy, Users, Plus, Trash2, RotateCcw, Send, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
+interface Tournament {
+  id: string;
+  name: string;
+  status: 'upcoming' | 'active' | 'completed';
+  tournament_date: string;
+  location: string;
+  beyblades_per_player: number;
+}
+
+interface PlayerData {
+  [playerName: string]: string[];
+}
+
+interface Match {
+  outcome: string | null;
+  winner: string | null;
+  points: number;
+}
+
+interface MatchMap {
+  [index: number]: Match;
+}
+
+const pointMap = {
+  "Over Finish (2 pts)": 2,
+  "Burst Finish (2 pts)": 2,
+  "Spin Finish (1 pt)": 1,
+  "Extreme Finish (3 pts)": 3
+};
+
 export function MatchTracker() {
-  const [matches, setMatches] = useState([]);
-  const [tournaments, setTournaments] = useState([]);
-  const [selectedTournament, setSelectedTournament] = useState('1');
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [selectedTournament, setSelectedTournament] = useState<string>('');
+  const [playerData, setPlayerData] = useState<PlayerData>({});
   const [loading, setLoading] = useState(true);
+  const [loadingPlayers, setLoadingPlayers] = useState(false);
+  
+  // Match tracker state
+  const [player1, setPlayer1] = useState('');
+  const [player2, setPlayer2] = useState('');
+  const [round, setRound] = useState(1);
+  const [tournamentOfficer, setTournamentOfficer] = useState('');
+  const [matchMap, setMatchMap] = useState<MatchMap>({});
+  const [p1Score, setP1Score] = useState(0);
+  const [p2Score, setP2Score] = useState(0);
+  const [phaseCounter, setPhaseCounter] = useState(2);
+  const [pendingPhase, setPendingPhase] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [tournamentsRes, matchesRes] = await Promise.all([
-          supabase.from('tournaments').select('*').order('tournament_date', { ascending: false }),
-          supabase.from('matches').select('*').order('created_at', { ascending: false })
-        ]);
+  // Phase deck orders
+  const [deckOrders, setDeckOrders] = useState<{[phase: number]: {[player: string]: string[]}}>({});
 
-        setTournaments(tournamentsRes.data || []);
-        setMatches(matchesRes.data || []);
-        
-        if (tournamentsRes.data && tournamentsRes.data.length > 0) {
-          setSelectedTournament(tournamentsRes.data[0].id);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+  // Fetch tournaments on component mount
+  useEffect(() => {
+    fetchTournaments();
   }, []);
 
-  const filteredMatches = matches.filter(match => match.tournamentId === selectedTournament);
-  const tournament = tournaments.find(t => t.id === selectedTournament);
+  // Fetch player data when tournament is selected
+  useEffect(() => {
+    if (selectedTournament) {
+      fetchPlayerData(selectedTournament);
+    }
+  }, [selectedTournament]);
 
-  const updateMatchStatus = async (matchId: string, status: 'pending' | 'in_progress' | 'completed', winner?: string) => {
+  const fetchTournaments = async () => {
     try {
-      const updateData = {
-        status,
-        winner_name: winner,
-        start_time: status === 'in_progress' ? new Date().toISOString() : undefined,
-        end_time: status === 'completed' ? new Date().toISOString() : undefined
-      };
+      const { data, error } = await supabase
+        .from('tournaments')
+        .select('id, name, status, tournament_date, location, beyblades_per_player')
+        .order('tournament_date', { ascending: false });
 
-      const { error } = await supabase
-        .from('matches')
-        .update(updateData)
-        .eq('id', matchId);
+      if (error) throw error;
+      setTournaments(data || []);
+      
+      // Auto-select first active tournament
+      const activeTournament = data?.find(t => t.status === 'active');
+      if (activeTournament) {
+        setSelectedTournament(activeTournament.id);
+      }
+    } catch (error) {
+      console.error('Error fetching tournaments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPlayerData = async (tournamentId: string) => {
+    setLoadingPlayers(true);
+    try {
+      const { data, error } = await supabase
+        .from('tournament_registrations')
+        .select(`
+          player_name,
+          tournament_beyblades(
+            beyblade_name
+          )
+        `)
+        .eq('tournament_id', tournamentId)
+        .eq('status', 'confirmed')
+        .order('player_name', { ascending: true });
 
       if (error) throw error;
 
-      setMatches(prev => prev.map(match => 
-        match.id === matchId 
-          ? { 
-              ...match, 
-              status, 
-              winner_name: winner,
-              start_time: status === 'in_progress' ? new Date().toISOString() : match.start_time,
-              end_time: status === 'completed' ? new Date().toISOString() : match.end_time
-            }
-          : match
-      ));
+      // Transform to expected format
+      const playerDataMap: PlayerData = {};
+      data?.forEach(registration => {
+        const playerName = registration.player_name;
+        const beyblades = registration.tournament_beyblades.map((b: any) => b.beyblade_name);
+        if (beyblades.length > 0) {
+          playerDataMap[playerName] = beyblades;
+        }
+      });
+
+      setPlayerData(playerDataMap);
+      
+      // Reset match tracker state when tournament changes
+      resetMatchTracker();
     } catch (error) {
-      console.error('Error updating match:', error);
-      alert('Failed to update match status');
+      console.error('Error fetching player data:', error);
+      setPlayerData({});
+    } finally {
+      setLoadingPlayers(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-gray-100 text-gray-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const resetMatchTracker = () => {
+    setPlayer1('');
+    setPlayer2('');
+    setRound(1);
+    setTournamentOfficer('');
+    setMatchMap({});
+    setP1Score(0);
+    setP2Score(0);
+    setPhaseCounter(2);
+    setPendingPhase(false);
+    setDeckOrders({});
+    setSubmitStatus('');
+  };
+
+  const handlePlayerSelect = (playerNum: 1 | 2, selectedPlayer: string) => {
+    if (playerNum === 1) {
+      setPlayer1(selectedPlayer);
+      if (selectedPlayer === player2) {
+        setPlayer2('');
+      }
+    } else {
+      setPlayer2(selectedPlayer);
+      if (selectedPlayer === player1) {
+        setPlayer1('');
+      }
+    }
+
+    // Reset scores and matches when players change
+    if (selectedPlayer) {
+      setMatchMap({});
+      setP1Score(0);
+      setP2Score(0);
+      setPhaseCounter(2);
+      setPendingPhase(false);
+      setDeckOrders({});
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending': return <Clock size={16} />;
-      case 'in_progress': return <Play size={16} />;
-      case 'completed': return <CheckCircle size={16} />;
-      default: return <Clock size={16} />;
+  const getBey = (player: string, matchIndex: number): string => {
+    const phase = Math.floor(matchIndex / 3) + 1;
+    const slot = matchIndex % 3;
+
+    if (phase === 1) {
+      return playerData[player]?.[slot] || '';
+    }
+
+    // For phases 2+, use deck order if available
+    const phaseOrder = deckOrders[phase]?.[player];
+    if (phaseOrder) {
+      return phaseOrder[slot] || '';
+    }
+
+    // Fallback to original order
+    return playerData[player]?.[slot] || '';
+  };
+
+  const addMatch = () => {
+    if (pendingPhase) {
+      alert("Click Shuffle before adding the next match.");
+      return;
+    }
+
+    if (!player1 || !player2) {
+      alert("Please select both players first.");
+      return;
+    }
+
+    let index = 0;
+    while (matchMap[index] !== undefined) index++;
+    
+    const newMatchMap = {
+      ...matchMap,
+      [index]: { outcome: null, winner: null, points: 0 }
+    };
+    setMatchMap(newMatchMap);
+
+    // Check if we need to enable shuffle after 3 matches
+    if ((Object.keys(newMatchMap).length % 3) === 0) {
+      setPendingPhase(true);
     }
   };
+
+  const setOutcome = (index: number, outcome: string) => {
+    const newMatchMap = { ...matchMap };
+    if (newMatchMap[index]) {
+      // Remove old points
+      const oldMatch = newMatchMap[index];
+      if (oldMatch.winner === player1) setP1Score(prev => prev - oldMatch.points);
+      if (oldMatch.winner === player2) setP2Score(prev => prev - oldMatch.points);
+
+      newMatchMap[index].outcome = outcome;
+      
+      // Recalculate points if both outcome and winner are set
+      if (newMatchMap[index].winner) {
+        const points = pointMap[outcome as keyof typeof pointMap] || 0;
+        newMatchMap[index].points = points;
+        
+        if (newMatchMap[index].winner === player1) setP1Score(prev => prev + points);
+        if (newMatchMap[index].winner === player2) setP2Score(prev => prev + points);
+      }
+    }
+    setMatchMap(newMatchMap);
+  };
+
+  const setWinner = (index: number, winner: string) => {
+    const newMatchMap = { ...matchMap };
+    if (newMatchMap[index]) {
+      // Remove old points
+      const oldMatch = newMatchMap[index];
+      if (oldMatch.winner === player1) setP1Score(prev => prev - oldMatch.points);
+      if (oldMatch.winner === player2) setP2Score(prev => prev - oldMatch.points);
+
+      newMatchMap[index].winner = winner;
+      
+      // Recalculate points if both outcome and winner are set
+      if (newMatchMap[index].outcome) {
+        const points = pointMap[newMatchMap[index].outcome as keyof typeof pointMap] || 0;
+        newMatchMap[index].points = points;
+        
+        if (winner === player1) setP1Score(prev => prev + points);
+        if (winner === player2) setP2Score(prev => prev + points);
+      }
+    }
+    setMatchMap(newMatchMap);
+  };
+
+  const removeMatch = (index: number) => {
+    const match = matchMap[index];
+    if (match) {
+      // Remove points
+      if (match.winner === player1) setP1Score(prev => prev - match.points);
+      if (match.winner === player2) setP2Score(prev => prev - match.points);
+      
+      const newMatchMap = { ...matchMap };
+      delete newMatchMap[index];
+      setMatchMap(newMatchMap);
+    }
+    setPendingPhase(false);
+  };
+
+  const shufflePhase = () => {
+    const phase = phaseCounter;
+    
+    // Initialize deck orders for this phase with original order
+    const newDeckOrders = { ...deckOrders };
+    if (!newDeckOrders[phase]) {
+      newDeckOrders[phase] = {
+        [player1]: [...(playerData[player1] || [])],
+        [player2]: [...(playerData[player2] || [])]
+      };
+    }
+    setDeckOrders(newDeckOrders);
+    
+    setPhaseCounter(prev => prev + 1);
+    setPendingPhase(false);
+  };
+
+  const updateDeckOrder = (phase: number, player: string, newOrder: string[]) => {
+    setDeckOrders(prev => ({
+      ...prev,
+      [phase]: {
+        ...prev[phase],
+        [player]: newOrder
+      }
+    }));
+  };
+
+  const submitMatches = async () => {
+    if (!tournamentOfficer.trim()) {
+      alert("Please enter the Tournament Officer name before submitting.");
+      return;
+    }
+
+    const completeMatches = Object.entries(matchMap).filter(([_, match]) => 
+      match.outcome && match.winner
+    );
+
+    if (completeMatches.length === 0) {
+      alert("No complete matches to submit.");
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitStatus('Submitting matches...');
+
+    try {
+      // Prepare match results data
+      const matchResults = completeMatches.map(([index, match]) => {
+        const matchIndex = parseInt(index);
+        return {
+          tournament_id: selectedTournament,
+          round_number: round,
+          player1_name: player1,
+          player2_name: player2,
+          player1_beyblade: getBey(player1, matchIndex),
+          player2_beyblade: getBey(player2, matchIndex),
+          outcome: match.outcome,
+          winner_name: match.winner,
+          points_awarded: match.points,
+          match_number: matchIndex + 1,
+          phase_number: Math.floor(matchIndex / 3) + 1,
+          tournament_officer: tournamentOfficer
+        };
+      });
+
+      // Insert match results
+      const { error: matchError } = await supabase
+        .from('match_results')
+        .insert(matchResults);
+
+      if (matchError) throw matchError;
+
+      // Insert session summary
+      const { error: sessionError } = await supabase
+        .from('match_sessions')
+        .insert({
+          tournament_id: selectedTournament,
+          round_number: round,
+          player1_name: player1,
+          player2_name: player2,
+          player1_final_score: p1Score,
+          player2_final_score: p2Score,
+          winner_name: p1Score > p2Score ? player1 : player2,
+          total_matches: completeMatches.length,
+          tournament_officer: tournamentOfficer,
+          session_data: {
+            matches: matchResults,
+            phases: Object.keys(deckOrders).length + 1,
+            deckOrders
+          }
+        });
+
+      if (sessionError) throw sessionError;
+
+      setSubmitStatus('✅ Matches submitted successfully!');
+      setShowSummaryModal(false);
+      
+      // Reset form after successful submission
+      setTimeout(() => {
+        resetMatchTracker();
+        setSubmitStatus('');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error submitting matches:', error);
+      setSubmitStatus('❌ Failed to submit matches. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const generateSummary = () => {
+    const completeMatches = Object.entries(matchMap).filter(([_, match]) => 
+      match.outcome && match.winner
+    );
+
+    return completeMatches.map(([index, match]) => {
+      const matchIndex = parseInt(index);
+      const beyUsed = getBey(match.winner!, matchIndex);
+      return `Match ${matchIndex + 1}: ${match.outcome} by ${match.winner} using ${beyUsed}`;
+    });
+  };
+
+  const selectedTournamentData = tournaments.find(t => t.id === selectedTournament);
+  const playerNames = Object.keys(playerData);
+  const availableP1Players = playerNames.filter(name => name !== player2);
+  const availableP2Players = playerNames.filter(name => name !== player1);
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading tournaments...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Match Tracker</h1>
-        <p className="text-gray-600">Track and manage tournament matches in real-time</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">OBC Match Tracker</h1>
+        <p className="text-gray-600">Track tournament matches in real-time</p>
       </div>
 
       {/* Tournament Selection */}
-      <div className="mb-6">
-        <label htmlFor="tournament-select" className="block text-sm font-medium text-gray-700 mb-2">
-          Select Tournament
-        </label>
-        <select
-          id="tournament-select"
-          value={selectedTournament}
-          onChange={(e) => setSelectedTournament(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {tournaments.map(tournament => (
-            <option key={tournament.id} value={tournament.id}>
-              {tournament.name}
-            </option>
-          ))}
-        </select>
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Tournament Selection</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Tournament
+            </label>
+            <select
+              value={selectedTournament}
+              onChange={(e) => setSelectedTournament(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Select Tournament --</option>
+              {tournaments.map(tournament => (
+                <option key={tournament.id} value={tournament.id}>
+                  {tournament.name} ({tournament.status})
+                </option>
+              ))}
+            </select>
+          </div>
+          {selectedTournamentData && (
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900">{selectedTournamentData.name}</h3>
+              <p className="text-sm text-gray-600">Status: <span className={`capitalize ${
+                selectedTournamentData.status === 'active' ? 'text-green-600' :
+                selectedTournamentData.status === 'upcoming' ? 'text-blue-600' : 'text-gray-600'
+              }`}>{selectedTournamentData.status}</span></p>
+              <p className="text-sm text-gray-600">Date: {new Date(selectedTournamentData.tournament_date).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-600">Location: {selectedTournamentData.location}</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Tournament Info */}
-      {tournament && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{tournament.name}</h2>
-              <p className="text-gray-600">{tournament.description}</p>
+      {selectedTournament && (
+        <>
+          {/* Match Setup */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Match Setup</h2>
+            {loadingPlayers ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading player data...</p>
+              </div>
+            ) : Object.keys(playerData).length === 0 ? (
+              <div className="text-center py-8">
+                <Users size={48} className="mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">No confirmed registrations found for this tournament</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Round #
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={round}
+                    onChange={(e) => setRound(parseInt(e.target.value) || 1)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Player 1
+                  </label>
+                  <select
+                    value={player1}
+                    onChange={(e) => handlePlayerSelect(1, e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">-- Select Player 1 --</option>
+                    {availableP1Players.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Player 2
+                  </label>
+                  <select
+                    value={player2}
+                    onChange={(e) => handlePlayerSelect(2, e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">-- Select Player 2 --</option>
+                    {availableP2Players.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {player1 && player2 && (
+            <>
+              {/* Sticky Score Bar */}
+              <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm p-4 mb-6">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Tournament Officer"
+                      value={tournamentOfficer}
+                      onChange={(e) => setTournamentOfficer(e.target.value)}
+                      className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="text-lg font-bold">
+                    <span className={`${p1Score > p2Score ? 'text-green-600' : p1Score < p2Score ? 'text-red-600' : 'text-gray-600'}`}>
+                      {player1}: {p1Score}
+                    </span>
+                    <span className="mx-4 text-gray-400">|</span>
+                    <span className={`${p2Score > p1Score ? 'text-green-600' : p2Score < p1Score ? 'text-red-600' : 'text-gray-600'}`}>
+                      {player2}: {p2Score}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Phase 1 Decks */}
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Phase 1 Decks</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2"></th>
+                        <th className="text-left py-2 font-semibold">{player1}</th>
+                        <th className="text-left py-2 font-semibold">{player2}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[0, 1, 2].map(i => (
+                        <tr key={i} className="border-b">
+                          <td className="py-2 font-medium">Bey {i + 1}</td>
+                          <td className="py-2">{playerData[player1]?.[i] || ''}</td>
+                          <td className="py-2">{playerData[player2]?.[i] || ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Phase 2+ Decks */}
+              {Object.entries(deckOrders).map(([phase, orders]) => (
+                <div key={phase} className="bg-white rounded-lg shadow-md p-6 mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Phase {phase} Decks</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-semibold mb-2">{player1}</h4>
+                      <div className="space-y-2">
+                        {orders[player1]?.map((bey, index) => (
+                          <div key={index} className="bg-gray-50 p-2 rounded border">
+                            {index + 1}. {bey}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">{player2}</h4>
+                      <div className="space-y-2">
+                        {orders[player2]?.map((bey, index) => (
+                          <div key={index} className="bg-gray-50 p-2 rounded border">
+                            {index + 1}. {bey}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Matches */}
+              <div className="space-y-4 mb-6">
+                {Object.entries(matchMap).map(([index, match]) => {
+                  const matchIndex = parseInt(index);
+                  const bey1 = getBey(player1, matchIndex);
+                  const bey2 = getBey(player2, matchIndex);
+                  
+                  return (
+                    <div key={index} className="bg-white rounded-lg shadow-md p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-lg font-bold">
+                          Match {matchIndex + 1}: {bey1} vs {bey2}
+                        </h3>
+                        <button
+                          onClick={() => removeMatch(matchIndex)}
+                          className="text-red-600 hover:bg-red-50 p-1 rounded"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="font-semibold mb-2">Outcome:</h4>
+                          <div className="space-y-2">
+                            {Object.keys(pointMap).map(outcome => (
+                              <button
+                                key={outcome}
+                                onClick={() => setOutcome(matchIndex, outcome)}
+                                className={`w-full text-left px-3 py-2 rounded border transition-colors ${
+                                  match.outcome === outcome
+                                    ? 'bg-blue-100 border-blue-300 text-blue-700'
+                                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                                }`}
+                              >
+                                {outcome}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold mb-2">Winner:</h4>
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => setWinner(matchIndex, player1)}
+                              className={`w-full text-left px-3 py-2 rounded border transition-colors ${
+                                match.winner === player1
+                                  ? 'bg-green-100 border-green-300 text-green-700'
+                                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                              }`}
+                            >
+                              {player1}
+                            </button>
+                            <button
+                              onClick={() => setWinner(matchIndex, player2)}
+                              className={`w-full text-left px-3 py-2 rounded border transition-colors ${
+                                match.winner === player2
+                                  ? 'bg-green-100 border-green-300 text-green-700'
+                                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                              }`}
+                            >
+                              {player2}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-center space-x-4 mb-6">
+                <button
+                  onClick={pendingPhase ? shufflePhase : addMatch}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <Plus size={20} />
+                  <span>{pendingPhase ? 'Shuffle' : 'Add Match'}</span>
+                </button>
+                
+                <button
+                  onClick={() => setShowSummaryModal(true)}
+                  disabled={Object.values(matchMap).every(match => !match.outcome || !match.winner)}
+                  className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                >
+                  <Send size={20} />
+                  <span>Submit Scores</span>
+                </button>
+
+                <button
+                  onClick={resetMatchTracker}
+                  className="bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                >
+                  <RotateCcw size={20} />
+                  <span>Refresh</span>
+                </button>
+              </div>
+
+              {/* Status */}
+              {submitStatus && (
+                <div className="text-center py-4">
+                  <p className={`font-semibold ${
+                    submitStatus.includes('✅') ? 'text-green-600' :
+                    submitStatus.includes('❌') ? 'text-red-600' : 'text-blue-600'
+                  }`}>
+                    {submitStatus}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* Summary Modal */}
+      {showSummaryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900">Match Summary</h2>
+              <button
+                onClick={() => setShowSummaryModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
             </div>
-            <div className="text-right">
-              <div className="flex items-center space-x-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{tournament.current_participants}</div>
-                  <p className="text-sm text-gray-600">Participants</p>
+
+            <div className="p-6">
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2">Final Scores</h3>
+                <p className="text-xl">
+                  <strong>{player1}:</strong> {p1Score} pts | <strong>{player2}:</strong> {p2Score} pts
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2">Match Results</h3>
+                <div className="space-y-2">
+                  {generateSummary().map((summary, index) => (
+                    <p key={index} className="text-gray-700" dangerouslySetInnerHTML={{ __html: summary }} />
+                  ))}
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{filteredMatches.filter(m => m.status === 'completed').length}</div>
-                  <p className="text-sm text-gray-600">Completed</p>
-                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowSummaryModal(false)}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submitMatches}
+                  disabled={submitting}
+                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
+                >
+                  {submitting && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
+                  <span>Confirm Submit</span>
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Matches List */}
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading matches...</p>
-        </div>
-      ) : filteredMatches.length === 0 ? (
-        <div className="text-center py-12">
-          <Trophy size={48} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-500">No matches found for this tournament</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredMatches.map((match) => (
-            <div key={match.id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-4">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1 ${getStatusColor(match.status)}`}>
-                    {getStatusIcon(match.status)}
-                    <span className="capitalize">{match.status.replace('_', ' ')}</span>
-                  </span>
-                  <span className="text-lg font-semibold text-gray-700">{match.round_name}</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Match ID: {match.id}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Player 1 */}
-                <div className="text-center">
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <Users className="mx-auto mb-2 text-blue-600" size={24} />
-                    <h3 className="font-bold text-lg text-gray-900">{match.player1_name}</h3>
-                    {match.winner_name === match.player1_name && (
-                      <Trophy className="mx-auto mt-2 text-yellow-500" size={20} />
-                    )}
-                  </div>
-                </div>
-
-                {/* VS / Score */}
-                <div className="text-center flex flex-col justify-center">
-                  <div className="text-2xl font-bold text-gray-400 mb-2">VS</div>
-                  {match.score && (
-                    <div className="text-lg font-semibold text-gray-700">{match.score}</div>
-                  )}
-                  {match.status === 'completed' && match.winner_name && (
-                    <div className="text-sm text-green-600 mt-2">
-                      Winner: {match.winner_name}
-                    </div>
-                  )}
-                </div>
-
-                {/* Player 2 */}
-                <div className="text-center">
-                  <div className="bg-red-50 rounded-lg p-4">
-                    <Users className="mx-auto mb-2 text-red-600" size={24} />
-                    <h3 className="font-bold text-lg text-gray-900">{match.player2_name}</h3>
-                    {match.winner_name === match.player2_name && (
-                      <Trophy className="mx-auto mt-2 text-yellow-500" size={20} />
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Match Controls */}
-              <div className="mt-6 flex justify-center space-x-3">
-                {match.status === 'pending' && (
-                  <button
-                    onClick={() => updateMatchStatus(match.id, 'in_progress')}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
-                  >
-                    <Play size={16} />
-                    <span>Start Match</span>
-                  </button>
-                )}
-                
-                {match.status === 'in_progress' && (
-                  <>
-                    <button
-                      onClick={() => updateMatchStatus(match.id, 'completed', match.player1_name)}
-                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
-                    >
-                      {match.player1_name} Wins
-                    </button>
-                    <button
-                      onClick={() => updateMatchStatus(match.id, 'completed', match.player2_name)}
-                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
-                    >
-                      {match.player2_name} Wins
-                    </button>
-                    <button
-                      onClick={() => updateMatchStatus(match.id, 'pending')}
-                      className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center space-x-2"
-                    >
-                      <Pause size={16} />
-                      <span>Pause</span>
-                    </button>
-                  </>
-                )}
-
-                {match.status === 'completed' && (
-                  <button
-                    onClick={() => updateMatchStatus(match.id, 'pending')}
-                    className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-                  >
-                    Reset Match
-                  </button>
-                )}
-              </div>
-
-              {/* Match Timing */}
-              {(match.start_time || match.end_time) && (
-                <div className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
-                  {match.start_time && (
-                    <div>Started: {new Date(match.start_time).toLocaleString()}</div>
-                  )}
-                  {match.end_time && (
-                    <div>Ended: {new Date(match.end_time).toLocaleString()}</div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
         </div>
       )}
     </div>
