@@ -261,7 +261,8 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
         .insert({
           tournament_id: tournament.id,
           player_name: playerName.trim(),
-          payment_mode: paymentMode
+          payment_mode: paymentMode,
+          status: 'confirmed'
         })
         .select()
         .single();
