@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, CheckCircle, Clock, Trophy, Users, Plus, Trash2, RotateCcw, Send, X } from 'lucide-react';
+import { Play, Pause, CheckCircle, Clock, Trophy, Users, Plus, Trash2, RotateCcw, Send, X, GripVertical } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface Tournament {
@@ -55,6 +55,7 @@ export function MatchTracker() {
 
   // Phase deck orders
   const [deckOrders, setDeckOrders] = useState<{[phase: number]: {[player: string]: string[]}}>({});
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
   // Fetch tournaments on component mount
   useEffect(() => {
@@ -205,8 +206,9 @@ export function MatchTracker() {
     };
     setMatchMap(newMatchMap);
 
-    // Check if we need to enable shuffle after 3 matches
-    if ((Object.keys(newMatchMap).length % 3) === 0) {
+    // Check if we need to enable shuffle after every 3rd match (3, 6, 9, etc.)
+    const totalMatches = Object.keys(newMatchMap).length;
+    if (totalMatches > 0 && (totalMatches % 3) === 0) {
       setPendingPhase(true);
     }
   };
@@ -296,6 +298,38 @@ export function MatchTracker() {
     }));
   };
 
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, beyblade: string) => {
+    setDraggedItem(beyblade);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, phase: number, player: string, targetIndex: number) => {
+    e.preventDefault();
+    
+    if (!draggedItem) return;
+    
+    const currentOrder = deckOrders[phase]?.[player] || [];
+    const draggedIndex = currentOrder.indexOf(draggedItem);
+    
+    if (draggedIndex === -1) return;
+    
+    const newOrder = [...currentOrder];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedItem);
+    
+    updateDeckOrder(phase, player, newOrder);
+    setDraggedItem(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+  };
   const submitMatches = async () => {
     if (!tournamentOfficer.trim()) {
       alert("Please enter the Tournament Officer name before submitting.");
@@ -515,8 +549,8 @@ export function MatchTracker() {
 
           {player1 && player2 && (
             <>
-              {/* Sticky Score Bar */}
-              <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm p-4 mb-6">
+              {/* Sticky/Hovering Score Bar */}
+              <div className="fixed top-16 left-0 right-0 z-20 bg-white border-b border-gray-200 shadow-lg p-4 mb-6">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                   <div>
                     <input
@@ -524,7 +558,7 @@ export function MatchTracker() {
                       placeholder="Tournament Officer"
                       value={tournamentOfficer}
                       onChange={(e) => setTournamentOfficer(e.target.value)}
-                      className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     />
                   </div>
                   <div className="text-lg font-bold">
@@ -539,6 +573,8 @@ export function MatchTracker() {
                 </div>
               </div>
 
+              {/* Content with top margin to account for fixed header */}
+              <div className="mt-20">
               {/* Phase 1 Decks */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Phase 1 Decks</h3>
@@ -564,102 +600,138 @@ export function MatchTracker() {
                 </div>
               </div>
 
-              {/* Phase 2+ Decks */}
-              {Object.entries(deckOrders).map(([phase, orders]) => (
-                <div key={phase} className="bg-white rounded-lg shadow-md p-6 mb-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Phase {phase} Decks</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold mb-2">{player1}</h4>
-                      <div className="space-y-2">
-                        {orders[player1]?.map((bey, index) => (
-                          <div key={index} className="bg-gray-50 p-2 rounded border">
-                            {index + 1}. {bey}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2">{player2}</h4>
-                      <div className="space-y-2">
-                        {orders[player2]?.map((bey, index) => (
-                          <div key={index} className="bg-gray-50 p-2 rounded border">
-                            {index + 1}. {bey}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
               {/* Matches */}
               <div className="space-y-4 mb-6">
                 {Object.entries(matchMap).map(([index, match]) => {
                   const matchIndex = parseInt(index);
                   const bey1 = getBey(player1, matchIndex);
                   const bey2 = getBey(player2, matchIndex);
+                  const matchNumber = matchIndex + 1;
+                  const shouldShowPhaseCard = matchNumber % 3 === 0 && matchNumber > 0;
+                  const phaseNumber = Math.floor(matchNumber / 3) + 1;
                   
                   return (
-                    <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-lg font-bold">
-                          Match {matchIndex + 1}: {bey1} vs {bey2}
-                        </h3>
-                        <button
-                          onClick={() => removeMatch(matchIndex)}
-                          className="text-red-600 hover:bg-red-50 p-1 rounded"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+                    <div key={index}>
+                      <div className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <h3 className="text-lg font-bold">
+                            Match {matchNumber}: {bey1} vs {bey2}
+                          </h3>
+                          <button
+                            onClick={() => removeMatch(matchIndex)}
+                            className="text-red-600 hover:bg-red-50 p-1 rounded"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="font-semibold mb-2">Outcome:</h4>
-                          <div className="space-y-2">
-                            {Object.keys(pointMap).map(outcome => (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <h4 className="font-semibold mb-2">Outcome:</h4>
+                            <div className="space-y-2">
+                              {Object.keys(pointMap).map(outcome => (
+                                <button
+                                  key={outcome}
+                                  onClick={() => setOutcome(matchIndex, outcome)}
+                                  className={`w-full text-left px-3 py-2 rounded border transition-colors ${
+                                    match.outcome === outcome
+                                      ? 'bg-blue-100 border-blue-300 text-blue-700'
+                                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                                  }`}
+                                >
+                                  {outcome}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="font-semibold mb-2">Winner:</h4>
+                            <div className="space-y-2">
                               <button
-                                key={outcome}
-                                onClick={() => setOutcome(matchIndex, outcome)}
+                                onClick={() => setWinner(matchIndex, player1)}
                                 className={`w-full text-left px-3 py-2 rounded border transition-colors ${
-                                  match.outcome === outcome
-                                    ? 'bg-blue-100 border-blue-300 text-blue-700'
+                                  match.winner === player1
+                                    ? 'bg-green-100 border-green-300 text-green-700'
                                     : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                                 }`}
                               >
-                                {outcome}
+                                {player1}
                               </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-semibold mb-2">Winner:</h4>
-                          <div className="space-y-2">
-                            <button
-                              onClick={() => setWinner(matchIndex, player1)}
-                              className={`w-full text-left px-3 py-2 rounded border transition-colors ${
-                                match.winner === player1
-                                  ? 'bg-green-100 border-green-300 text-green-700'
-                                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                              }`}
-                            >
-                              {player1}
-                            </button>
-                            <button
-                              onClick={() => setWinner(matchIndex, player2)}
-                              className={`w-full text-left px-3 py-2 rounded border transition-colors ${
-                                match.winner === player2
-                                  ? 'bg-green-100 border-green-300 text-green-700'
-                                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                              }`}
-                            >
-                              {player2}
-                            </button>
+                              <button
+                                onClick={() => setWinner(matchIndex, player2)}
+                                className={`w-full text-left px-3 py-2 rounded border transition-colors ${
+                                  match.winner === player2
+                                    ? 'bg-green-100 border-green-300 text-green-700'
+                                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                                }`}
+                              >
+                                {player2}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Phase Deck Card - Show after every 3rd match */}
+                      {shouldShowPhaseCard && phaseNumber > 1 && deckOrders[phaseNumber] && (
+                        <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg shadow-md p-6 mt-4 border-2 border-purple-200">
+                          <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center">
+                            <RotateCcw className="mr-2" size={20} />
+                            Phase {phaseNumber} Decks - Drag to Reorder
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3 text-purple-800">{player1}</h4>
+                              <div className="space-y-2">
+                                {deckOrders[phaseNumber][player1]?.map((bey, index) => (
+                                  <div
+                                    key={`${phaseNumber}-${player1}-${index}`}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, bey)}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDrop(e, phaseNumber, player1, index)}
+                                    onDragEnd={handleDragEnd}
+                                    className={`bg-white p-3 rounded border-2 cursor-move transition-all duration-200 flex items-center ${
+                                      draggedItem === bey 
+                                        ? 'border-purple-400 shadow-lg opacity-50' 
+                                        : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+                                    }`}
+                                  >
+                                    <GripVertical size={16} className="text-gray-400 mr-2" />
+                                    <span className="font-medium text-gray-700">{index + 1}.</span>
+                                    <span className="ml-2">{bey}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold mb-3 text-purple-800">{player2}</h4>
+                              <div className="space-y-2">
+                                {deckOrders[phaseNumber][player2]?.map((bey, index) => (
+                                  <div
+                                    key={`${phaseNumber}-${player2}-${index}`}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, bey)}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDrop(e, phaseNumber, player2, index)}
+                                    onDragEnd={handleDragEnd}
+                                    className={`bg-white p-3 rounded border-2 cursor-move transition-all duration-200 flex items-center ${
+                                      draggedItem === bey 
+                                        ? 'border-purple-400 shadow-lg opacity-50' 
+                                        : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+                                    }`}
+                                  >
+                                    <GripVertical size={16} className="text-gray-400 mr-2" />
+                                    <span className="font-medium text-gray-700">{index + 1}.</span>
+                                    <span className="ml-2">{bey}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -704,6 +776,7 @@ export function MatchTracker() {
                   </p>
                 </div>
               )}
+              </div>
             </>
           )}
         </>
