@@ -216,20 +216,34 @@ export function MatchTracker() {
   const setOutcome = (index: number, outcome: string) => {
     const newMatchMap = { ...matchMap };
     if (newMatchMap[index]) {
-      // Remove old points
-      const oldMatch = newMatchMap[index];
-      if (oldMatch.winner === player1) setP1Score(prev => prev - oldMatch.points);
-      if (oldMatch.winner === player2) setP2Score(prev => prev - oldMatch.points);
-
+      // Remove old points from current winner
+      if (newMatchMap[index].winner && newMatchMap[index].points > 0) {
+        if (newMatchMap[index].winner === player1) {
+          setP1Score(prev => prev - newMatchMap[index].points);
+        }
+        if (newMatchMap[index].winner === player2) {
+          setP2Score(prev => prev - newMatchMap[index].points);
+        }
+      }
+      
+      // Update outcome
       newMatchMap[index].outcome = outcome;
       
-      // Recalculate points if both outcome and winner are set
+      // Calculate new points if both outcome and winner are set
       if (newMatchMap[index].winner) {
         const points = pointMap[outcome as keyof typeof pointMap] || 0;
         newMatchMap[index].points = points;
         
-        if (newMatchMap[index].winner === player1) setP1Score(prev => prev + points);
-        if (newMatchMap[index].winner === player2) setP2Score(prev => prev + points);
+        // Add new points to winner
+        if (newMatchMap[index].winner === player1) {
+          setP1Score(prev => prev + points);
+        }
+        if (newMatchMap[index].winner === player2) {
+          setP2Score(prev => prev + points);
+        }
+      } else {
+        // No winner selected yet, reset points
+        newMatchMap[index].points = 0;
       }
     }
     setMatchMap(newMatchMap);
@@ -238,20 +252,34 @@ export function MatchTracker() {
   const setWinner = (index: number, winner: string) => {
     const newMatchMap = { ...matchMap };
     if (newMatchMap[index]) {
-      // Remove old points
-      const oldMatch = newMatchMap[index];
-      if (oldMatch.winner === player1) setP1Score(prev => prev - oldMatch.points);
-      if (oldMatch.winner === player2) setP2Score(prev => prev - oldMatch.points);
-
+      // Remove old points from previous winner
+      if (newMatchMap[index].winner && newMatchMap[index].points > 0) {
+        if (newMatchMap[index].winner === player1) {
+          setP1Score(prev => prev - newMatchMap[index].points);
+        }
+        if (newMatchMap[index].winner === player2) {
+          setP2Score(prev => prev - newMatchMap[index].points);
+        }
+      }
+      
+      // Update winner
       newMatchMap[index].winner = winner;
       
-      // Recalculate points if both outcome and winner are set
+      // Calculate new points if both outcome and winner are set
       if (newMatchMap[index].outcome) {
         const points = pointMap[newMatchMap[index].outcome as keyof typeof pointMap] || 0;
         newMatchMap[index].points = points;
         
-        if (winner === player1) setP1Score(prev => prev + points);
-        if (winner === player2) setP2Score(prev => prev + points);
+        // Add new points to new winner
+        if (winner === player1) {
+          setP1Score(prev => prev + points);
+        }
+        if (winner === player2) {
+          setP2Score(prev => prev + points);
+        }
+      } else {
+        // No outcome selected yet, reset points
+        newMatchMap[index].points = 0;
       }
     }
     setMatchMap(newMatchMap);
