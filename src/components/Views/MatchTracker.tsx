@@ -229,20 +229,17 @@ export function MatchTracker() {
       // Update outcome
       newMatchMap[index].outcome = outcome;
       
-      // Calculate and add new points if both outcome and winner are set
-      if (newMatchMap[index].winner) {
-        const points = pointMap[outcome as keyof typeof pointMap] || 0;
-        newMatchMap[index].points = points;
-        
-        // Add new points to the winner
+      // Calculate new points based on outcome
+      const points = pointMap[outcome as keyof typeof pointMap] || 0;
+      newMatchMap[index].points = newMatchMap[index].winner ? points : 0;
+      
+      // Add new points to the winner (if winner is selected)
+      if (newMatchMap[index].winner && points > 0) {
         if (newMatchMap[index].winner === player1) {
           setP1Score(prev => prev + points);
         } else if (newMatchMap[index].winner === player2) {
           setP2Score(prev => prev + points);
         }
-      } else {
-        // No winner selected, reset points to 0
-        newMatchMap[index].points = 0;
       }
     }
     setMatchMap(newMatchMap);
@@ -264,20 +261,18 @@ export function MatchTracker() {
       // Update winner
       newMatchMap[index].winner = winner;
       
-      // Calculate and add new points if both outcome and winner are set
-      if (newMatchMap[index].outcome) {
-        const points = pointMap[newMatchMap[index].outcome as keyof typeof pointMap] || 0;
-        newMatchMap[index].points = points;
-        
-        // Add new points to the new winner
+      // Calculate new points based on current outcome
+      const points = newMatchMap[index].outcome ? 
+        (pointMap[newMatchMap[index].outcome as keyof typeof pointMap] || 0) : 0;
+      newMatchMap[index].points = points;
+      
+      // Add new points to the new winner (if outcome is selected)
+      if (points > 0) {
         if (winner === player1) {
           setP1Score(prev => prev + points);
         } else if (winner === player2) {
           setP2Score(prev => prev + points);
         }
-      } else {
-        // No outcome selected, reset points to 0
-        newMatchMap[index].points = 0;
       }
     }
     setMatchMap(newMatchMap);
