@@ -1,8 +1,11 @@
 import React from 'react';
 import { BarChart3, TrendingUp, Trophy, Users, Calendar, Target } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { MetaAnalysis } from './MetaAnalysis';
+import { PlayerAnalytics } from './PlayerAnalytics';
 
 export function Analytics() {
+  const [currentView, setCurrentView] = React.useState<'overview' | 'meta' | 'player'>('overview');
   const [analytics, setAnalytics] = React.useState({
     totalTournaments: 0,
     activePlayers: 0,
@@ -95,6 +98,14 @@ export function Analytics() {
     calculateWinRates();
   }, []);
 
+  if (currentView === 'meta') {
+    return <MetaAnalysis />;
+  }
+
+  if (currentView === 'player') {
+    return <PlayerAnalytics />;
+  }
+
   const stats = [
     { icon: Trophy, label: 'Total Tournaments', value: analytics.totalTournaments, color: 'text-blue-600', bgColor: 'bg-blue-100' },
     { icon: Users, label: 'Active Players', value: analytics.activePlayers, color: 'text-green-600', bgColor: 'bg-green-100' },
@@ -116,8 +127,44 @@ export function Analytics() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Tournament Analytics</h1>
-        <p className="text-gray-600">Comprehensive tournament and player statistics</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tournament Analytics</h1>
+            <p className="text-gray-600">Comprehensive tournament and player statistics</p>
+          </div>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setCurrentView('overview')}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                currentView === 'overview' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setCurrentView('meta')}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                currentView === 'meta' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Meta Analysis
+            </button>
+            <button
+              onClick={() => setCurrentView('player')}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                currentView === 'player' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Player Analytics
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Stats Overview */}
