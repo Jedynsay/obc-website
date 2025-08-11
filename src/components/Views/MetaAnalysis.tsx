@@ -268,7 +268,6 @@ export function MetaAnalysis() {
       processBey(match.p2, match.bey2, match.winner === match.p2);
     }
 
-    // Calculate win rates and Wilson scores
     const buildsArray = Object.values(builds).map(build => {
       const total = build.wins + build.losses;
       build.winRate = total ? (build.wins / total) * 100 : 0;

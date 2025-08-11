@@ -59,51 +59,25 @@ export function UserManagement() {
     return statusMatch && roleMatch;
   });
 
-  const updateUserStatus = async (userId: string, status: User['status']) => {
+  const updateUser = async (userId: string, updates: Partial<User>) => {
     try {
       const { error } = await supabase
         .from('users')
-        .update({ status })
+        .update(updates)
         .eq('id', userId);
 
       if (error) {
-        console.error('Update error:', error);
-        if (error.code === '42501' || error.message.includes('RLS')) {
-          alert('Permission denied. You need admin or developer role to update users.');
-        } else {
-          alert(`Failed to update user status: ${error.message}`);
-        }
+        const message = error.code === '42501' || error.message.includes('RLS')
+          ? 'Permission denied. You need admin or developer role to update users.'
+          : `Failed to update user: ${error.message}`;
+        alert(message);
         return;
       }
 
       await fetchUsers();
     } catch (error) {
-      console.error('Error updating user status:', error);
-      alert(`Failed to update user status: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const updateUserRole = async (userId: string, role: User['role']) => {
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({ role })
-        .eq('id', userId);
-
-      if (error) {
-        console.error('Update error:', error);
-        if (error.code === '42501' || error.message.includes('RLS')) {
-          alert('Permission denied. You need admin or developer role to update users.');
-        } else {
-          alert(`Failed to update user role: ${error.message}`);
-        }
-        return;
-      }
-
-      await fetchUsers();
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      alert(`Failed to update user role: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error updating user:', error);
+      alert(`Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -292,7 +266,7 @@ export function UserManagement() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
                       value={user.role}
-                      onChange={(e) => updateUserRole(user.id, e.target.value as User['role'])}
+                      onChange={(e) => updateUser(user.id, { role: e.target.value as User['role'] })}
                       disabled={!isAdmin}
                       className={`text-xs font-medium px-2 py-1 rounded-full border-0 ${getRoleColor(user.role)}`}
                     >
@@ -305,7 +279,7 @@ export function UserManagement() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
                       value={user.status}
-                      onChange={(e) => updateUserStatus(user.id, e.target.value as User['status'])}
+                      onChange={(e) => updateUser(user.id, { status: e.target.value as User['status'] })}
                       disabled={!isAdmin}
                       className={`text-xs font-medium px-2 py-1 rounded-full border-0 ${getStatusColor(user.status)}`}
                     >

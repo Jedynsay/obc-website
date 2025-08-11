@@ -45,7 +45,7 @@ export function Dashboard() {
 
   const statsDisplay = [
     { icon: Trophy, label: 'Total Tournaments', value: stats.totalTournaments, color: 'text-blue-600' },
-    { icon: Users, label: 'Total Community Players', value: stats.activePlayers, color: 'text-green-600' },
+    { icon: Users, label: 'Community Players', value: stats.activePlayers, color: 'text-green-600' },
     { icon: Calendar, label: 'Upcoming Events', value: stats.upcomingEvents, color: 'text-orange-600' },
     { icon: TrendingUp, label: 'Completed Matches', value: stats.completedMatches, color: 'text-purple-600' },
   ];

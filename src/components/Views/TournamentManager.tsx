@@ -115,23 +115,6 @@ export function TournamentManager() {
     }
   };
 
-  const saveChangesOld = () => {
-    if (isCreating) {
-      const newTournament = {
-        ...formData,
-        id: Date.now().toString(),
-        current_participants: 0
-      };
-      setTournaments([...tournaments, newTournament]);
-      setIsCreating(false);
-    } else if (editingId) {
-      setTournaments(tournaments.map(t => 
-        t.id === editingId ? { ...t, ...formData } : t
-      ));
-      setEditingId(null);
-    }
-    setFormData({});
-  };
 
   const cancelEdit = () => {
     setIsCreating(false);

@@ -216,40 +216,25 @@ export function PlayerAnalytics() {
     return { bey: mvb || "N/A", reason };
   };
 
-  const getRadarData = (winFinishes: { [key: string]: number }) => {
-    const data = FINISH_TYPES.map(finish => winFinishes[finish] || 0);
-    
-    return {
-      labels: FINISH_TYPES,
-      datasets: [{
-        label: 'Finish Bias',
-        data,
-        backgroundColor: 'rgba(33, 150, 243, 0.2)',
-        borderColor: '#2196f3',
-        pointBackgroundColor: '#2196f3',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: '#2196f3'
-      }]
-    };
-  };
+  const getRadarData = (winFinishes: { [key: string]: number }) => ({
+    labels: FINISH_TYPES,
+    datasets: [{
+      label: 'Finish Bias',
+      data: FINISH_TYPES.map(finish => winFinishes[finish] || 0),
+      backgroundColor: 'rgba(33, 150, 243, 0.2)',
+      borderColor: '#2196f3',
+      pointBackgroundColor: '#2196f3',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: '#2196f3'
+    }]
+  });
 
   const radarOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    scales: {
-      r: {
-        suggestedMin: 0,
-        ticks: {
-          stepSize: 1
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        display: false
-      }
-    }
+    scales: { r: { suggestedMin: 0, ticks: { stepSize: 1 } } },
+    plugins: { legend: { display: false } }
   };
 
   const renderPlayerCard = () => {

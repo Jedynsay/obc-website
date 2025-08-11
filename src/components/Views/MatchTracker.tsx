@@ -247,7 +247,6 @@ export function MatchTracker() {
     recalculateScores(newMatchMap);
   };
 
-  // New function to recalculate scores from scratch
   const recalculateScores = (matches: MatchMap) => {
     let p1Total = 0;
     let p2Total = 0;
@@ -270,8 +269,6 @@ export function MatchTracker() {
     const newMatchMap = { ...matchMap };
     delete newMatchMap[index];
     setMatchMap(newMatchMap);
-    
-    // Recalculate total scores from scratch
     recalculateScores(newMatchMap);
     setPendingPhase(false);
   };
