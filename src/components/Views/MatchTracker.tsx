@@ -555,7 +555,7 @@ export function MatchTracker() {
           {player1 && player2 && (
             <>
               {/* Sticky/Hovering Score Bar */}
-              <div className="fixed top-16 left-0 right-0 z-20 bg-white border-b border-gray-200 shadow-lg p-4 mb-6">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-md p-4 mb-6">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                   <div>
                     <input
@@ -578,8 +578,6 @@ export function MatchTracker() {
                 </div>
               </div>
 
-              {/* Content with top margin to account for fixed header */}
-              <div className="mt-20">
               {/* Phase 1 Decks */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Phase 1 Decks</h3>
@@ -781,7 +779,6 @@ export function MatchTracker() {
                   </p>
                 </div>
               )}
-              </div>
             </>
           )}
         </>
