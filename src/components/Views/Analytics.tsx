@@ -20,19 +20,21 @@ export function Analytics() {
   React.useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const [tournamentsRes, usersRes, matchesRes] = await Promise.all([
+        // Fetch real data from Supabase
+        const [tournamentsRes, usersRes, matchesRes, registrationsRes] = await Promise.all([
           supabase.from('tournaments').select('*'),
           supabase.from('users').select('*', { count: 'exact', head: true }),
-          supabase.from('matches').select('*')
+          supabase.from('match_results').select('*'),
+          supabase.from('tournament_registrations').select('*', { count: 'exact', head: true })
         ]);
 
         const tournaments = tournamentsRes.data || [];
-        const matches = matchesRes.data || [];
+        const matchResults = matchesRes.data || [];
         
         const completedTournaments = tournaments.filter(t => t.status === 'completed');
         const activeTournaments = tournaments.filter(t => t.status === 'active').length;
         const upcomingTournaments = tournaments.filter(t => t.status === 'upcoming').length;
-        const completedMatches = matches.filter(m => m.status === 'completed').length;
+        const completedMatches = matchResults.length; // All match_results are completed
 
         setAnalytics({
           totalTournaments: tournaments.length,
@@ -45,6 +47,16 @@ export function Analytics() {
         });
       } catch (error) {
         console.error('Error fetching analytics:', error);
+        // Set default values on error
+        setAnalytics({
+          totalTournaments: 0,
+          activePlayers: 0,
+          completedMatches: 0,
+          upcomingEvents: 0,
+          completedTournaments: [],
+          activeTournaments: 0,
+          upcomingTournaments: 0
+        });
       } finally {
         setLoading(false);
       }
@@ -59,15 +71,17 @@ export function Analytics() {
     const calculateWinRates = async () => {
       try {
         const { data: matches } = await supabase
-          .from('matches')
-          .select('player1_name, player2_name, winner_name')
-          .eq('status', 'completed');
+          .from('match_results')
+          .select('player1_name, player2_name, winner_name');
 
         if (!matches) return;
 
         const playerStats = {};
         
         matches.forEach(match => {
+          // Skip matches with missing data
+          if (!match.player1_name || !match.player2_name || !match.winner_name) return;
+          
           [match.player1_name, match.player2_name].forEach(player => {
             if (!playerStats[player]) {
               playerStats[player] = { wins: 0, matches: 0 };
@@ -92,6 +106,7 @@ export function Analytics() {
         setWinRates(rates);
       } catch (error) {
         console.error('Error calculating win rates:', error);
+        setWinRates([]);
       }
     };
 

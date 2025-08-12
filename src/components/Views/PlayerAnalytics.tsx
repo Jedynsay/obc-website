@@ -477,6 +477,22 @@ export function PlayerAnalytics() {
       </div>
     );
   }
+  
+  // Show loading state while fetching tournament data
+  if (selectedTournament && Object.keys(players).length === 0) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Player Performance Analysis</h1>
+          <p className="text-gray-600">Analyze individual player statistics and performance</p>
+        </div>
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading player data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -509,6 +525,14 @@ export function PlayerAnalytics() {
 
       {selectedTournament && (
         <>
+          {Object.keys(players).length === 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+              <p className="text-yellow-800">
+                No player data found for this tournament. Make sure there are completed matches with valid player names and Beyblade information.
+              </p>
+            </div>
+          )}
+          
           {/* Player Selection */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
