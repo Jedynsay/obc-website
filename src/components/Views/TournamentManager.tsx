@@ -218,7 +218,7 @@ export function TournamentManager() {
         .from('match_results')
         .select('*')
         .eq('tournament_id', tournamentId)
-        .order('created_at', { ascending: false });
+        .order('submitted_at', { ascending: false });
 
       if (error) {
         throw error;
