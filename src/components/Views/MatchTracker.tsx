@@ -717,7 +717,7 @@ export function MatchTracker() {
                             <div>
                               <h4 className="font-semibold mb-3 text-purple-800">{player2}</h4>
                               <div className="space-y-2">
-                                {deckOrders[phaseNumber][player2]?.map((bey, index) => (
+                                {deckOrders[phaseNumber][player2]?.slice(0, selectedTournamentData?.beyblades_per_player || 3).map((bey, index) => (
                                   <div
                                     key={`${phaseNumber}-${player2}-${index}`}
                                     draggable
