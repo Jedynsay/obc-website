@@ -394,7 +394,7 @@ export function MatchTracker() {
           tournament_officer: tournamentOfficer,
           session_data: {
             matches: matchResults,
-            phases: Object.keys(deckOrders).length + 1,
+            phases: Math.ceil(completeMatches.length / (selectedTournamentData?.beyblades_per_player || 3)),
             deckOrders
           }
         });
