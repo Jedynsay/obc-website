@@ -585,7 +585,9 @@ export function MatchTracker() {
 
               {/* Phase 1 Decks */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Phase 1 Decks</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Phase 1 Decks ({selectedTournamentData?.beyblades_per_player || 3} Beyblades)
+                </h3>
                 <div className="overflow-x-auto">
                   <table className="min-w-full">
                     <thead>
@@ -596,7 +598,7 @@ export function MatchTracker() {
                       </tr>
                     </thead>
                     <tbody>
-                      {[0, 1, 2].map(i => (
+                      {Array.from({ length: selectedTournamentData?.beyblades_per_player || 3 }, (_, i) => (
                         <tr key={i} className="border-b">
                           <td className="py-2 font-medium">Bey {i + 1}</td>
                           <td className="py-2">{playerData[player1]?.[i] || ''}</td>
