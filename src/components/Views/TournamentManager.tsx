@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Save, X, Users, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Users, Eye, Swords, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import type { Tournament } from '../../types';
@@ -28,6 +28,11 @@ export function TournamentManager() {
   const [registrations, setRegistrations] = useState<TournamentRegistration[]>([]);
   const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [viewingMatches, setViewingMatches] = useState<string | null>(null);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState(false);
+  const [editingMatch, setEditingMatch] = useState<string | null>(null);
+  const [editMatchData, setEditMatchData] = useState<any>({});
 
   const isAdmin = user?.role === 'admin' || user?.role === 'developer';
 
@@ -201,6 +206,90 @@ export function TournamentManager() {
     } catch (error) {
       console.error('Error deleting tournament:', error);
       alert(`Failed to delete tournament: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+    }
+  };
+
+  const viewMatches = async (tournamentId: string) => {
+    setLoadingMatches(true);
+    setViewingMatches(tournamentId);
+    
+    try {
+      const { data, error } = await supabase
+        .from('match_results')
+        .select('*')
+        .eq('tournament_id', tournamentId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setMatches(data || []);
+    } catch (error) {
+      console.error('Error fetching matches:', error);
+      alert('Failed to load matches. Please try again.');
+    } finally {
+      setLoadingMatches(false);
+    }
+  };
+
+  const startEditMatch = (match: any) => {
+    setEditingMatch(match.id);
+    setEditMatchData({ ...match });
+  };
+
+  const saveMatchChanges = async () => {
+    if (!editingMatch || !isAdmin) return;
+
+    try {
+      const { error } = await supabase
+        .from('match_results')
+        .update(editMatchData)
+        .eq('id', editingMatch);
+
+      if (error) {
+        console.error('Update error:', error);
+        alert(`Failed to update match: ${error.message}`);
+        return;
+      }
+
+      setEditingMatch(null);
+      setEditMatchData({});
+      await viewMatches(viewingMatches!);
+      alert('Match updated successfully!');
+    } catch (error) {
+      console.error('Error updating match:', error);
+      alert(`Failed to update match: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const cancelEditMatch = () => {
+    setEditingMatch(null);
+    setEditMatchData({});
+  };
+
+  const deleteMatch = async (matchId: string) => {
+    if (!confirm('Are you sure you want to delete this match? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('match_results')
+        .delete()
+        .eq('id', matchId);
+
+      if (error) {
+        console.error('Delete error:', error);
+        alert(`Failed to delete match: ${error.message}`);
+        return;
+      }
+      
+      alert('Match deleted successfully!');
+      await viewMatches(viewingMatches!);
+    } catch (error) {
+      console.error('Error deleting match:', error);
+      alert(`Failed to delete match: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -432,6 +521,13 @@ export function TournamentManager() {
                 >
                   <Eye size={16} />
                 </button>
+                <button
+                  onClick={() => viewMatches(tournament.id)}
+                  className="p-2 text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
+                  title="View Matches"
+                >
+                  <Swords size={16} />
+                </button>
                 {isAdmin && (
                   <button
                     onClick={() => deleteTournament(tournament.id)}
@@ -530,6 +626,254 @@ export function TournamentManager() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Matches Modal */}
+      {viewingMatches && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Tournament Matches</h2>
+                <p className="text-gray-600">
+                  {tournaments.find(t => t.id === viewingMatches)?.name}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setViewingMatches(null);
+                  setEditingMatch(null);
+                  setEditMatchData({});
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {loadingMatches ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading matches...</p>
+                </div>
+              ) : matches.length === 0 ? (
+                <div className="text-center py-12">
+                  <Swords size={48} className="mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">No matches found for this tournament</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Round</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match #</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1 Bey</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2 Bey</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Outcome</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Officer</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        {isAdmin && (
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {matches.map((match) => (
+                        <tr key={match.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="number"
+                                value={editMatchData.round_number || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, round_number: parseInt(e.target.value)})}
+                                className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.round_number
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="number"
+                                value={editMatchData.match_number || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, match_number: parseInt(e.target.value)})}
+                                className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.match_number
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="text"
+                                value={editMatchData.player1_name || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, player1_name: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.player1_name
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="text"
+                                value={editMatchData.player1_beyblade || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, player1_beyblade: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.player1_beyblade
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="text"
+                                value={editMatchData.player2_name || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, player2_name: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.player2_name
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="text"
+                                value={editMatchData.player2_beyblade || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, player2_beyblade: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.player2_beyblade
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <select
+                                value={editMatchData.winner_name || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, winner_name: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                              >
+                                <option value="">Select Winner</option>
+                                <option value={editMatchData.player1_name}>{editMatchData.player1_name}</option>
+                                <option value={editMatchData.player2_name}>{editMatchData.player2_name}</option>
+                              </select>
+                            ) : (
+                              <span className={`font-medium ${
+                                match.winner_name === match.player1_name ? 'text-green-600' : 'text-blue-600'
+                              }`}>
+                                {match.winner_name}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <select
+                                value={editMatchData.outcome || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, outcome: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                              >
+                                <option value="">Select Outcome</option>
+                                <option value="Spin Finish (1 pt)">Spin Finish (1 pt)</option>
+                                <option value="Burst Finish (2 pts)">Burst Finish (2 pts)</option>
+                                <option value="Over Finish (2 pts)">Over Finish (2 pts)</option>
+                                <option value="Extreme Finish (3 pts)">Extreme Finish (3 pts)</option>
+                              </select>
+                            ) : (
+                              match.outcome
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="number"
+                                value={editMatchData.points_awarded || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, points_awarded: parseInt(e.target.value)})}
+                                className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.points_awarded
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {editingMatch === match.id ? (
+                              <input
+                                type="text"
+                                value={editMatchData.tournament_officer || ''}
+                                onChange={(e) => setEditMatchData({...editMatchData, tournament_officer: e.target.value})}
+                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                            ) : (
+                              match.tournament_officer
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div className="flex items-center">
+                              <Calendar size={12} className="mr-1" />
+                              {new Date(match.created_at).toLocaleDateString()}
+                            </div>
+                          </td>
+                          {isAdmin && (
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <div className="flex space-x-2">
+                                {editingMatch === match.id ? (
+                                  <>
+                                    <button
+                                      onClick={saveMatchChanges}
+                                      className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                                      title="Save Changes"
+                                    >
+                                      <Save size={16} />
+                                    </button>
+                                    <button
+                                      onClick={cancelEditMatch}
+                                      className="text-gray-600 hover:text-gray-900 p-1 rounded hover:bg-gray-50"
+                                      title="Cancel"
+                                    >
+                                      <X size={16} />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => startEditMatch(match)}
+                                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                                      title="Edit Match"
+                                    >
+                                      <Edit size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() => deleteMatch(match.id)}
+                                      className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                                      title="Delete Match"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
