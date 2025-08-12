@@ -169,8 +169,9 @@ export function MatchTracker() {
   };
 
   const getBey = (player: string, matchIndex: number): string => {
-    const phase = Math.floor(matchIndex / 3) + 1;
-    const slot = matchIndex % 3;
+    const beybladeCount = selectedTournamentData?.beyblades_per_player || 3;
+    const phase = Math.floor(matchIndex / beybladeCount) + 1;
+    const slot = matchIndex % beybladeCount;
 
     if (phase === 1) {
       return playerData[player]?.[slot] || '';
@@ -188,7 +189,7 @@ export function MatchTracker() {
 
   const addMatch = () => {
     if (pendingPhase) {
-      alert("Click Shuffle before adding the next match.");
+      alert(`Click Shuffle before adding the next match (after every ${selectedTournamentData?.beyblades_per_player || 3} matches).`);
       return;
     }
 
@@ -206,9 +207,10 @@ export function MatchTracker() {
     };
     setMatchMap(newMatchMap);
 
-    // Check if we need to enable shuffle after every 3rd match (3, 6, 9, etc.)
+    // Check if we need to enable shuffle based on tournament's beyblades_per_player
+    const beybladeCount = selectedTournamentData?.beyblades_per_player || 3;
     const totalMatches = Object.keys(newMatchMap).length;
-    if (totalMatches > 0 && (totalMatches % 3) === 0) {
+    if (totalMatches > 0 && (totalMatches % beybladeCount) === 0) {
       setPendingPhase(true);
     }
   };
@@ -607,8 +609,9 @@ export function MatchTracker() {
                   const bey1 = getBey(player1, matchIndex);
                   const bey2 = getBey(player2, matchIndex);
                   const matchNumber = matchIndex + 1;
-                  const shouldShowPhaseCard = matchNumber % 3 === 0 && matchNumber > 0;
-                  const phaseNumber = Math.floor(matchNumber / 3) + 1;
+                  const beybladeCount = selectedTournamentData?.beyblades_per_player || 3;
+                  const shouldShowPhaseCard = matchNumber % beybladeCount === 0 && matchNumber > 0;
+                  const phaseNumber = Math.floor(matchNumber / beybladeCount) + 1;
                   
                   return (
                     <div key={index}>
