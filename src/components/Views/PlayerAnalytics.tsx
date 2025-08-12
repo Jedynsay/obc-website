@@ -46,6 +46,7 @@ export function PlayerAnalytics() {
   const [players, setPlayers] = useState<{ [key: string]: PlayerStats }>({});
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [loadingPlayers, setLoadingPlayers] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentView, setCurrentView] = useState<'player' | 'matches'>('player');
 
@@ -82,25 +83,47 @@ export function PlayerAnalytics() {
   };
 
   const fetchTournamentData = async () => {
+    setLoadingPlayers(true);
+    setPlayers({});
+    setSelectedPlayer('');
+    
     try {
-      // Fetch match results
+      // Single optimized query to get all match data
       const { data: matches, error: matchError } = await supabase
         .from('match_results')
-        .select('*')
+        .select(`
+          player1_name,
+          player2_name,
+          player1_beyblade,
+          player2_beyblade,
+          winner_name,
+          outcome,
+          points_awarded
+        `)
         .eq('tournament_id', selectedTournament);
 
       if (matchError) throw matchError;
 
+      if (!matches || matches.length === 0) {
+        setPlayers({});
+        return;
+      }
+
       // Initialize players data from match results
       const playersData: { [key: string]: PlayerStats } = {};
       
-      // First pass: collect all unique players and their beyblades
-      matches?.forEach(match => {
+      // Process matches in a single pass for better performance
+      matches.forEach(match => {
         const p1 = match.player1_name;
         const p2 = match.player2_name;
         const b1 = match.player1_beyblade;
         const b2 = match.player2_beyblade;
+        const winner = match.winner_name;
+        const fullOutcome = match.outcome || '';
+        const finishType = fullOutcome.split(" (")[0].trim() || 'Unknown';
+        const pts = match.points_awarded || FINISH_POINTS[finishType as keyof typeof FINISH_POINTS] || 0;
         
+        // Initialize players if they don't exist
         if (!playersData[p1]) {
           playersData[p1] = {
             name: p1,
@@ -129,30 +152,19 @@ export function PlayerAnalytics() {
           };
         }
         
-        // Add unique beyblades to player's list
+        // Add unique beyblades and process match data in one go
         if (b1 && !playersData[p1].beys.includes(b1)) {
           playersData[p1].beys.push(b1);
         }
         if (b2 && !playersData[p2].beys.includes(b2)) {
           playersData[p2].beys.push(b2);
         }
-      });
 
-      // Process matches
-      matches?.forEach(match => {
-        const p1 = match.player1_name;
-        const p2 = match.player2_name;
-        const b1 = match.player1_beyblade;
-        const b2 = match.player2_beyblade;
-        const fullOutcome = match.outcome || '';
-        const finishType = fullOutcome.split(" (")[0].trim() || 'Unknown';
-        const winner = match.winner_name;
+        if (!winner || !p1 || !p2) return;
+        
         const loser = winner === p1 ? p2 : p1;
         const winBey = winner === p1 ? b1 : b2;
         const loseBey = winner === p1 ? b2 : b1;
-        const pts = FINISH_POINTS[finishType as keyof typeof FINISH_POINTS] || 0;
-
-        if (!playersData[winner] || !playersData[loser] || !winner || !loser) return;
 
         // Update winner stats
         playersData[winner].wins++;
@@ -199,15 +211,12 @@ export function PlayerAnalytics() {
       });
 
       setPlayers(playersData);
-      setSelectedPlayer('');
-      setCurrentView('player');
-      setShowAdvanced(false);
-
-      console.log('Players data loaded:', Object.keys(playersData).length, 'players');
 
     } catch (error) {
       console.error('Error fetching tournament data:', error);
       setPlayers({});
+    } finally {
+      setLoadingPlayers(false);
     }
   };
 
@@ -478,8 +487,8 @@ export function PlayerAnalytics() {
     );
   }
   
-  // Show loading state while fetching tournament data
-  if (selectedTournament && Object.keys(players).length === 0) {
+  // Show loading state while fetching player data
+  if (loadingPlayers) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <div className="mb-8">
@@ -534,7 +543,8 @@ export function PlayerAnalytics() {
           )}
           
           {/* Player Selection */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          {Object.keys(players).length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
               <User className="mr-2" size={24} />
               Player Selection
@@ -561,6 +571,7 @@ export function PlayerAnalytics() {
               </select>
             </div>
           </div>
+          )}
 
           {/* Player Analytics */}
           {selectedPlayer && (
