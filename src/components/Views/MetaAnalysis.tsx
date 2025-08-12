@@ -92,12 +92,18 @@ export function MetaAnalysis() {
 
   const fetchTournamentData = async () => {
     try {
-      // Fetch Beyblade parts data
-      const [bladesRes, ratchetsRes, bitsRes] = await Promise.all([
+      // Fetch Beyblade parts data from the actual tables
+      const [bladesRes, ratchetsRes, bitsRes, matchesRes] = await Promise.all([
         supabase.from('Beyblade - Blades').select('*'),
         supabase.from('Beyblade - Ratchets').select('*'),
-        supabase.from('Beyblade - Bit').select('*')
+        supabase.from('Beyblade - Bit').select('*'),
+        supabase.from('match_results').select('*').eq('tournament_id', selectedTournament)
       ]);
+
+      if (bladesRes.error) throw bladesRes.error;
+      if (ratchetsRes.error) throw ratchetsRes.error;
+      if (bitsRes.error) throw bitsRes.error;
+      if (matchesRes.error) throw matchesRes.error;
 
       // Initialize parts data
       const newPartsData = { blade: {}, ratchet: {}, bit: {} };
@@ -132,8 +138,8 @@ export function MetaAnalysis() {
 
       // Process bits
       bitsRes.data?.forEach(bit => {
-        newPartsData.bit[bit.Shortcut] = {
-          name: bit.Shortcut,
+        newPartsData.bit[bit.Shortcut || bit.Bit] = {
+          name: bit.Shortcut || bit.Bit,
           full: bit.Bit,
           line: '',
           used: 0,
@@ -144,22 +150,14 @@ export function MetaAnalysis() {
         };
       });
 
-      // Fetch match results for the tournament
-      const { data: matches, error: matchError } = await supabase
-        .from('match_results')
-        .select('*')
-        .eq('tournament_id', selectedTournament);
-
-      if (matchError) throw matchError;
-
       // Transform match data
-      const transformedMatches: MatchData[] = (matches || []).map(match => ({
-        p1: match.player1_name,
-        p2: match.player2_name,
-        bey1: match.player1_beyblade,
-        bey2: match.player2_beyblade,
-        winner: match.winner_name,
-        finish: match.outcome
+      const transformedMatches: MatchData[] = (matchesRes.data || []).map(match => ({
+        p1: match.player1_name || '',
+        p2: match.player2_name || '',
+        bey1: match.player1_beyblade || '',
+        bey2: match.player2_beyblade || '',
+        winner: match.winner_name || '',
+        finish: match.outcome ? match.outcome.split(' (')[0].trim() : 'Unknown'
       }));
 
       setMatchData(transformedMatches);
@@ -170,6 +168,10 @@ export function MetaAnalysis() {
 
     } catch (error) {
       console.error('Error fetching tournament data:', error);
+      // Set empty data on error
+      setPartsData({ blade: {}, ratchet: {}, bit: {} });
+      setMatchData([]);
+      setBuildsData([]);
     }
   };
 
@@ -177,7 +179,7 @@ export function MetaAnalysis() {
     // Get all bit keys sorted by length (longest first)
     const sortedBits = Object.keys(partsData.bit).sort((a, b) => b.length - a.length);
 
-    for (const bit of sortedBits) {
+    for (const bit of sortedBits.filter(b => b && b.trim())) {
       if (bey.endsWith(bit)) {
         const withoutBit = bey.slice(0, bey.length - bit.length).trim();
         const lastSpace = withoutBit.lastIndexOf(" ");
@@ -190,6 +192,10 @@ export function MetaAnalysis() {
     return ["", "", ""];
   };
 
+  const isValidPart = (partName: string): boolean => {
+    return partName && partName.trim() && partName !== 'undefined' && partName !== 'null';
+  };
+
   const computeStats = (parts: typeof partsData, matches: MatchData[]) => {
     // Reset stats
     Object.values(parts.blade).forEach(p => { p.used = 0; p.wins = 0; p.losses = 0; });
@@ -199,6 +205,9 @@ export function MetaAnalysis() {
     for (const match of matches) {
       const [b1Blade, b1Ratchet, b1Bit] = parseParts(match.bey1);
       const [b2Blade, b2Ratchet, b2Bit] = parseParts(match.bey2);
+      
+      // Skip matches with invalid data
+      if (!match.winner || !match.p1 || !match.p2) continue;
 
       // Count usage and wins/losses
       const countPart = (name: string, isWin: boolean, type: 'blade' | 'ratchet' | 'bit') => {
@@ -211,6 +220,7 @@ export function MetaAnalysis() {
         }
       };
 
+      // Only count valid parts
       countPart(b1Blade, match.winner === match.p1, 'blade');
       countPart(b1Ratchet, match.winner === match.p1, 'ratchet');
       countPart(b1Bit, match.winner === match.p1, 'bit');
@@ -218,6 +228,15 @@ export function MetaAnalysis() {
       countPart(b2Blade, match.winner === match.p2, 'blade');
       countPart(b2Ratchet, match.winner === match.p2, 'ratchet');
       countPart(b2Bit, match.winner === match.p2, 'bit');
+      
+      // Only process valid parts
+      if (isValidPart(b1Blade)) countPart(b1Blade, match.winner === match.p1, 'blade');
+      if (isValidPart(b1Ratchet)) countPart(b1Ratchet, match.winner === match.p1, 'ratchet');
+      if (isValidPart(b1Bit)) countPart(b1Bit, match.winner === match.p1, 'bit');
+      
+      if (isValidPart(b2Blade)) countPart(b2Blade, match.winner === match.p2, 'blade');
+      if (isValidPart(b2Ratchet)) countPart(b2Ratchet, match.winner === match.p2, 'ratchet');
+      if (isValidPart(b2Bit)) countPart(b2Bit, match.winner === match.p2, 'bit');
     }
 
     // Calculate win rates and Wilson scores
@@ -247,6 +266,9 @@ export function MetaAnalysis() {
         const [blade, ratchet, bit] = parseParts(bey);
         const matchKey = selectedPartType === 'blade' ? blade : 
                         selectedPartType === 'ratchet' ? ratchet : bit;
+        
+        // Skip if part doesn't match or is invalid
+        if (!isValidPart(matchKey) || matchKey !== selectedPartName) return;
         
         if (matchKey !== selectedPartName) return;
 
@@ -278,6 +300,11 @@ export function MetaAnalysis() {
     setBuildsData(buildsArray);
   };
 
+  const getFilteredPartsData = (type: 'blade' | 'ratchet' | 'bit') => {
+    return Object.values(partsData[type])
+      .filter(p => p.used > 0 && isValidPart(p.name));
+  };
+
   const handleBuildClick = (build: string, player: string) => {
     setSelectedBuild({ build, player });
     
@@ -287,12 +314,15 @@ export function MetaAnalysis() {
         const [blade, ratchet, bit] = parseParts(bey);
         const fullBuild = `${blade} ${ratchet}${bit}`;
         if (fullBuild === build && p === player) {
+          // Clean up finish type
+          const cleanFinish = match.finish && match.finish !== 'Unknown' 
+            ? match.finish : 'Unknown Finish';
           const result = p === winner ? "Win" : "Loss";
           matchRows.push({
             result,
             opponent,
             opponentBey,
-            finish: match.finish || "Unknown"
+            finish: cleanFinish
           });
         }
       };
@@ -312,8 +342,8 @@ export function MetaAnalysis() {
     setSortConfig({ key, direction });
   };
 
-  const sortedPartsData = (type: 'blade' | 'ratchet' | 'bit') => {
-    const data = Object.values(partsData[type]).filter(p => p.used > 0);
+  const sortedPartsData = (type: 'blade' | 'ratchet' | 'bit') => {    
+    const data = getFilteredPartsData(type);
     
     if (!sortConfig.key) return data;
     
@@ -351,6 +381,18 @@ export function MetaAnalysis() {
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading tournaments...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show loading state while fetching data
+  if (selectedTournament && Object.keys(partsData.blade).length === 0) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading tournament data...</p>
         </div>
       </div>
     );
@@ -424,10 +466,9 @@ export function MetaAnalysis() {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                 >
                   <option value="">Select Part Name</option>
-                  {selectedPartType && Object.keys(partsData[selectedPartType])
-                    .filter(key => partsData[selectedPartType][key].used > 0)
+                  {selectedPartType && getFilteredPartsData(selectedPartType)
                     .map(key => (
-                      <option key={key} value={key}>{key}</option>
+                      <option key={key.name} value={key.name}>{key.name}</option>
                     ))}
                 </select>
               </div>

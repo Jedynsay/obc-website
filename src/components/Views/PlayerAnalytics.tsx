@@ -83,40 +83,6 @@ export function PlayerAnalytics() {
 
   const fetchTournamentData = async () => {
     try {
-      // Fetch tournament registrations with beyblades
-      const { data: registrations, error: regError } = await supabase
-        .from('tournament_registrations')
-        .select(`
-          player_name,
-          tournament_beyblades(
-            beyblade_name
-          )
-        `)
-        .eq('tournament_id', selectedTournament)
-        .eq('status', 'confirmed');
-
-      if (regError) throw regError;
-
-      // Initialize players data
-      const playersData: { [key: string]: PlayerStats } = {};
-      
-      registrations?.forEach(registration => {
-        const playerName = registration.player_name;
-        const beyblades = registration.tournament_beyblades.map((b: any) => b.beyblade_name);
-        
-        playersData[playerName] = {
-          name: playerName,
-          beys: beyblades,
-          matches: [],
-          winFinishes: {},
-          loseFinishes: {},
-          beyStats: {},
-          wins: 0,
-          losses: 0,
-          points: 0
-        };
-      });
-
       // Fetch match results
       const { data: matches, error: matchError } = await supabase
         .from('match_results')
@@ -125,21 +91,68 @@ export function PlayerAnalytics() {
 
       if (matchError) throw matchError;
 
+      // Initialize players data from match results
+      const playersData: { [key: string]: PlayerStats } = {};
+      
+      // First pass: collect all unique players and their beyblades
+      matches?.forEach(match => {
+        const p1 = match.player1_name;
+        const p2 = match.player2_name;
+        const b1 = match.player1_beyblade;
+        const b2 = match.player2_beyblade;
+        
+        if (!playersData[p1]) {
+          playersData[p1] = {
+            name: p1,
+            beys: [],
+            matches: [],
+            winFinishes: {},
+            loseFinishes: {},
+            beyStats: {},
+            wins: 0,
+            losses: 0,
+            points: 0
+          };
+        }
+        
+        if (!playersData[p2]) {
+          playersData[p2] = {
+            name: p2,
+            beys: [],
+            matches: [],
+            winFinishes: {},
+            loseFinishes: {},
+            beyStats: {},
+            wins: 0,
+            losses: 0,
+            points: 0
+          };
+        }
+        
+        // Add unique beyblades to player's list
+        if (b1 && !playersData[p1].beys.includes(b1)) {
+          playersData[p1].beys.push(b1);
+        }
+        if (b2 && !playersData[p2].beys.includes(b2)) {
+          playersData[p2].beys.push(b2);
+        }
+      });
+
       // Process matches
       matches?.forEach(match => {
         const p1 = match.player1_name;
         const p2 = match.player2_name;
         const b1 = match.player1_beyblade;
         const b2 = match.player2_beyblade;
-        const fullOutcome = match.outcome;
-        const finishType = fullOutcome.split(" (")[0].trim();
+        const fullOutcome = match.outcome || '';
+        const finishType = fullOutcome.split(" (")[0].trim() || 'Unknown';
         const winner = match.winner_name;
         const loser = winner === p1 ? p2 : p1;
         const winBey = winner === p1 ? b1 : b2;
         const loseBey = winner === p1 ? b2 : b1;
         const pts = FINISH_POINTS[finishType as keyof typeof FINISH_POINTS] || 0;
 
-        if (!playersData[winner] || !playersData[loser]) return;
+        if (!playersData[winner] || !playersData[loser] || !winner || !loser) return;
 
         // Update winner stats
         playersData[winner].wins++;
@@ -165,6 +178,8 @@ export function PlayerAnalytics() {
         });
 
         // Initialize beyblade stats if needed
+        if (!winBey || !loseBey) return;
+        
         if (!playersData[winner].beyStats[winBey]) {
           playersData[winner].beyStats[winBey] = { win: 0, loss: 0, finishes: {}, lossFinishes: {}, points: 0 };
         }
@@ -188,8 +203,11 @@ export function PlayerAnalytics() {
       setCurrentView('player');
       setShowAdvanced(false);
 
+      console.log('Players data loaded:', Object.keys(playersData).length, 'players');
+
     } catch (error) {
       console.error('Error fetching tournament data:', error);
+      setPlayers({});
     }
   };
 
