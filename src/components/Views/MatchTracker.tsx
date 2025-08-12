@@ -334,6 +334,7 @@ export function MatchTracker() {
   const handleDragEnd = () => {
     setDraggedItem(null);
   };
+
   const submitMatches = async () => {
     if (!tournamentOfficer.trim()) {
       alert("Please enter the Tournament Officer name before submitting.");
@@ -392,11 +393,16 @@ export function MatchTracker() {
           winner_name: p1Score > p2Score ? player1 : player2,
           total_matches: completeMatches.length,
           tournament_officer: tournamentOfficer,
-          session_data: {
-            matches: matchResults,
-            phases: Math.ceil(completeMatches.length / (selectedTournamentData?.beyblades_per_player || 3)),
-            deckOrders
-          }
+          match_summary: completeMatches.map(([index, match]) => {
+            const matchIndex = parseInt(index);
+            const beyUsed = getBey(match.winner!, matchIndex);
+            const beybladeCount = selectedTournamentData?.beyblades_per_player || 3;
+            const phaseNumber = Math.floor(matchIndex / beybladeCount) + 1;
+            const matchInPhase = (matchIndex % beybladeCount) + 1;
+            return `Phase ${phaseNumber}, Match ${matchInPhase}: ${match.outcome} by ${match.winner} using ${beyUsed}`;
+          }).join('; '),
+          phases: Object.keys(deckOrders).length + 1,
+          deck_orders: deckOrders
         });
 
       if (sessionError) throw sessionError;
