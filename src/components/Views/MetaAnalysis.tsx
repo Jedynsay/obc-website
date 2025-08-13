@@ -110,13 +110,26 @@ export function MetaAnalysis() {
   const fetchTournamentData = async () => {
     try {
       console.log('🔍 META ANALYSIS: Fetching tournament data for:', selectedTournament);
-      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes, matchesRes] = await Promise.all([
+      
+      // First, let's check what matches exist
+      const { data: matchCheck, error: matchCheckError } = await supabase
+        .from('match_results')
+        .select('*')
+        .eq('tournament_id', selectedTournament);
+      
+      console.log('🔍 META ANALYSIS: Match check result:', {
+        tournamentId: selectedTournament,
+        matchCount: matchCheck?.length || 0,
+        matches: matchCheck,
+        error: matchCheckError
+      });
+      
+      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes] = await Promise.all([
         supabase.from('beypart_blade').select('*'),
         supabase.from('beypart_ratchet').select('*'),
         supabase.from('beypart_bit').select('*'),
         supabase.from('beypart_lockchip').select('*'),
-        supabase.from('beypart_assistblade').select('*'),
-        supabase.from('match_results').select('*').eq('tournament_id', selectedTournament)
+        supabase.from('beypart_assistblade').select('*')
       ]);
 
       console.log('📊 META ANALYSIS: Raw data fetched:', {
@@ -125,8 +138,24 @@ export function MetaAnalysis() {
         bits: bitsRes.data?.length || 0,
         lockchips: lockchipsRes.data?.length || 0,
         assistBlades: assistBladesRes.data?.length || 0,
-        matches: matchesRes.data?.length || 0
+        matches: matchCheck?.length || 0
       });
+
+      // Check if we have match data
+      if (!matchCheck || matchCheck.length === 0) {
+        console.log('⚠️ META ANALYSIS: No match data found for tournament');
+        setPartsData({ 
+          blade: {}, 
+          ratchet: {}, 
+          bit: {}, 
+          lockchip: {},
+          mainBlade: {},
+          assistBlade: {}
+        });
+        setMatchData([]);
+        setBuildsData([]);
+        return;
+      }
 
       if (bladesRes.error) {
         throw bladesRes.error;
@@ -142,9 +171,6 @@ export function MetaAnalysis() {
       }
       if (assistBladesRes.error) {
         throw assistBladesRes.error;
-      }
-      if (matchesRes.error) {
-        throw matchesRes.error;
       }
 
       const newPartsData = { 
@@ -247,7 +273,7 @@ export function MetaAnalysis() {
         }
       });
 
-      const transformedMatches: MatchData[] = (matchesRes.data || []).map(match => ({
+      const transformedMatches: MatchData[] = (matchCheck || []).map(match => ({
         p1: match.player1_name || '',
         p2: match.player2_name || '',
         bey1: match.player1_beyblade || '',
@@ -259,6 +285,12 @@ export function MetaAnalysis() {
       console.log('🔄 META ANALYSIS: Transformed matches:', transformedMatches.length);
 
       setMatchData(transformedMatches);
+      
+      console.log('🔍 META ANALYSIS: Sample transformed match:', transformedMatches[0]);
+      console.log('🔍 META ANALYSIS: Parts data keys:', {
+        blades: Object.keys(newPartsData.blade).length,
+        ratchets: Object.keys(newPartsData.ratchet).length
+      });
 
       computeStats(newPartsData, transformedMatches);
       
@@ -282,6 +314,8 @@ export function MetaAnalysis() {
 
   const parseParts = (bey: string): { [key: string]: string } => {
     if (!bey || !bey.trim()) return {};
+
+    console.log('🔍 PARSING:', bey);
 
     const isCustom = Object.keys(partsData.lockchip).some(lockchip => 
       lockchip && bey.startsWith(lockchip)
@@ -343,6 +377,7 @@ export function MetaAnalysis() {
         ratchet,
         bit
       };
+      console.log('🔍 CUSTOM PARSED:', result);
     } else {
       let bit = '';
       let remainingBey = bey;
@@ -375,6 +410,7 @@ export function MetaAnalysis() {
         ratchet,
         bit
       };
+      console.log('🔍 STANDARD PARSED:', { blade, ratchet, bit });
     }
   };
 
@@ -613,6 +649,24 @@ export function MetaAnalysis() {
 
       {selectedTournament && (
         <>
+          {/* No Data Message */}
+          {matchData.length === 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+              <div className="flex items-center">
+                <div className="text-yellow-600 mr-3">⚠️</div>
+                <div>
+                  <h3 className="text-yellow-800 font-medium">No Match Data Available</h3>
+                  <p className="text-yellow-700 text-sm mt-1">
+                    This tournament has no completed matches yet. Meta analysis requires match results to generate statistics.
+                    {tournaments.find(t => t.id === selectedTournament)?.status === 'upcoming' && 
+                      ' Try selecting a completed tournament instead.'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
               <Target className="mr-2" size={24} />
@@ -745,38 +799,46 @@ export function MetaAnalysis() {
                   <BarChart3 className="mr-2" size={24} />
                   {getPartTypeLabel(partType)}
                 </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <SortableHeader sortKey="name">Name</SortableHeader>
-                        <SortableHeader sortKey="used">Usage</SortableHeader>
-                        <SortableHeader sortKey="wins">Wins</SortableHeader>
-                        <SortableHeader sortKey="losses">Losses</SortableHeader>
-                        <SortableHeader sortKey="winRate">Win Rate</SortableHeader>
-                        <SortableHeader sortKey="wilson">Wilson Score</SortableHeader>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {sortedPartsData(partType).map((part, index) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {part.name}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.used}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.wins}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.losses}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {part.winRate.toFixed(1)}%
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {part.wilson.toFixed(3)}
-                          </td>
+                {matchData.length === 0 ? (
+                  <div className="text-center py-8">
+                    <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-500">No data available for analysis</p>
+                    <p className="text-sm text-gray-400 mt-1">Complete some matches to see {getPartTypeLabel(partType).toLowerCase()} statistics</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <SortableHeader sortKey="name">Name</SortableHeader>
+                          <SortableHeader sortKey="used">Usage</SortableHeader>
+                          <SortableHeader sortKey="wins">Wins</SortableHeader>
+                          <SortableHeader sortKey="losses">Losses</SortableHeader>
+                          <SortableHeader sortKey="winRate">Win Rate</SortableHeader>
+                          <SortableHeader sortKey="wilson">Wilson Score</SortableHeader>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {sortedPartsData(partType).map((part, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {part.name}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.used}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.wins}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.losses}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {part.winRate.toFixed(1)}%
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {part.wilson.toFixed(3)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             ))}
           </div>
