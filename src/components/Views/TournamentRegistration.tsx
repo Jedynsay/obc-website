@@ -52,11 +52,11 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
     
     try {
       const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes] = await Promise.all([
-        supabase.from('Beyblade - Blades').select('*'),
-        supabase.from('Beyblade - Ratchets').select('*'),
-        supabase.from('Beyblade - Bit').select('*'),
-        supabase.from('Beyblade - Lockchips').select('*'),
-        supabase.from('Beyblade - Assist Blade').select('*')
+        supabase.from('beypart_blade').select('*'),
+        supabase.from('beypart_ratchet').select('*'),
+        supabase.from('beypart_bit').select('*'),
+        supabase.from('beypart_lockchip').select('*'),
+        supabase.from('beypart_assistblade').select('*')
       ]);
 
       // Check for errors
