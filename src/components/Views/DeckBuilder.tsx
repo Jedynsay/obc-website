@@ -1,0 +1,594 @@
+import React, { useState, useEffect } from 'react';
+import { Plus, Save, Trash2, Edit, X, Layers, Zap, Shield, Clock, Activity, ShieldCheck } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
+
+interface DeckPreset {
+  id: string;
+  name: string;
+  description?: string;
+  beyblades: BeybladeConfig[];
+  created_at: string;
+  updated_at: string;
+}
+
+interface BeybladeConfig {
+  id: string;
+  name: string;
+  blade_line: 'Basic' | 'Unique' | 'Custom' | 'X-Over';
+  parts: { [key: string]: any };
+}
+
+interface InventoryItem {
+  id: string;
+  part_type: string;
+  part_name: string;
+  part_data: any;
+  quantity: number;
+}
+
+export function DeckBuilder() {
+  const { user } = useAuth();
+  const [presets, setPresets] = useState<DeckPreset[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // Form state
+  const [deckName, setDeckName] = useState('');
+  const [deckDescription, setDeckDescription] = useState('');
+  const [beyblades, setBeyblades] = useState<BeybladeConfig[]>([
+    { id: '1', name: '', blade_line: 'Basic', parts: {} }
+  ]);
+
+  useEffect(() => {
+    if (user && !user.id.startsWith('guest-')) {
+      fetchPresets();
+      fetchInventory();
+    }
+  }, [user]);
+
+  const fetchPresets = async () => {
+    if (!user || user.id.startsWith('guest-')) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('deck_presets')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      setPresets(data || []);
+    } catch (error) {
+      console.error('Error fetching presets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchInventory = async () => {
+    if (!user || user.id.startsWith('guest-')) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_inventory')
+        .select('*')
+        .eq('user_id', user.id)
+        .gt('quantity', 0);
+
+      if (error) throw error;
+      setInventory(data || []);
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+    }
+  };
+
+  const getRequiredParts = (bladeLine: BeybladeConfig['blade_line']): string[] => {
+    switch (bladeLine) {
+      case 'Basic':
+      case 'Unique':
+      case 'X-Over':
+        return ['Blade', 'Ratchet', 'Bit'];
+      case 'Custom':
+        return ['Lockchip', 'Main Blade', 'Assist Blade', 'Ratchet', 'Bit'];
+      default:
+        return [];
+    }
+  };
+
+  const getAvailableParts = (partType: string) => {
+    const mappedType = partType === 'Main Blade' ? 'Blade' : partType;
+    return inventory.filter(item => item.part_type === mappedType);
+  };
+
+  const getPartDisplayName = (part: any, partType: string): string => {
+    switch (partType) {
+      case 'Blade':
+      case 'Main Blade':
+        return part.Blades;
+      case 'Ratchet':
+        return part.Ratchet;
+      case 'Bit':
+        return `${part.Bit} (${part.Shortcut})`;
+      case 'Lockchip':
+        return part.Lockchip;
+      case 'Assist Blade':
+        return `${part['Assist Blade Name']} (${part['Assist Blade']})`;
+      default:
+        return '';
+    }
+  };
+
+  const generateBeybladeName = (bladeLine: BeybladeConfig['blade_line'], parts: { [key: string]: any }): string => {
+    if (!bladeLine) return '';
+    
+    const requiredParts = getRequiredParts(bladeLine);
+    const hasAllParts = requiredParts.every(partType => parts[partType]);
+    
+    if (!hasAllParts) return '';
+
+    if (bladeLine === 'Custom') {
+      const lockchip = parts['Lockchip']?.Lockchip || '';
+      const mainBlade = parts['Main Blade']?.Blades || '';
+      const assistBlade = parts['Assist Blade']?.['Assist Blade'] || '';
+      const ratchet = parts['Ratchet']?.Ratchet || '';
+      const bit = parts['Bit']?.Shortcut || '';
+      
+      return `${lockchip}${mainBlade} ${assistBlade}${ratchet}${bit}`;
+    } else {
+      const blade = parts['Blade']?.Blades || '';
+      const ratchet = parts['Ratchet']?.Ratchet || '';
+      const bit = parts['Bit']?.Shortcut || '';
+      
+      return `${blade} ${ratchet}${bit}`;
+    }
+  };
+
+  const calculateBeybladeStats = (parts: { [key: string]: any }) => {
+    let stats = {
+      attack: 0,
+      defense: 0,
+      stamina: 0,
+      dash: 0,
+      burstRes: 0
+    };
+
+    Object.values(parts).forEach((part: any) => {
+      if (part) {
+        stats.attack += part.Attack || 0;
+        stats.defense += part.Defense || 0;
+        stats.stamina += part.Stamina || 0;
+        stats.dash += part.Dash || 0;
+        stats.burstRes += part['Burst Res'] || 0;
+      }
+    });
+
+    return stats;
+  };
+
+  const startCreate = () => {
+    setIsCreating(true);
+    setDeckName('');
+    setDeckDescription('');
+    setBeyblades([{ id: '1', name: '', blade_line: 'Basic', parts: {} }]);
+  };
+
+  const startEdit = (preset: DeckPreset) => {
+    setEditingId(preset.id);
+    setDeckName(preset.name);
+    setDeckDescription(preset.description || '');
+    setBeyblades(preset.beyblades);
+  };
+
+  const addBeyblade = () => {
+    if (beyblades.length < 5) {
+      setBeyblades([
+        ...beyblades,
+        { id: Date.now().toString(), name: '', blade_line: 'Basic', parts: {} }
+      ]);
+    }
+  };
+
+  const removeBeyblade = (id: string) => {
+    if (beyblades.length > 1) {
+      setBeyblades(beyblades.filter(b => b.id !== id));
+    }
+  };
+
+  const updateBeyblade = (id: string, field: keyof BeybladeConfig, value: any) => {
+    setBeyblades(beyblades.map(b => {
+      if (b.id === id) {
+        if (field === 'blade_line') {
+          const newBeyblade = { ...b, [field]: value, parts: {} };
+          newBeyblade.name = generateBeybladeName(value, {});
+          return newBeyblade;
+        }
+        return { ...b, [field]: value };
+      }
+      return b;
+    }));
+  };
+
+  const updatePart = (beybladeId: string, partType: string, selectedPart: any) => {
+    setBeyblades(beyblades.map(b => {
+      if (b.id === beybladeId) {
+        const newParts = { ...b.parts, [partType]: selectedPart };
+        const newName = generateBeybladeName(b.blade_line, newParts);
+        return {
+          ...b,
+          parts: newParts,
+          name: newName
+        };
+      }
+      return b;
+    }));
+  };
+
+  const savePreset = async () => {
+    if (!user || user.id.startsWith('guest-')) {
+      alert('Please log in to save deck presets.');
+      return;
+    }
+
+    if (!deckName.trim()) {
+      alert('Please enter a deck name.');
+      return;
+    }
+
+    const validBeyblades = beyblades.filter(b => {
+      const requiredParts = getRequiredParts(b.blade_line);
+      return b.blade_line && requiredParts.every(partType => b.parts[partType]);
+    });
+
+    if (validBeyblades.length === 0) {
+      alert('Please configure at least one complete Beyblade.');
+      return;
+    }
+
+    try {
+      const presetData = {
+        user_id: user.id,
+        name: deckName.trim(),
+        description: deckDescription.trim() || null,
+        beyblades: validBeyblades
+      };
+
+      if (isCreating) {
+        const { error } = await supabase
+          .from('deck_presets')
+          .insert([presetData]);
+        
+        if (error) throw error;
+      } else if (editingId) {
+        const { error } = await supabase
+          .from('deck_presets')
+          .update({ ...presetData, updated_at: new Date().toISOString() })
+          .eq('id', editingId);
+        
+        if (error) throw error;
+      }
+
+      await fetchPresets();
+      cancelEdit();
+      alert('Deck preset saved successfully!');
+    } catch (error) {
+      console.error('Error saving preset:', error);
+      alert('Failed to save deck preset. Please try again.');
+    }
+  };
+
+  const deletePreset = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this deck preset?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('deck_presets')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchPresets();
+    } catch (error) {
+      console.error('Error deleting preset:', error);
+      alert('Failed to delete deck preset. Please try again.');
+    }
+  };
+
+  const cancelEdit = () => {
+    setIsCreating(false);
+    setEditingId(null);
+    setDeckName('');
+    setDeckDescription('');
+    setBeyblades([{ id: '1', name: '', blade_line: 'Basic', parts: {} }]);
+  };
+
+  const getStatIcon = (stat: string) => {
+    switch (stat) {
+      case 'attack': return <Zap size={12} className="text-red-500" />;
+      case 'defense': return <Shield size={12} className="text-blue-500" />;
+      case 'stamina': return <Clock size={12} className="text-green-500" />;
+      case 'dash': return <Activity size={12} className="text-yellow-500" />;
+      case 'burstRes': return <ShieldCheck size={12} className="text-purple-500" />;
+      default: return null;
+    }
+  };
+
+  const getStatColor = (stat: string) => {
+    switch (stat) {
+      case 'attack': return 'bg-red-500';
+      case 'defense': return 'bg-blue-500';
+      case 'stamina': return 'bg-green-500';
+      case 'dash': return 'bg-yellow-500';
+      case 'burstRes': return 'bg-purple-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  if (user?.id.startsWith('guest-')) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <Layers size={48} className="mx-auto text-gray-400 mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Deck Builder</h2>
+          <p className="text-gray-600 mb-6">Create and save deck presets</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+            <p className="text-blue-800 text-sm">
+              Build custom decks from your inventory and save presets for quick tournament registration.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading deck builder...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Deck Builder</h1>
+          <p className="text-gray-600">Create and save Beyblade deck presets from your inventory</p>
+        </div>
+        <button
+          onClick={startCreate}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+        >
+          <Plus size={20} />
+          <span>New Deck</span>
+        </button>
+      </div>
+
+      {/* Create/Edit Form */}
+      {(isCreating || editingId) && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            {isCreating ? 'Create New Deck' : 'Edit Deck'}
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Deck Name</label>
+              <input
+                type="text"
+                value={deckName}
+                onChange={(e) => setDeckName(e.target.value)}
+                placeholder="Enter deck name"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+              <input
+                type="text"
+                value={deckDescription}
+                onChange={(e) => setDeckDescription(e.target.value)}
+                placeholder="Deck strategy or notes"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Beyblades Configuration */}
+          <div className="space-y-6">
+            {beyblades.map((beyblade, index) => (
+              <div key={beyblade.id} className="border border-gray-200 rounded-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Beyblade #{index + 1}
+                  </h3>
+                  {beyblades.length > 1 && (
+                    <button
+                      onClick={() => removeBeyblade(beyblade.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Blade Line</label>
+                    <select
+                      value={beyblade.blade_line}
+                      onChange={(e) => updateBeyblade(beyblade.id, 'blade_line', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="Basic">Basic</option>
+                      <option value="Unique">Unique</option>
+                      <option value="Custom">Custom</option>
+                      <option value="X-Over">X-Over</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Generated Name</label>
+                    <div className="w-full border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-gray-700 font-mono">
+                      {beyblade.name || 'Select all parts to generate name'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Parts Selection */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                  {getRequiredParts(beyblade.blade_line).map((partType) => (
+                    <div key={partType}>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {partType}
+                      </label>
+                      <select
+                        value={beyblade.parts[partType] ? JSON.stringify(beyblade.parts[partType]) : ''}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const selectedPart = JSON.parse(e.target.value);
+                            updatePart(beyblade.id, partType, selectedPart);
+                          }
+                        }}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select {partType}</option>
+                        {getAvailableParts(partType).map((item) => (
+                          <option key={item.id} value={JSON.stringify(item.part_data)}>
+                            {item.part_name} (Qty: {item.quantity})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Stats Display */}
+                {Object.keys(beyblade.parts).length > 0 && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h5 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                      <Activity size={16} className="mr-2" />
+                      Combined Stats
+                    </h5>
+                    <div className="grid grid-cols-5 gap-4">
+                      {Object.entries(calculateBeybladeStats(beyblade.parts)).map(([stat, value]) => (
+                        <div key={stat} className="text-center">
+                          <div className="flex items-center justify-center mb-1">
+                            {getStatIcon(stat)}
+                          </div>
+                          <div className="text-xs font-medium text-gray-600 capitalize">
+                            {stat === 'burstRes' ? 'Burst Res' : stat}
+                          </div>
+                          <div className="text-lg font-bold text-gray-900">{value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {beyblades.length < 5 && (
+            <button
+              onClick={addBeyblade}
+              className="mt-4 w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors flex items-center justify-center space-x-2"
+            >
+              <Plus size={20} />
+              <span>Add Another Beyblade ({beyblades.length}/5)</span>
+            </button>
+          )}
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={cancelEdit}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            >
+              <X size={16} />
+              <span>Cancel</span>
+            </button>
+            <button
+              onClick={savePreset}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <Save size={16} />
+              <span>Save Preset</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Presets List */}
+      {presets.length === 0 ? (
+        <div className="text-center py-12">
+          <Layers size={48} className="mx-auto text-gray-400 mb-4" />
+          <p className="text-gray-500">No deck presets yet</p>
+          <button
+            onClick={startCreate}
+            className="mt-4 text-blue-600 hover:text-blue-800 underline"
+          >
+            Create your first deck preset
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {presets.map((preset) => (
+            <div key={preset.id} className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{preset.name}</h3>
+                  {preset.description && (
+                    <p className="text-sm text-gray-600 mt-1">{preset.description}</p>
+                  )}
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => startEdit(preset)}
+                    className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    onClick={() => deletePreset(preset.id)}
+                    className="p-1 text-red-600 hover:bg-red-50 rounded"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2 mb-4">
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">{preset.beyblades.length}</span> Beyblades configured
+                </div>
+                <div className="space-y-1">
+                  {preset.beyblades.slice(0, 3).map((beyblade, index) => (
+                    <div key={index} className="text-xs text-gray-500 font-mono">
+                      {beyblade.name || `Beyblade ${index + 1}`}
+                    </div>
+                  ))}
+                  {preset.beyblades.length > 3 && (
+                    <div className="text-xs text-gray-400">
+                      +{preset.beyblades.length - 3} more...
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-xs text-gray-500 pt-2 border-t">
+                Updated: {new Date(preset.updated_at).toLocaleDateString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
