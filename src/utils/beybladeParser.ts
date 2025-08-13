@@ -47,14 +47,14 @@ export function calculateWilsonScore(wins: number, total: number, z: number = 1.
 
 // Check if a Beyblade is Custom type by looking for lockchip prefix
 function tryParseStandardBeyblade(beybladeName: string, bladeLine: string, partsData: AllPartsData): ParsedBeyblade | null {
-  console.log(`⚙️ PARSER: Attempting Standard parsing for: "${beybladeName}"`);
+  console.log(`⚙️ PARSER: Attempting ${bladeLine} parsing for: "${beybladeName}"`);
   
   let remainingName = beybladeName;
   
   // 1. Find bit (suffix) - try both shortcuts and full names
   const bitResult = findBit(remainingName, partsData.bits);
   if (!bitResult) {
-    console.log(`❌ PARSER: Standard parsing failed - no bit found`);
+    console.log(`❌ PARSER: ${bladeLine} parsing failed - no bit found`);
     return null;
   }
   
@@ -64,7 +64,7 @@ function tryParseStandardBeyblade(beybladeName: string, bladeLine: string, parts
   // 2. Find ratchet (suffix)
   const ratchetResult = findRatchet(remainingName, partsData.ratchets);
   if (!ratchetResult) {
-    console.log(`❌ PARSER: Standard parsing failed - no ratchet found`);
+    console.log(`❌ PARSER: ${bladeLine} parsing failed - no ratchet found`);
     return null;
   }
   
@@ -77,7 +77,7 @@ function tryParseStandardBeyblade(beybladeName: string, bladeLine: string, parts
     blade.Line === bladeLine
   ));
   if (!bladeResult) {
-    console.log(`❌ PARSER: Standard parsing failed - no ${bladeLine} blade found for "${remainingName}"`);
+    console.log(`❌ PARSER: ${bladeLine} parsing failed - no ${bladeLine} blade found for "${remainingName}"`);
     return null;
   }
   
@@ -88,7 +88,7 @@ function tryParseStandardBeyblade(beybladeName: string, bladeLine: string, parts
     bit: bitResult.bitName
   };
   
-  console.log(`✅ PARSER: Standard parsing successful:`, result);
+  console.log(`✅ PARSER: ${bladeLine} parsing successful:`, result);
   return result;
 }
 
@@ -281,73 +281,38 @@ function findAssistBlade(remainingName: string, assistBlades: any[]): { assistBl
   return null;
 }
 // Main parsing function
-export function parseBeybladeName(beybladeName: string, bladeLine: string, partsData: AllPartsData): ParsedBeyblade {
+export function parseBeybladeName(beybladeName: string, bladeLine: string | undefined, partsData: AllPartsData): ParsedBeyblade {
   if (!beybladeName || !beybladeName.trim()) {
     console.log(`❌ PARSER: Empty beyblade name`);
     return { isCustom: false };
   }
   
-  console.log(`\n🎯 PARSER: Starting to parse "${beybladeName}" with blade line: "${bladeLine}"`);
+  console.log(`\n🎯 PARSER: Starting to parse "${beybladeName}"`);
   
-  // Auto-detect blade line if missing or defaulted to Basic
-  let detectedBladeLine = bladeLine;
-  if (!bladeLine || bladeLine === 'Basic') {
-    detectedBladeLine = detectBladeLineFromName(beybladeName, partsData);
-    if (detectedBladeLine !== bladeLine) {
-      console.log(`🔍 PARSER: Auto-detected blade line: "${detectedBladeLine}" (was: "${bladeLine}")`);
-    }
-  }
+  // Try parsing in order: Basic → Unique → X-Over → Custom
+  const bladeLinesToTry = ['Basic', 'Unique', 'X-Over', 'Custom'];
   
-  // Use blade line to determine parsing method
-  if (detectedBladeLine === 'Custom') {
-    console.log(`🔧 PARSER: Using Custom parsing for Custom blade line`);
-    const customResult = tryParseCustomBeyblade(beybladeName, partsData);
-    if (customResult) {
-      console.log(`🎯 PARSER: Successfully parsed as Custom Beyblade`);
-      return customResult;
-    }
-    console.log(`❌ PARSER: Custom parsing failed for "${beybladeName}"`);
-  } else {
-    // Basic, Unique, X-Over use standard parsing
-    console.log(`⚙️ PARSER: Using Standard parsing for ${detectedBladeLine} blade line`);
-    const standardResult = tryParseStandardBeyblade(beybladeName, detectedBladeLine, partsData);
-    if (standardResult) {
-      console.log(`🎯 PARSER: Successfully parsed as Standard Beyblade`);
-      return standardResult;
-    }
-    console.log(`❌ PARSER: Standard parsing failed for "${beybladeName}"`);
+  for (const lineToTry of bladeLinesToTry) {
+    console.log(`🔍 PARSER: Trying ${lineToTry} blade line...`);
     
-    // If standard parsing failed and we haven't tried Custom yet, try it
-    if (detectedBladeLine !== 'Custom') {
-      console.log(`🔄 PARSER: Trying Custom parsing as fallback`);
+    if (lineToTry === 'Custom') {
       const customResult = tryParseCustomBeyblade(beybladeName, partsData);
       if (customResult) {
-        console.log(`🎯 PARSER: Successfully parsed as Custom Beyblade (fallback)`);
+        console.log(`🎯 PARSER: Successfully parsed as ${lineToTry} Beyblade`);
         return customResult;
       }
+    } else {
+      // Basic, Unique, X-Over use standard parsing
+      const standardResult = tryParseStandardBeyblade(beybladeName, lineToTry, partsData);
+      if (standardResult) {
+        console.log(`🎯 PARSER: Successfully parsed as ${lineToTry} Beyblade`);
+        return standardResult;
+      }
     }
+    
+    console.log(`❌ PARSER: ${lineToTry} parsing failed`);
   }
   
-  console.log(`❌ PARSER: All parsing attempts failed for "${beybladeName}" with blade line "${detectedBladeLine}"`);
+  console.log(`❌ PARSER: All parsing attempts failed for "${beybladeName}"`);
   return { isCustom: false };
-}
-
-// Auto-detect blade line from Beyblade name structure
-function detectBladeLineFromName(beybladeName: string, partsData: AllPartsData): string {
-  console.log(`🔍 PARSER: Auto-detecting blade line for "${beybladeName}"`);
-  
-  // Check if it starts with a known lockchip (indicates Custom)
-  const lockchips = partsData.lockchips || [];
-  for (const lockchip of lockchips) {
-    const lockchipName = lockchip.Lockchip;
-    if (lockchipName && beybladeName.startsWith(lockchipName)) {
-      console.log(`✅ PARSER: Detected Custom blade line (starts with lockchip: ${lockchipName})`);
-      return 'Custom';
-    }
-  }
-  
-  // For now, default to Basic if no lockchip detected
-  // TODO: Add detection for Unique and X-Over based on blade database
-  console.log(`📝 PARSER: Defaulting to Basic blade line`);
-  return 'Basic';
 }
