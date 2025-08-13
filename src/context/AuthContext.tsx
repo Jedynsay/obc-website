@@ -18,25 +18,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false); // Start with false, no loading
 
   useEffect(() => {
-    // Force guest mode - no authentication loading
-    console.log('🚪 FORCED GUEST MODE - No authentication loading');
-    setUser(null);
-    setLoading(false);
-    
-    // Clear any existing session silently, but only if one exists
-    const clearSession = async () => {
+    // Check for existing session
+    const checkSession = async () => {
+      setLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          await supabase.auth.signOut();
+        if (session?.user) {
+          // Get user profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .limit(1);
+
+          if (profile && profile.length > 0) {
+            setUser({
+              id: profile[0].id,
+              username: profile[0].username,
+              email: profile[0].email || '',
+              role: profile[0].role || 'user',
+              joinedDate: profile[0].created_at
+            });
+          }
         }
       } catch (error) {
-        // Ignore errors, we just want to be logged out
-        console.log('Session cleanup completed');
+        console.error('Session check error:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    
-    clearSession();
+
+    checkSession();
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
