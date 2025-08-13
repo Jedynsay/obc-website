@@ -11,38 +11,10 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'user' | 'technical_officer' | 'admin' | 'developer'>('user');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const { signup } = useAuth();
-
-  const roleOptions = [
-    { 
-      value: 'user', 
-      label: 'Player', 
-      description: 'Participate in tournaments, manage inventory, and build decks',
-      color: 'bg-gray-100 text-gray-800'
-    },
-    { 
-      value: 'technical_officer', 
-      label: 'Technical Officer', 
-      description: 'Track matches, view analytics, and assist with tournament operations',
-      color: 'bg-blue-100 text-blue-800'
-    },
-    { 
-      value: 'admin', 
-      label: 'Tournament Admin', 
-      description: 'Manage tournaments, users, and oversee community operations',
-      color: 'bg-red-100 text-red-800'
-    },
-    { 
-      value: 'developer', 
-      label: 'Developer', 
-      description: 'Full system access including database management and development',
-      color: 'bg-purple-100 text-purple-800'
-    }
-  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +47,7 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
       setLoading(false);
       return;
     }
-    const success = await signup(username.trim(), email.trim(), password, selectedRole);
+    const success = await signup(username.trim(), email.trim(), password, 'user');
     if (success) {
       setSuccess(true);
     } else {
@@ -94,7 +66,7 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Account Created!</h2>
             <p className="text-gray-600 mb-6">
-              Your account has been successfully created with {roleOptions.find(r => r.value === selectedRole)?.label} role. You can now sign in to access the system.
+              Your account has been successfully created! You can now sign in to access the system.
             </p>
             <button
               onClick={onBackToLogin}
@@ -188,35 +160,6 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Account Type
-            </label>
-            <div className="space-y-3">
-              {roleOptions.map((role) => (
-                <label key={role.value} className="flex items-start cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value={role.value}
-                    checked={selectedRole === role.value}
-                    onChange={(e) => setSelectedRole(e.target.value as any)}
-                    className="mt-1 mr-3 text-blue-600 focus:ring-blue-500"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium text-gray-900">{role.label}</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${role.color}`}>
-                        {role.value.replace('_', ' ')}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600">{role.description}</p>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
-
           {error && (
             <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">{error}</div>
           )}
@@ -232,7 +175,7 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
 
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
-            By creating an account, you agree to participate in tournaments and follow community guidelines.
+            By creating an account, you agree to participate in tournaments and follow community guidelines. All new accounts start with basic user permissions.
           </p>
         </div>
       </div>
