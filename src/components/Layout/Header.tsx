@@ -114,8 +114,7 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] overflow-y-auto">
-          <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
             <div className="relative w-full max-w-md">
               <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
               <button
