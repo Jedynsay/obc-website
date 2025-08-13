@@ -110,13 +110,6 @@ export function Analytics() {
     calculateWinRates();
   }, []);
 
-  if (currentView === 'meta') {
-    return <MetaAnalysis />;
-  }
-
-  if (currentView === 'player') {
-    return <PlayerAnalytics />;
-  }
 
   const stats = [
     { icon: Trophy, label: 'Total Tournaments', value: analytics.totalTournaments, color: 'text-blue-600', bgColor: 'bg-blue-100' },

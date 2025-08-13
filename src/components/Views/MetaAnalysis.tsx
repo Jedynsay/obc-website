@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Target, Users, ChevronDown, ChevronUp, Trophy, ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../context/AuthContext';
 import { 
   parseBeybladeName, 
   calculateWilsonScore, 
@@ -10,6 +9,10 @@ import {
   type BuildStats,
   type ParsedBeyblade 
 } from '../../utils/beybladeParser';
+
+interface MetaAnalysisProps {
+  onBack?: () => void;
+}
 
 interface Tournament {
   id: string;
@@ -40,8 +43,7 @@ interface ProcessedMatch {
   parsedParts: ParsedBeyblade;
 }
 
-export function MetaAnalysis() {
-  const { user } = useAuth();
+export function MetaAnalysis({ onBack }: MetaAnalysisProps) {
   
   // State management
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -461,7 +463,7 @@ export function MetaAnalysis() {
       <div className="mb-8">
         <div className="flex items-center space-x-4 mb-2">
           <button
-            onClick={() => window.history.back()}
+            onClick={onBack}
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
             title="Go Back"
           >

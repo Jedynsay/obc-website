@@ -4,6 +4,10 @@ import { supabase } from '../../lib/supabase';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
 
+interface PlayerAnalyticsProps {
+  onBack?: () => void;
+}
+
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 interface PlayerStats {
@@ -40,7 +44,7 @@ const FINISH_POINTS = {
   "Extreme Finish": 3
 };
 
-export function PlayerAnalytics() {
+export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
   const [tournaments, setTournaments] = useState([]);
   const [selectedTournament, setSelectedTournament] = useState<string>('');
   const [players, setPlayers] = useState<{ [key: string]: PlayerStats }>({});
@@ -508,7 +512,7 @@ export function PlayerAnalytics() {
       <div className="mb-8">
         <div className="flex items-center space-x-4 mb-2">
           <button
-            onClick={() => window.history.back()}
+            onClick={onBack}
             className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
             title="Go Back"
           >
