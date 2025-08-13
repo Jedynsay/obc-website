@@ -134,7 +134,7 @@ function tryParseCustomBeyblade(beybladeName: string, partsData: AllPartsData): 
     return null;
   }
   
-  remainingName = remainingName.slice(assistBladeResult.assistBladeName.length).trim();
+  remainingName = remainingName.slice(0, remainingName.length - assistBladeResult.assistBladeName.length).trim();
   console.log(`🔧 PARSER: After assist blade removal: "${remainingName}"`);
   
   // 5. What's left should be the main blade - check Custom line
