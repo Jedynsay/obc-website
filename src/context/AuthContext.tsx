@@ -14,72 +14,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start with false, no loading
 
   useEffect(() => {
-    let mounted = true;
+    // Force guest mode - no authentication loading
+    console.log('🚪 FORCED GUEST MODE - No authentication loading');
+    setUser(null);
+    setLoading(false);
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 AUTH STATE CHANGE:', event, 'Session exists:', !!session);
-      
-      if (session?.user) {
-        try {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-
-          if (mounted) {
-            if (profile && !error) {
-              console.log('✅ Profile loaded:', profile.username, profile.role);
-              setUser({
-                id: profile.id,
-                username: profile.username,
-                email: profile.email || session.user.email || '',
-                role: profile.role || 'user',
-                joinedDate: profile.created_at
-              });
-            } else {
-              console.log('❌ No profile found for user:', session.user.id, 'Clearing invalid session...');
-              // Clear the invalid session
-              await supabase.auth.signOut();
-              setUser(null);
-            }
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('Error loading profile:', error);
-          if (mounted) {
-            console.log('🚪 Error loading profile, clearing session...');
-            // Clear the session on error
-            await supabase.auth.signOut();
-            setUser(null);
-            setLoading(false);
-          }
-        }
-      } else {
-        console.log('🚪 No session - user logged out');
-        if (mounted) {
-          setUser(null);
-          setLoading(false);
-        }
-      }
+    // Clear any existing session silently
+    supabase.auth.signOut().catch(() => {
+      // Ignore errors, we just want to be logged out
     });
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log('🔍 Initial session check:', !!session, error ? `Error: ${error.message}` : 'No error');
-      if (!session && mounted) {
-        setLoading(false);
-      }
-      // If there is a session, the onAuthStateChange will handle it
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
@@ -109,7 +55,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('❌ SUPABASE AUTH ERROR:', error.message, 'Code:', error.status);
         return false;
       }
-      return !error;
+
+      // Set user immediately after successful login
+      setUser({
+        id: profile.id,
+        username: profile.username,
+        email: profile.email || '',
+        role: profile.role || 'user',
+        joinedDate: profile.created_at
+      });
+
+      return true;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -152,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async (): Promise<void> => {
     await supabase.auth.signOut();
     setUser(null);
+    console.log('🚪 LOGGED OUT - Back to guest mode');
   };
 
   return (
