@@ -44,14 +44,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('🔐 LOGIN ATTEMPT - Username:', username);
       
       // Find user by username to get their email
-      const { data: profile, error: profileError } = await supabase
+      const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('username', username)
-        .maybeSingle();
+        .limit(1);
 
-      if (profileError || !profile) {
-        console.error('❌ LOGIN FAILED - Profile not found:', profileError);
+      if (profileError) {
+        console.error('❌ LOGIN FAILED - Database error:', profileError);
+        return false;
+      }
+
+      if (!profiles || profiles.length === 0) {
+        console.error('❌ LOGIN FAILED - No profile found for username:', username);
+        return false;
+      }
+
+      const profile = profiles[0];
+      
+      if (!profile.email) {
+        console.error('❌ LOGIN FAILED - Profile has no email:', profile);
         return false;
       }
 

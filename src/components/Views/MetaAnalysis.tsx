@@ -99,21 +99,48 @@ export function MetaAnalysis() {
   const fetchTournamentData = async () => {
     try {
       // Fetch Beyblade parts data from all tables
-      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes, matchesRes] = await Promise.all([
-        supabase.from('beypart_blade').select('*'),
-        supabase.from('beypart_ratchet').select('*'),
-        supabase.from('beypart_bit').select('*'),
-        supabase.from('beypart_lockchip').select('*'),
-        supabase.from('beypart_assistblade').select('*'),
-        supabase.from('match_results').select('*').eq('tournament_id', selectedTournament)
-      ]);
+      console.log('🔍 Fetching tournament data for:', selectedTournament);
+      
+      const bladesRes = await supabase.from('beypart_blade').select('*');
+      const ratchetsRes = await supabase.from('beypart_ratchet').select('*');
+      const bitsRes = await supabase.from('beypart_bit').select('*');
+      const lockchipsRes = await supabase.from('beypart_lockchip').select('*');
+      const assistBladesRes = await supabase.from('beypart_assistblade').select('*');
+      const matchesRes = await supabase.from('match_results').select('*').eq('tournament_id', selectedTournament);
 
-      if (bladesRes.error) throw bladesRes.error;
-      if (ratchetsRes.error) throw ratchetsRes.error;
-      if (bitsRes.error) throw bitsRes.error;
-      if (lockchipsRes.error) throw lockchipsRes.error;
-      if (assistBladesRes.error) throw assistBladesRes.error;
-      if (matchesRes.error) throw matchesRes.error;
+      console.log('📊 Parts data loaded:', {
+        blades: bladesRes.data?.length || 0,
+        ratchets: ratchetsRes.data?.length || 0,
+        bits: bitsRes.data?.length || 0,
+        lockchips: lockchipsRes.data?.length || 0,
+        assistBlades: assistBladesRes.data?.length || 0,
+        matches: matchesRes.data?.length || 0
+      });
+
+      if (bladesRes.error) {
+        console.error('❌ Blades error:', bladesRes.error);
+        throw bladesRes.error;
+      }
+      if (ratchetsRes.error) {
+        console.error('❌ Ratchets error:', ratchetsRes.error);
+        throw ratchetsRes.error;
+      }
+      if (bitsRes.error) {
+        console.error('❌ Bits error:', bitsRes.error);
+        throw bitsRes.error;
+      }
+      if (lockchipsRes.error) {
+        console.error('❌ Lockchips error:', lockchipsRes.error);
+        throw lockchipsRes.error;
+      }
+      if (assistBladesRes.error) {
+        console.error('❌ Assist blades error:', assistBladesRes.error);
+        throw assistBladesRes.error;
+      }
+      if (matchesRes.error) {
+        console.error('❌ Matches error:', matchesRes.error);
+        throw matchesRes.error;
+      }
 
       // Initialize parts data
       const newPartsData = { 
@@ -238,6 +265,8 @@ export function MetaAnalysis() {
       // Compute stats
       computeStats(newPartsData, transformedMatches);
       setPartsData(newPartsData);
+      
+      console.log('✅ Meta analysis data loaded successfully');
 
     } catch (error) {
       console.error('Error fetching tournament data:', error);
