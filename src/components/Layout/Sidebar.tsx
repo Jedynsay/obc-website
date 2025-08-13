@@ -13,14 +13,15 @@ interface MenuItem {
   label: string;
   icon: React.ReactNode;
   roles: string[];
+  requiresAuth?: boolean;
 }
 
 const menuItems: MenuItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
   { id: 'tournaments', label: 'Tournaments', icon: <Trophy size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
-  { id: 'inventory', label: 'My Inventory', icon: <Package size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
-  { id: 'deck-builder', label: 'Deck Builder', icon: <Layers size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
-  { id: 'settings', label: 'Settings', icon: <Settings size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
+  { id: 'inventory', label: 'My Inventory', icon: <Package size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'], requiresAuth: true },
+  { id: 'deck-builder', label: 'Deck Builder', icon: <Layers size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'], requiresAuth: true },
+  { id: 'settings', label: 'Settings', icon: <Settings size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'], requiresAuth: true },
   { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} />, roles: ['technical_officer', 'admin', 'developer'] },
   { id: 'match-tracker', label: 'Match Tracker', icon: <Calendar size={20} />, roles: ['technical_officer', 'admin', 'developer'] },
   { id: 'tournament-manager', label: 'Tournament Manager', icon: <Settings size={20} />, roles: ['admin', 'developer'] },
@@ -32,7 +33,10 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
   const { user } = useAuth();
 
   const filteredMenuItems = menuItems.filter(item => 
-    !user || item.roles.includes(user?.role || 'user')
+    // For guest users (no user), only show items that don't require auth and are for 'user' role
+    !user ? (!item.requiresAuth && item.roles.includes('user')) :
+    // For authenticated users, show items based on their role
+    item.roles.includes(user.role || 'user')
   );
 
   return (

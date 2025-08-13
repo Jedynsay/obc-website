@@ -48,7 +48,21 @@ export function Settings() {
         <div className="text-center py-12">
           <SettingsIcon size={48} className="mx-auto text-gray-400 mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Settings</h2>
-          <p className="text-gray-600 mb-6">Please log in to access settings</p>
+          <p className="text-gray-600 mb-6">Manage your account settings and preferences</p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                🔒
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Login Required</h3>
+            <p className="text-yellow-800 text-sm mb-4">
+              You need to create an account and log in to access your account settings.
+            </p>
+            <p className="text-yellow-700 text-xs">
+              Create a free account to customize your profile and preferences!
+            </p>
+          </div>
         </div>
       </div>
     );

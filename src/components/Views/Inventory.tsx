@@ -239,9 +239,23 @@ export function Inventory() {
           <Package size={48} className="mx-auto text-gray-400 mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Inventory Tracker</h2>
           <p className="text-gray-600 mb-6">Manage your Beyblade parts inventory</p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto mb-6">
             <p className="text-blue-800 text-sm">
               Track your Beyblade parts, build custom decks, and save presets for tournament registration.
+            </p>
+          </div>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                🔒
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Login Required</h3>
+            <p className="text-yellow-800 text-sm mb-4">
+              You need to create an account and log in to access the inventory tracker feature.
+            </p>
+            <p className="text-yellow-700 text-xs">
+              Create a free account to start tracking your Beyblade parts and building custom decks!
             </p>
           </div>
         </div>
