@@ -46,7 +46,7 @@ export function calculateWilsonScore(wins: number, total: number, z: number = 1.
 }
 
 // Check if a Beyblade is Custom type by looking for lockchip prefix
-function tryParseStandardBeyblade(beybladeName: string, partsData: AllPartsData): ParsedBeyblade | null {
+function tryParseStandardBeyblade(beybladeName: string, bladeLine: string, partsData: AllPartsData): ParsedBeyblade | null {
   console.log(`⚙️ PARSER: Attempting Standard parsing for: "${beybladeName}"`);
   
   let remainingName = beybladeName;
@@ -71,12 +71,13 @@ function tryParseStandardBeyblade(beybladeName: string, partsData: AllPartsData)
   remainingName = remainingName.slice(0, remainingName.length - ratchetResult.ratchetName.length).trim();
   console.log(`⚙️ PARSER: After ratchet removal: "${remainingName}"`);
   
-  // 3. What's left should be the blade - check Basic and Unique lines
+  // 3. What's left should be the blade - check specific blade line
+  console.log(`🔍 PARSER: Looking for ${bladeLine} blade: "${remainingName}"`);
   const bladeResult = findBlade(remainingName, partsData.blades.filter(blade => 
-    blade.Line === 'Basic' || blade.Line === 'Unique'
+    blade.Line === bladeLine
   ));
   if (!bladeResult) {
-    console.log(`❌ PARSER: Standard parsing failed - no Basic/Unique blade found for "${remainingName}"`);
+    console.log(`❌ PARSER: Standard parsing failed - no ${bladeLine} blade found for "${remainingName}"`);
     return null;
   }
   
@@ -269,30 +270,34 @@ function findAssistBlade(remainingName: string, assistBlades: any[]): { assistBl
   
 }
 // Main parsing function
-export function parseBeybladeName(beybladeName: string, partsData: AllPartsData): ParsedBeyblade {
+export function parseBeybladeName(beybladeName: string, bladeLine: string, partsData: AllPartsData): ParsedBeyblade {
   if (!beybladeName || !beybladeName.trim()) {
     console.log(`❌ PARSER: Empty beyblade name`);
     return { isCustom: false };
   }
   
-  console.log(`\n🎯 PARSER: Starting to parse "${beybladeName}" - Priority: Standard first, then Custom`);
+  console.log(`\n🎯 PARSER: Starting to parse "${beybladeName}" with blade line: "${bladeLine}"`);
   
-  // 1. Try Standard parsing first (Basic/Unique Blade + Ratchet + Bit)
-  const standardResult = tryParseStandardBeyblade(beybladeName, partsData);
-  if (standardResult) {
-    console.log(`🎯 PARSER: Successfully parsed as Standard Beyblade`);
-    return standardResult;
+  // Use blade line to determine parsing method
+  if (bladeLine === 'Custom') {
+    console.log(`🔧 PARSER: Using Custom parsing for Custom blade line`);
+    const customResult = tryParseCustomBeyblade(beybladeName, partsData);
+    if (customResult) {
+      console.log(`🎯 PARSER: Successfully parsed as Custom Beyblade`);
+      return customResult;
+    }
+    console.log(`❌ PARSER: Custom parsing failed for "${beybladeName}"`);
+  } else {
+    // Basic, Unique, X-Over use standard parsing
+    console.log(`⚙️ PARSER: Using Standard parsing for ${bladeLine} blade line`);
+    const standardResult = tryParseStandardBeyblade(beybladeName, bladeLine, partsData);
+    if (standardResult) {
+      console.log(`🎯 PARSER: Successfully parsed as Standard Beyblade`);
+      return standardResult;
+    }
+    console.log(`❌ PARSER: Standard parsing failed for "${beybladeName}"`);
   }
   
-  console.log(`🎯 PARSER: Standard parsing failed, trying Custom parsing...`);
-  
-  // 2. Try Custom parsing (Lockchip + Main Blade + Assist Blade + Ratchet + Bit)
-  const customResult = tryParseCustomBeyblade(beybladeName, partsData);
-  if (customResult) {
-    console.log(`🎯 PARSER: Successfully parsed as Custom Beyblade`);
-    return customResult;
-  }
-  
-  console.log(`❌ PARSER: Both Standard and Custom parsing failed for "${beybladeName}"`);
+  console.log(`❌ PARSER: All parsing attempts failed for "${beybladeName}" with blade line "${bladeLine}"`);
   return { isCustom: false };
 }

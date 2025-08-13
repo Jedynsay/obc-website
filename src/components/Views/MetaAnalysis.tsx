@@ -232,9 +232,10 @@ export function MetaAnalysis() {
       matches.forEach((match: MatchResult) => {
         if (!match.winner_name || !match.player1_name || !match.player2_name) return;
         
-        // Parse both Beyblades
-        const p1Parts = parseBeybladeName(match.player1_beyblade, partsData);
-        const p2Parts = parseBeybladeName(match.player2_beyblade, partsData);
+        // Parse both Beyblades - we need to get blade line info from registrations
+        // For now, we'll try to infer from the name structure, but ideally we'd get this from registration data
+        const p1Parts = parseBeybladeName(match.player1_beyblade, inferBladeLine(match.player1_beyblade), partsData);
+        const p2Parts = parseBeybladeName(match.player2_beyblade, inferBladeLine(match.player2_beyblade), partsData);
         
         // Create processed match entries
         const p1Match: ProcessedMatch = {
