@@ -47,10 +47,11 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-            <input
+          <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700">
               Username
             </label>
+            <input
               type="text"
               id="username"
               value={username}
