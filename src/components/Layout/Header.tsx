@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Menu, X, User, LogOut, Settings } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { LoginForm } from '../Auth/LoginForm';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -10,6 +11,7 @@ interface HeaderProps {
 export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -77,6 +79,18 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
               </div>
             </div>
           )}
+
+          {!user && (
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="flex items-center space-x-2 p-2 rounded-md hover:bg-blue-800 transition-colors text-white"
+              >
+                <LogIn size={20} />
+                <span className="hidden sm:block">Login</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
       
@@ -87,6 +101,21 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
             setShowUserMenu(false);
           }}
         />
+      )}
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="relative">
+            <LoginForm />
+            <button
+              onClick={() => setShowLoginModal(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
       )}
     </header>
   );

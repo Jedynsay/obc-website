@@ -65,10 +65,13 @@ export function Dashboard() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back, {user?.username}!
+          Welcome{user ? ` back, ${user.username}` : ' to OBC Portal'}!
         </h1>
         <p className="text-gray-600">
-          Check out upcoming tournaments and manage your Beyblade collection!
+          {user 
+            ? 'Check out upcoming tournaments and manage your Beyblade collection!' 
+            : 'Explore tournaments and Beyblade data. Login to access personal features like inventory and deck building.'
+          }
         </p>
       </div>
 

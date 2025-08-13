@@ -27,8 +27,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-orange-600 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
+    <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-white text-2xl font-bold">B</span>
@@ -104,7 +103,6 @@ export function LoginForm() {
             Create an account to participate in tournaments and access all features.
           </p>
         </div>
-      </div>
     </div>
   );
 }

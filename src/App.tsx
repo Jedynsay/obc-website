@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { Header } from './components/Layout/Header';
 import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Views/Dashboard';
@@ -11,27 +11,10 @@ import { UserManagement } from './components/Views/UserManagement';
 import { DatabaseView } from './components/Views/Database';
 import { Inventory } from './components/Views/Inventory';
 import { DeckBuilder } from './components/Views/DeckBuilder';
-import { LoginForm } from './components/Auth/LoginForm';
 
 function AppContent() {
-  const { user, loading } = useAuth();
   const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <LoginForm />;
-  }
 
   const renderCurrentView = () => {
     switch (currentView) {
