@@ -74,8 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signup = async (username: string, password: string, role: User['role']): Promise<boolean> => {
-  }
   const signup = async (username: string, email: string, password: string, role: User['role']): Promise<boolean> => {
     try {
       const { data, error } = await supabase.auth.signUp({
