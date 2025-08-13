@@ -236,6 +236,7 @@ function findBlade(remainingName: string, blades: any[]): { blade: any; bladeNam
 // Find lockchip by prefix
 function findLockchip(beybladeName: string, lockchips: any[]): { lockchip: any; lockchipName: string } | null {
   console.log(`🔍 PARSER: Finding lockchip in "${beybladeName}"`);
+  console.log(`🔍 PARSER: Available lockchips:`, lockchips.map(l => l.Lockchip));
   
   // Sort lockchips by length (longest first)
   const sortedLockchips = [...lockchips].sort((a, b) => {
@@ -259,15 +260,25 @@ function findLockchip(beybladeName: string, lockchips: any[]): { lockchip: any; 
 // Find assist blade by name
 function findAssistBlade(remainingName: string, assistBlades: any[]): { assistBlade: any; assistBladeName: string } | null {
   console.log(`🔍 PARSER: Finding assist blade in "${remainingName}"`);
+  console.log(`🔍 PARSER: Available assist blades:`, assistBlades.map(a => a['Assist Blade']));
   
-  for (const assistBlade of assistBlades) {
+  // Sort assist blades by length (longest first) to avoid partial matches
+  const sortedAssistBlades = [...assistBlades].sort((a, b) => {
+    const aName = a['Assist Blade'] || '';
+    const bName = b['Assist Blade'] || '';
+    return bName.length - aName.length;
+  });
+  
+  for (const assistBlade of sortedAssistBlades) {
     const assistBladeName = assistBlade['Assist Blade'];
-    if (assistBladeName && remainingName.startsWith(assistBladeName)) {
+    if (assistBladeName && remainingName.endsWith(assistBladeName)) {
       console.log(`✅ PARSER: Found assist blade: ${assistBladeName}`);
       return { assistBlade, assistBladeName };
     }
   }
   
+  console.log(`❌ PARSER: No assist blade found in "${remainingName}"`);
+  return null;
 }
 // Main parsing function
 export function parseBeybladeName(beybladeName: string, bladeLine: string, partsData: AllPartsData): ParsedBeyblade {
