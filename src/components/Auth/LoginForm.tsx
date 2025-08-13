@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { SignupForm } from './SignupForm';
 
-export function LoginForm() {
+interface LoginFormProps {
+  onLoginSuccess?: () => void;
+}
+
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,14 +20,20 @@ export function LoginForm() {
     setError('');
 
     const success = await login(username, password);
-    if (!success) {
+    if (success) {
+      // Login successful - close modal and reset form
+      setUsername('');
+      setPassword('');
+      setError('');
+      onLoginSuccess?.();
+    } else {
       setError('Invalid username or password. Please check your credentials and try again.');
     }
     setLoading(false);
   };
 
   if (currentView === 'signup') {
-    return <SignupForm onBackToLogin={() => setCurrentView('login')} />;
+    return <SignupForm onBackToLogin={() => setCurrentView('login')} onSignupSuccess={onLoginSuccess} />;
   }
 
   return (

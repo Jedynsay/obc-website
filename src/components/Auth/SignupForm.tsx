@@ -4,9 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 
 interface SignupFormProps {
   onBackToLogin: () => void;
+  onSignupSuccess?: () => void;
 }
 
-export function SignupForm({ onBackToLogin }: SignupFormProps) {
+export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,6 +51,10 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
     const success = await signup(username.trim(), email.trim(), password, 'user');
     if (success) {
       setSuccess(true);
+      // Auto-close modal after a short delay to show success message
+      setTimeout(() => {
+        onSignupSuccess?.();
+      }, 2000);
     } else {
       setError('Failed to create account. Username might already be taken or there was a server error. Please try a different username.');
     }

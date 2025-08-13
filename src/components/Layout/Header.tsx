@@ -107,7 +107,7 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
       {showLoginModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="relative">
-            <LoginForm />
+            <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
             <button
               onClick={() => setShowLoginModal(false)}
               className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
