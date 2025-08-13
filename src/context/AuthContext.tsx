@@ -43,74 +43,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('🔐 LOGIN ATTEMPT - Username:', username);
       
-      // Try to sign in directly with username as email first
-      let authError = null;
-      let authData = null;
+      // Find user by username to get their email
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (profileError || !profile) {
+        console.error('❌ LOGIN FAILED - Profile not found:', profileError);
+        return false;
+      }
+
+      console.log('✅ Profile found - Email:', profile.email, 'Role:', profile.role);
       
-      // First try: username as email
-      const { data: directAuth, error: directError } = await supabase.auth.signInWithPassword({
-        email: username,
+      // Use the email from profile to authenticate
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: profile.email,
         password
       });
       
-      if (!directError && directAuth.user) {
-        // Success with direct login
-        authData = directAuth;
-      } else {
-        // Second try: find user by username to get their email
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('username', username)
-          .maybeSingle();
-
-        if (profileError || !profile || !profile.email) {
-          console.error('❌ LOGIN FAILED - Profile not found or no email:', profileError);
-          return false;
-        }
-
-        console.log('✅ Profile found - Email:', profile.email, 'Role:', profile.role);
-        
-        const { data: profileAuth, error: profileAuthError } = await supabase.auth.signInWithPassword({
-          email: profile.email,
-          password
-        });
-        
-        if (profileAuthError) {
-          console.error('❌ SUPABASE AUTH ERROR:', profileAuthError.message, 'Code:', profileAuthError.status);
-          return false;
-        }
-        
-        authData = profileAuth;
+      if (authError) {
+        console.error('❌ SUPABASE AUTH ERROR:', authError.message);
+        return false;
       }
 
-      if (authData?.user) {
-        // Get the profile data for the authenticated user
-        const { data: userProfile, error: userProfileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', authData.user.id)
-          .maybeSingle();
-
-        if (userProfile) {
-          setUser({
-            id: userProfile.id,
-            username: userProfile.username,
-            email: userProfile.email || authData.user.email || '',
-            role: userProfile.role || 'user',
-            joinedDate: userProfile.created_at
-          });
-        } else {
-          // Fallback to auth user data
-          setUser({
-            id: authData.user.id,
-            username: authData.user.user_metadata?.username || authData.user.email?.split('@')[0] || 'user',
-            email: authData.user.email || '',
-            role: 'user',
-            joinedDate: authData.user.created_at || new Date().toISOString()
-          });
-        }
-      }
+      // Set user data from profile
+      setUser({
+        id: profile.id,
+        username: profile.username,
+        email: profile.email || '',
+        role: profile.role || 'user',
+        joinedDate: profile.created_at
+      });
 
       return true;
     } catch (error) {
