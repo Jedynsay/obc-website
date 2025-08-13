@@ -41,25 +41,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 joinedDate: profile.created_at
               });
             } else {
-              console.log('❌ No profile found for user:', session.user.id);
+              console.log('❌ No profile found for user:', session.user.id, 'Clearing invalid session...');
+              // Clear the invalid session
+              await supabase.auth.signOut();
               setUser(null);
             }
+            setLoading(false);
           }
         } catch (error) {
           console.error('Error loading profile:', error);
           if (mounted) {
+            console.log('🚪 Error loading profile, clearing session...');
+            // Clear the session on error
+            await supabase.auth.signOut();
             setUser(null);
+            setLoading(false);
           }
         }
       } else {
         console.log('🚪 No session - user logged out');
         if (mounted) {
           setUser(null);
+          setLoading(false);
         }
-      }
-      
-      if (mounted) {
-        setLoading(false);
       }
     });
 
