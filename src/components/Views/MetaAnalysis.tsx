@@ -1,50 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Target, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { BarChart3, TrendingUp, Target, Users, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { 
+  parseBeybladeName, 
+  calculateWilsonScore, 
+  type AllPartsData, 
+  type PartStats, 
+  type BuildStats,
+  type ParsedBeyblade 
+} from '../../utils/beybladeParser';
 
-interface PartStats {
+interface Tournament {
+  id: string;
   name: string;
-  full: string;
-  line: string;
-  used: number;
-  wins: number;
-  losses: number;
-  winRate: number;
-  wilson: number;
+  status: string;
+  tournament_date: string;
 }
 
-interface BuildStats {
-  build: string;
+interface MatchResult {
+  player1_name: string;
+  player2_name: string;
+  player1_beyblade: string;
+  player2_beyblade: string;
+  winner_name: string;
+  outcome: string;
+  points_awarded: number;
+}
+
+interface ProcessedMatch {
   player: string;
-  wins: number;
-  losses: number;
-  winRate: number;
-  wilson: number;
-}
-
-interface MatchData {
-  p1: string;
-  p2: string;
-  bey1: string;
-  bey2: string;
-  winner: string;
-  finish: string;
+  opponent: string;
+  beyblade: string;
+  opponentBeyblade: string;
+  isWin: boolean;
+  outcome: string;
+  parsedParts: ParsedBeyblade;
 }
 
 export function MetaAnalysis() {
   const { user } = useAuth();
-  const [tournaments, setTournaments] = useState([]);
+  
+  // State management
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const [partsData, setPartsData] = useState<{
-    blade: { [key: string]: PartStats };
-    ratchet: { [key: string]: PartStats };
-    bit: { [key: string]: PartStats };
-    lockchip: { [key: string]: PartStats };
-    mainBlade: { [key: string]: PartStats };
-    assistBlade: { [key: string]: PartStats };
-  }>({
+  const [processingData, setProcessingData] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Parts data
+  const [partsData, setPartsData] = useState<AllPartsData>({
+    blades: [],
+    ratchets: [],
+    bits: [],
+    lockchips: [],
+    assistBlades: []
+  });
+  
+  // Processed data
+  const [partStats, setPartStats] = useState<{ [partType: string]: { [partName: string]: PartStats } }>({
     blade: {},
     ratchet: {},
     bit: {},
@@ -52,77 +66,72 @@ export function MetaAnalysis() {
     mainBlade: {},
     assistBlade: {}
   });
-  const [matchData, setMatchData] = useState<MatchData[]>([]);
-  const [selectedPartType, setSelectedPartType] = useState<'blade' | 'ratchet' | 'bit' | 'lockchip' | 'mainBlade' | 'assistBlade' | ''>('');
+  
+  const [processedMatches, setProcessedMatches] = useState<ProcessedMatch[]>([]);
+  
+  // Builds by Part feature
+  const [selectedPartType, setSelectedPartType] = useState<string>('');
   const [selectedPartName, setSelectedPartName] = useState<string>('');
   const [buildsData, setBuildsData] = useState<BuildStats[]>([]);
   const [selectedBuild, setSelectedBuild] = useState<{ build: string; player: string } | null>(null);
-  const [buildMatches, setBuildMatches] = useState<any[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: '', direction: 'asc' });
+  const [buildMatches, setBuildMatches] = useState<ProcessedMatch[]>([]);
+  
+  // Sorting
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ 
+    key: 'wilson', 
+    direction: 'desc' 
+  });
 
+  // Fetch tournaments on mount
   useEffect(() => {
     fetchTournaments();
+    fetchAllPartsData();
   }, []);
 
+  // Process tournament data when selected
   useEffect(() => {
-    if (selectedTournament) {
-      fetchTournamentData();
+    if (selectedTournament && Object.keys(partsData.blades).length > 0) {
+      processTournamentData();
     }
-  }, [selectedTournament]);
+  }, [selectedTournament, partsData]);
 
+  // Generate builds data when part is selected
   useEffect(() => {
-    if (selectedPartType && selectedPartName && matchData.length > 0) {
+    if (selectedPartType && selectedPartName && processedMatches.length > 0) {
       generateBuildsData();
     }
-  }, [selectedPartType, selectedPartName, matchData]);
+  }, [selectedPartType, selectedPartName, processedMatches]);
 
   const fetchTournaments = async () => {
     try {
-      console.log('🔍 META ANALYSIS: Fetching tournaments...');
+      console.log('🏆 META ANALYSIS: Fetching tournaments...');
       const { data, error } = await supabase
         .from('tournaments')
         .select('id, name, status, tournament_date')
         .order('tournament_date', { ascending: false });
 
-      if (error) {
-      console.log('📊 META ANALYSIS: Tournaments fetched:', data?.length || 0);
-        throw error;
-      }
+      if (error) throw error;
       
       setTournaments(data || []);
+      console.log(`✅ META ANALYSIS: Loaded ${data?.length || 0} tournaments`);
       
+      // Auto-select first completed tournament
       const completedTournament = data?.find(t => t.status === 'completed');
-      const firstTournament = data?.[0];
-      
       if (completedTournament) {
         setSelectedTournament(completedTournament.id);
-        console.log('✅ META ANALYSIS: Auto-selected completed tournament:', completedTournament.name);
-      } else if (firstTournament) {
-        setSelectedTournament(firstTournament.id);
+        console.log(`🎯 META ANALYSIS: Auto-selected completed tournament: ${completedTournament.name}`);
       }
     } catch (error) {
-      console.error('Error fetching tournaments:', error);
+      console.error('❌ META ANALYSIS: Error fetching tournaments:', error);
+      setError('Failed to load tournaments');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchTournamentData = async () => {
+  const fetchAllPartsData = async () => {
     try {
-      console.log('🔍 META ANALYSIS: Fetching tournament data for:', selectedTournament);
-      
-      // First, let's check what matches exist
-      const { data: matchCheck, error: matchCheckError } = await supabase
-        .from('match_results')
-        .select('*')
-        .eq('tournament_id', selectedTournament);
-      
-      console.log('🔍 META ANALYSIS: Match check result:', {
-        tournamentId: selectedTournament,
-        matchCount: matchCheck?.length || 0,
-        matches: matchCheck,
-        error: matchCheckError
-      });
+      console.log('🔧 META ANALYSIS: Fetching all parts data...');
       
       const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes] = await Promise.all([
         supabase.from('beypart_blade').select('*'),
@@ -132,487 +141,223 @@ export function MetaAnalysis() {
         supabase.from('beypart_assistblade').select('*')
       ]);
 
-      console.log('📊 META ANALYSIS: Raw data fetched:', {
-        blades: bladesRes.data?.length || 0,
-        ratchets: ratchetsRes.data?.length || 0,
-        bits: bitsRes.data?.length || 0,
-        lockchips: lockchipsRes.data?.length || 0,
-        assistBlades: assistBladesRes.data?.length || 0,
-        matches: matchCheck?.length || 0
-      });
+      if (bladesRes.error) throw bladesRes.error;
+      if (ratchetsRes.error) throw ratchetsRes.error;
+      if (bitsRes.error) throw bitsRes.error;
+      if (lockchipsRes.error) throw lockchipsRes.error;
+      if (assistBladesRes.error) throw assistBladesRes.error;
 
-      // Check if we have match data
-      if (!matchCheck || matchCheck.length === 0) {
-        console.log('⚠️ META ANALYSIS: No match data found for tournament');
-        setPartsData({ 
-          blade: {}, 
-          ratchet: {}, 
-          bit: {}, 
+      const newPartsData: AllPartsData = {
+        blades: bladesRes.data || [],
+        ratchets: ratchetsRes.data || [],
+        bits: bitsRes.data || [],
+        lockchips: lockchipsRes.data || [],
+        assistBlades: assistBladesRes.data || []
+      };
+
+      setPartsData(newPartsData);
+      console.log('✅ META ANALYSIS: Parts data loaded:', {
+        blades: newPartsData.blades.length,
+        ratchets: newPartsData.ratchets.length,
+        bits: newPartsData.bits.length,
+        lockchips: newPartsData.lockchips.length,
+        assistBlades: newPartsData.assistBlades.length
+      });
+    } catch (error) {
+      console.error('❌ META ANALYSIS: Error fetching parts data:', error);
+      setError('Failed to load parts data');
+    }
+  };
+
+  const processTournamentData = async () => {
+    if (!selectedTournament) return;
+    
+    setProcessingData(true);
+    setError(null);
+    
+    try {
+      console.log(`🔄 META ANALYSIS: Processing data for tournament ${selectedTournament}`);
+      
+      // Fetch match results
+      const { data: matches, error: matchError } = await supabase
+        .from('match_results')
+        .select('player1_name, player2_name, player1_beyblade, player2_beyblade, winner_name, outcome, points_awarded')
+        .eq('tournament_id', selectedTournament);
+
+      if (matchError) throw matchError;
+      
+      if (!matches || matches.length === 0) {
+        console.log('⚠️ META ANALYSIS: No matches found for this tournament');
+        setPartStats({
+          blade: {},
+          ratchet: {},
+          bit: {},
           lockchip: {},
           mainBlade: {},
           assistBlade: {}
         });
-        setMatchData([]);
-        setBuildsData([]);
+        setProcessedMatches([]);
+        setProcessingData(false);
         return;
       }
 
-      if (bladesRes.error) {
-        throw bladesRes.error;
-      }
-      if (ratchetsRes.error) {
-        throw ratchetsRes.error;
-      }
-      if (bitsRes.error) {
-        throw bitsRes.error;
-      }
-      if (lockchipsRes.error) {
-        throw lockchipsRes.error;
-      }
-      if (assistBladesRes.error) {
-        throw assistBladesRes.error;
-      }
-
-      const newPartsData = { 
-        blade: {}, 
-        ratchet: {}, 
-        bit: {}, 
-        lockchip: {},
-        mainBlade: {},
-        assistBlade: {}
+      console.log(`📊 META ANALYSIS: Processing ${matches.length} matches`);
+      
+      // Process matches and parse Beyblade names
+      const processed: ProcessedMatch[] = [];
+      const stats = {
+        blade: {} as { [name: string]: PartStats },
+        ratchet: {} as { [name: string]: PartStats },
+        bit: {} as { [name: string]: PartStats },
+        lockchip: {} as { [name: string]: PartStats },
+        mainBlade: {} as { [name: string]: PartStats },
+        assistBlade: {} as { [name: string]: PartStats }
       };
 
-      bladesRes.data?.forEach(blade => {
-        const bladeName = blade.Blades;
-        if (bladeName) {
-          newPartsData.blade[bladeName] = {
-            name: bladeName,
-            full: bladeName,
-            line: blade.Line || '',
-            used: 0,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            wilson: 0
-          };
-          
-          newPartsData.mainBlade[bladeName] = {
-            name: bladeName,
-            full: bladeName,
-            line: blade.Line || '',
-            used: 0,
+      // Initialize all parts with zero stats
+      const initializePart = (partType: string, partName: string) => {
+        if (!stats[partType as keyof typeof stats][partName]) {
+          stats[partType as keyof typeof stats][partName] = {
+            name: partName,
+            usage: 0,
             wins: 0,
             losses: 0,
             winRate: 0,
             wilson: 0
           };
         }
-      });
-
-      ratchetsRes.data?.forEach(ratchet => {
-        const ratchetName = ratchet.Ratchet;
-        if (ratchetName) {
-          newPartsData.ratchet[ratchetName] = {
-            name: ratchetName,
-            full: ratchetName,
-            line: '',
-            used: 0,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            wilson: 0
-          };
-        }
-      });
-
-      bitsRes.data?.forEach(bit => {
-        const bitName = bit.Shortcut || bit.Bit;
-        if (bitName) {
-          newPartsData.bit[bitName] = {
-            name: bitName,
-            full: bit.Bit || bitName,
-            line: '',
-            used: 0,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            wilson: 0
-          };
-        }
-      });
-
-      lockchipsRes.data?.forEach(lockchip => {
-        const lockchipName = lockchip.Lockchip;
-        if (lockchipName) {
-          newPartsData.lockchip[lockchipName] = {
-            name: lockchipName,
-            full: lockchipName,
-            line: '',
-            used: 0,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            wilson: 0
-          };
-        }
-      });
-
-      assistBladesRes.data?.forEach(assistBlade => {
-        const assistBladeName = assistBlade['Assist Blade'];
-        if (assistBladeName) {
-          newPartsData.assistBlade[assistBladeName] = {
-            name: assistBladeName,
-            full: assistBlade['Assist Blade Name'] || assistBladeName,
-            line: '',
-            used: 0,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            wilson: 0
-          };
-        }
-      });
-
-      const transformedMatches: MatchData[] = (matchCheck || []).map(match => ({
-        p1: match.player1_name || '',
-        p2: match.player2_name || '',
-        bey1: match.player1_beyblade || '',
-        bey2: match.player2_beyblade || '',
-        winner: match.winner_name || '',
-        finish: match.outcome ? match.outcome.split(' (')[0].trim() : 'Unknown'
-      }));
-
-      console.log('🔄 META ANALYSIS: Transformed matches:', transformedMatches.length);
-
-      setMatchData(transformedMatches);
-      
-      console.log('🔍 META ANALYSIS: Sample transformed match:', transformedMatches[0]);
-      console.log('🔍 META ANALYSIS: Parts data keys:', {
-        blades: Object.keys(newPartsData.blade).length,
-        ratchets: Object.keys(newPartsData.ratchet).length
-      });
-
-      computeStats(newPartsData, transformedMatches);
-      
-      setPartsData(newPartsData);
-      console.log('✅ META ANALYSIS: Data processing complete');
-
-    } catch (error) {
-      console.error('Error fetching tournament data:', error);
-      setPartsData({ 
-        blade: {}, 
-        ratchet: {}, 
-        bit: {}, 
-        lockchip: {},
-        mainBlade: {},
-        assistBlade: {}
-      });
-      setMatchData([]);
-      setBuildsData([]);
-    }
-  };
-
-  const parseParts = (bey: string): { [key: string]: string } => {
-    if (!bey || !bey.trim()) return {};
-
-    console.log('🔍 META ANALYSIS: Parsing Beyblade:', bey);
-
-    const isCustom = Object.keys(partsData.lockchip).some(lockchip => 
-      lockchip && bey.startsWith(lockchip)
-    );
-
-    console.log('🔍 META ANALYSIS: Is Custom?', isCustom);
-
-    if (isCustom) {
-      // Custom parsing logic (Lockchip + Main Blade + Assist Blade + Ratchet + Bit)
-      let lockchip = '';
-      let remainingBey = bey;
-      
-      for (const lc of Object.keys(partsData.lockchip).sort((a, b) => b.length - a.length)) {
-        if (lc && bey.startsWith(lc)) {
-          lockchip = lc;
-          remainingBey = bey.slice(lc.length);
-          break;
-        }
-      }
-
-      if (!lockchip) {
-        console.log('❌ META ANALYSIS: No lockchip found for custom bey:', bey);
-        return {};
-      }
-
-      let mainBlade = '';
-      for (const mb of Object.keys(partsData.mainBlade).sort((a, b) => b.length - a.length)) {
-        if (mb && remainingBey.startsWith(mb)) {
-          mainBlade = mb;
-          remainingBey = remainingBey.slice(mb.length).trim();
-          break;
-        }
-      }
-
-      if (!mainBlade) {
-        console.log('❌ META ANALYSIS: No main blade found for custom bey:', bey, 'after lockchip:', lockchip);
-        return {};
-      }
-
-      // Find bit - try both full bit names and shortcuts
-      let bit = '';
-      const availableBits = Object.values(partsData.bit);
-      
-      // First try to match by shortcut (like "F", "RN", "FB")
-      for (const bitData of availableBits.sort((a, b) => (b.Shortcut || b.Bit).length - (a.Shortcut || a.Bit).length)) {
-        const shortcut = bitData.Shortcut || bitData.Bit;
-        if (shortcut && remainingBey.endsWith(shortcut)) {
-          bit = shortcut;
-          remainingBey = remainingBey.slice(0, remainingBey.length - shortcut.length).trim();
-          console.log('✅ META ANALYSIS: Found bit by shortcut:', shortcut);
-          break;
-        }
-      }
-      
-      // If no shortcut match, try full bit names
-      if (!bit) {
-        for (const bitData of availableBits.sort((a, b) => bitData.Bit.length - bitData.Bit.length)) {
-          if (bitData.Bit && remainingBey.endsWith(bitData.Bit)) {
-            bit = bitData.Shortcut || bitData.Bit;
-            remainingBey = remainingBey.slice(0, remainingBey.length - bitData.Bit.length).trim();
-            console.log('✅ META ANALYSIS: Found bit by full name:', bitData.Bit, '→', bit);
-            break;
-          }
-        }
-      }
-
-      if (!bit) return {};
-
-      let ratchet = '';
-      for (const r of Object.keys(partsData.ratchet).sort((a, b) => b.length - a.length)) {
-        if (r && remainingBey.endsWith(r)) {
-          ratchet = r;
-          remainingBey = remainingBey.slice(0, remainingBey.length - r.length).trim();
-          break;
-        }
-      }
-
-      if (!ratchet) {
-        console.log('❌ META ANALYSIS: No ratchet found for custom bey:', bey);
-        return {};
-      }
-
-      const assistBlade = remainingBey;
-
-      const result = {
-        lockchip,
-        mainBlade,
-        assistBlade,
-        ratchet,
-        bit
       };
-      
-      console.log('✅ META ANALYSIS: Custom parsed successfully:', result);
-      return result;
-    } else {
-      // Standard parsing logic (Blade + Ratchet + Bit)
-      console.log('🔍 META ANALYSIS: Parsing as standard beyblade');
-      
-      // Find bit first - try both shortcuts and full names
-      let remainingBey = bey;
-      let bit = '';
-      const availableBits = Object.values(partsData.bit);
-      
-      // First try to match by shortcut (like "F", "RN", "FB")
-      for (const bitData of availableBits.sort((a, b) => (b.Shortcut || b.Bit).length - (a.Shortcut || a.Bit).length)) {
-        const shortcut = bitData.Shortcut || bitData.Bit;
-        if (shortcut && remainingBey.endsWith(shortcut)) {
-          bit = shortcut;
-          remainingBey = remainingBey.slice(0, remainingBey.length - shortcut.length).trim();
-          console.log('✅ META ANALYSIS: Found bit by shortcut:', shortcut, 'remaining:', remainingBey);
-          break;
-        }
-      }
-      
-      // If no shortcut match, try full bit names
-      if (!bit) {
-        for (const bitData of availableBits.sort((a, b) => bitData.Bit.length - bitData.Bit.length)) {
-          if (bitData.Bit && remainingBey.endsWith(bitData.Bit)) {
-            bit = bitData.Shortcut || bitData.Bit;
-            remainingBey = remainingBey.slice(0, remainingBey.length - bitData.Bit.length).trim();
-            console.log('✅ META ANALYSIS: Found bit by full name:', bitData.Bit, '→', bit, 'remaining:', remainingBey);
-            break;
-          }
-        }
-      }
 
-      if (!bit) {
-        console.log('❌ META ANALYSIS: No bit found for standard bey:', bey);
-        console.log('🔍 META ANALYSIS: Available bit shortcuts:', availableBits.map(b => b.Shortcut || b.Bit));
-        return {};
-      }
-
-      // Find ratchet (should be at the end of remaining string)
-      let ratchet = '';
-      for (const r of Object.keys(partsData.ratchet).sort((a, b) => b.length - a.length)) {
-        if (r && remainingBey.endsWith(r)) {
-          ratchet = r;
-          remainingBey = remainingBey.slice(0, remainingBey.length - r.length).trim();
-          console.log('🔍 META ANALYSIS: Found ratchet:', r, 'remaining:', remainingBey);
-          break;
-        }
-      }
-
-      if (!ratchet) {
-        console.log('❌ META ANALYSIS: No ratchet found for standard bey:', bey);
-        console.log('🔍 META ANALYSIS: Available ratchets:', Object.keys(partsData.ratchet));
-        return {};
-      }
-
-      // What's left should be the blade
-      const blade = remainingBey;
-      
-      if (!blade || !partsData.blade[blade]) {
-        console.log('❌ META ANALYSIS: No blade found or blade not in database:', blade, 'for bey:', bey);
-        console.log('🔍 META ANALYSIS: Available blades:', Object.keys(partsData.blade));
-        return {};
-      }
-
-      const result = {
-        blade,
-        ratchet,
-        bit
-      };
-      
-      console.log('✅ META ANALYSIS: Standard parsed successfully:', result);
-      return result;
-    }
-  };
-
-  const isValidPart = (partName: string): boolean => {
-    return partName && partName.trim() && partName !== 'undefined' && partName !== 'null';
-  };
-
-  const computeStats = (parts: typeof partsData, matches: MatchData[]) => {
-    console.log('🧮 META ANALYSIS: Computing stats for', matches.length, 'matches');
-    
-    Object.keys(parts).forEach(partType => {
-      Object.values(parts[partType as keyof typeof parts]).forEach(p => { 
-        p.used = 0; 
-        p.wins = 0; 
-        p.losses = 0; 
+      // Process each match
+      matches.forEach((match: MatchResult) => {
+        if (!match.winner_name || !match.player1_name || !match.player2_name) return;
+        
+        // Parse both Beyblades
+        const p1Parts = parseBeybladeName(match.player1_beyblade, partsData);
+        const p2Parts = parseBeybladeName(match.player2_beyblade, partsData);
+        
+        // Create processed match entries
+        const p1Match: ProcessedMatch = {
+          player: match.player1_name,
+          opponent: match.player2_name,
+          beyblade: match.player1_beyblade,
+          opponentBeyblade: match.player2_beyblade,
+          isWin: match.winner_name === match.player1_name,
+          outcome: match.outcome || 'Unknown',
+          parsedParts: p1Parts
+        };
+        
+        const p2Match: ProcessedMatch = {
+          player: match.player2_name,
+          opponent: match.player1_name,
+          beyblade: match.player2_beyblade,
+          opponentBeyblade: match.player1_beyblade,
+          isWin: match.winner_name === match.player2_name,
+          outcome: match.outcome || 'Unknown',
+          parsedParts: p2Parts
+        };
+        
+        processed.push(p1Match, p2Match);
+        
+        // Update stats for each parsed part
+        const updateStats = (parsedParts: ParsedBeyblade, isWin: boolean) => {
+          Object.entries(parsedParts).forEach(([partType, partName]) => {
+            if (partType === 'isCustom' || !partName) return;
+            
+            initializePart(partType, partName);
+            const partStat = stats[partType as keyof typeof stats][partName];
+            
+            partStat.usage++;
+            if (isWin) {
+              partStat.wins++;
+            } else {
+              partStat.losses++;
+            }
+          });
+        };
+        
+        updateStats(p1Parts, p1Match.isWin);
+        updateStats(p2Parts, p2Match.isWin);
       });
-    });
 
-    for (const match of matches) {
-      const parts1 = parseParts(match.bey1);
-      const parts2 = parseParts(match.bey2);
-      
-      if (!match.winner || !match.p1 || !match.p2) continue;
-
-      const countParts = (playerParts: { [key: string]: string }, isWin: boolean) => {
-        Object.entries(playerParts).forEach(([partType, partName]) => {
-          if (!isValidPart(partName) || !parts[partType as keyof typeof parts]) return;
-          
-          const partStats = parts[partType as keyof typeof parts][partName];
-          if (!partStats) return;
-
-          partStats.used++;
-          if (isWin) {
-            partStats.wins++;
-          } else {
-            partStats.losses++;
-          }
+      // Calculate win rates and Wilson scores
+      Object.keys(stats).forEach(partType => {
+        Object.values(stats[partType as keyof typeof stats]).forEach(partStat => {
+          const total = partStat.wins + partStat.losses;
+          partStat.winRate = total > 0 ? (partStat.wins / total) * 100 : 0;
+          partStat.wilson = calculateWilsonScore(partStat.wins, total);
         });
-      };
-
-      countParts(parts1, match.winner === match.p1);
-      countParts(parts2, match.winner === match.p2);
-    }
-
-    Object.keys(parts).forEach(partType => {
-      Object.values(parts[partType as keyof typeof parts]).forEach(part => {
-        const total = part.wins + part.losses;
-        part.winRate = total ? (part.wins / total) * 100 : 0;
-        part.wilson = wilson(part.wins, total);
       });
-    });
-    
-    console.log('✅ META ANALYSIS: Stats computation complete');
-  };
 
-  const wilson = (wins: number, total: number, z: number = 1.96): number => {
-    if (total === 0) return 0;
-    const phat = wins / total;
-    const denom = 1 + z * z / total;
-    const center = phat + z * z / (2 * total);
-    const spread = z * Math.sqrt((phat * (1 - phat) + z * z / (4 * total)) / total);
-    return (center - spread) / denom;
+      setPartStats(stats);
+      setProcessedMatches(processed);
+      
+      console.log('✅ META ANALYSIS: Data processing complete');
+      console.log('📈 META ANALYSIS: Stats summary:', {
+        totalProcessedMatches: processed.length,
+        uniqueBlades: Object.keys(stats.blade).length,
+        uniqueRatchets: Object.keys(stats.ratchet).length,
+        uniqueBits: Object.keys(stats.bit).length
+      });
+      
+    } catch (error) {
+      console.error('❌ META ANALYSIS: Error processing tournament data:', error);
+      setError('Failed to process tournament data');
+    } finally {
+      setProcessingData(false);
+    }
   };
 
   const generateBuildsData = () => {
+    console.log(`🔨 META ANALYSIS: Generating builds data for ${selectedPartType}: ${selectedPartName}`);
+    
     const builds: { [key: string]: BuildStats } = {};
-
-    for (const match of matchData) {
-      const processBey = (player: string, bey: string, isWin: boolean) => {
-        const parts = parseParts(bey);
-        const matchKey = parts[selectedPartType] || '';
-        
-        if (!isValidPart(matchKey) || matchKey !== selectedPartName) return;
-
-        const build = bey;
-        const id = `${build}_${player}`;
-        
-        if (!builds[id]) {
-          builds[id] = { build, player, wins: 0, losses: 0, winRate: 0, wilson: 0 };
-        }
-        
-        if (isWin) {
-          builds[id].wins++;
-        } else {
-          builds[id].losses++;
-        }
-      };
-
-      processBey(match.p1, match.bey1, match.winner === match.p1);
-      processBey(match.p2, match.bey2, match.winner === match.p2);
-    }
-
+    
+    processedMatches.forEach(match => {
+      const partValue = match.parsedParts[selectedPartType as keyof ParsedBeyblade];
+      if (partValue !== selectedPartName) return;
+      
+      const buildKey = `${match.beyblade}_${match.player}`;
+      
+      if (!builds[buildKey]) {
+        builds[buildKey] = {
+          build: match.beyblade,
+          player: match.player,
+          wins: 0,
+          losses: 0,
+          winRate: 0,
+          wilson: 0
+        };
+      }
+      
+      if (match.isWin) {
+        builds[buildKey].wins++;
+      } else {
+        builds[buildKey].losses++;
+      }
+    });
+    
+    // Calculate stats and sort
     const buildsArray = Object.values(builds).map(build => {
       const total = build.wins + build.losses;
-      build.winRate = total ? (build.wins / total) * 100 : 0;
-      build.wilson = wilson(build.wins, total);
+      build.winRate = total > 0 ? (build.wins / total) * 100 : 0;
+      build.wilson = calculateWilsonScore(build.wins, total);
       return build;
     }).sort((a, b) => b.wilson - a.wilson);
-
+    
     setBuildsData(buildsArray);
-  };
-
-  const getFilteredPartsData = (type: keyof typeof partsData) => {
-    return Object.values(partsData[type])
-      .filter(p => p.used > 0 && isValidPart(p.name));
+    console.log(`✅ META ANALYSIS: Generated ${buildsArray.length} builds for ${selectedPartName}`);
   };
 
   const handleBuildClick = (build: string, player: string) => {
     setSelectedBuild({ build, player });
     
-    const matchRows = [];
-    for (const match of matchData) {
-      const addMatch = (p: string, bey: string, opponent: string, opponentBey: string, winner: string) => {
-        if (bey === build && p === player) {
-          const cleanFinish = match.finish && match.finish !== 'Unknown' 
-            ? match.finish : 'Unknown Finish';
-          const result = p === winner ? "Win" : "Loss";
-          matchRows.push({
-            result,
-            opponent,
-            opponentBey,
-            finish: cleanFinish
-          });
-        }
-      };
-
-      addMatch(match.p1, match.bey1, match.p2, match.bey2, match.winner);
-      addMatch(match.p2, match.bey2, match.p1, match.bey1, match.winner);
-    }
-
-    setBuildMatches(matchRows);
+    const matchesForBuild = processedMatches.filter(match => 
+      match.beyblade === build && match.player === player
+    );
+    
+    setBuildMatches(matchesForBuild);
+    console.log(`👁️ META ANALYSIS: Showing ${matchesForBuild.length} matches for ${build} by ${player}`);
   };
 
   const handleSort = (key: string) => {
@@ -623,8 +368,8 @@ export function MetaAnalysis() {
     setSortConfig({ key, direction });
   };
 
-  const sortedPartsData = (type: keyof typeof partsData) => {    
-    const data = getFilteredPartsData(type);
+  const sortedPartsData = (partType: string) => {
+    const data = Object.values(partStats[partType] || {}).filter(part => part.usage > 0);
     
     if (!sortConfig.key) return data.sort((a, b) => b.wilson - a.wilson);
     
@@ -642,6 +387,18 @@ export function MetaAnalysis() {
     });
   };
 
+  const getPartTypeLabel = (type: string) => {
+    switch (type) {
+      case 'blade': return 'Blades';
+      case 'ratchet': return 'Ratchets';
+      case 'bit': return 'Bits';
+      case 'lockchip': return 'Lockchips';
+      case 'mainBlade': return 'Main Blades';
+      case 'assistBlade': return 'Assist Blades';
+      default: return type;
+    }
+  };
+
   const SortableHeader = ({ children, sortKey }: { children: React.ReactNode; sortKey: string }) => (
     <th 
       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
@@ -656,18 +413,6 @@ export function MetaAnalysis() {
     </th>
   );
 
-  const getPartTypeLabel = (type: string) => {
-    switch (type) {
-      case 'blade': return 'Blades';
-      case 'ratchet': return 'Ratchets';
-      case 'bit': return 'Bits';
-      case 'lockchip': return 'Lockchips';
-      case 'mainBlade': return 'Main Blades';
-      case 'assistBlade': return 'Assist Blades';
-      default: return type;
-    }
-  };
-
   if (loading) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
@@ -678,13 +423,20 @@ export function MetaAnalysis() {
       </div>
     );
   }
-  
-  if (selectedTournament && Object.keys(partsData.blade).length === 0) {
+
+  if (error) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading tournament data...</p>
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error</h2>
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Reload Page
+          </button>
         </div>
       </div>
     );
@@ -697,6 +449,7 @@ export function MetaAnalysis() {
         <p className="text-gray-600">Analyze Beyblade part usage and performance statistics</p>
       </div>
 
+      {/* Tournament Selection */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Tournament Selection</h2>
         <div className="max-w-md">
@@ -720,8 +473,23 @@ export function MetaAnalysis() {
 
       {selectedTournament && (
         <>
+          {/* Processing Indicator */}
+          {processingData && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                <div>
+                  <h3 className="text-blue-800 font-medium">Processing Tournament Data</h3>
+                  <p className="text-blue-700 text-sm mt-1">
+                    Parsing Beyblade names and calculating statistics...
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* No Data Message */}
-          {matchData.length === 0 && (
+          {!processingData && processedMatches.length === 0 && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
               <div className="flex items-center">
                 <div className="text-yellow-600 mr-3">⚠️</div>
@@ -738,181 +506,189 @@ export function MetaAnalysis() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <Target className="mr-2" size={24} />
-              Builds by Part
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Part Type</label>
-                <select
-                  value={selectedPartType}
-                  onChange={(e) => {
-                    setSelectedPartType(e.target.value as any);
-                    setSelectedPartName('');
-                    setBuildsData([]);
-                    setSelectedBuild(null);
-                    setBuildMatches([]);
-                  }}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Part Type</option>
-                  <option value="blade">Blade</option>
-                  <option value="ratchet">Ratchet</option>
-                  <option value="bit">Bit</option>
-                  <option value="lockchip">Lockchip</option>
-                  <option value="mainBlade">Main Blade</option>
-                  <option value="assistBlade">Assist Blade</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Part Name</label>
-                <select
-                  value={selectedPartName}
-                  onChange={(e) => setSelectedPartName(e.target.value)}
-                  disabled={!selectedPartType}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                >
-                  <option value="">Select Part Name</option>
-                  {selectedPartType && getFilteredPartsData(selectedPartType)
-                    .map(part => (
-                      <option key={part.name} value={part.name}>{part.name}</option>
-                    ))}
-                </select>
-              </div>
-            </div>
-
-            {buildsData.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Builds using {selectedPartName} ({getPartTypeLabel(selectedPartType)})
-                </h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Build</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Losses</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wilson Score</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {buildsData.map((build, index) => (
-                        <tr 
-                          key={index} 
-                          className="hover:bg-gray-50 cursor-pointer"
-                          onClick={() => handleBuildClick(build.build, build.player)}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
-                            {build.build}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.player}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wins}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.losses}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.winRate.toFixed(1)}%</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wilson.toFixed(3)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          {/* Builds by Part */}
+          {!processingData && processedMatches.length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <Target className="mr-2" size={24} />
+                Builds by Part
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Part Type</label>
+                  <select
+                    value={selectedPartType}
+                    onChange={(e) => {
+                      setSelectedPartType(e.target.value);
+                      setSelectedPartName('');
+                      setBuildsData([]);
+                      setSelectedBuild(null);
+                      setBuildMatches([]);
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Part Type</option>
+                    <option value="blade">Blade</option>
+                    <option value="ratchet">Ratchet</option>
+                    <option value="bit">Bit</option>
+                    <option value="lockchip">Lockchip</option>
+                    <option value="mainBlade">Main Blade</option>
+                    <option value="assistBlade">Assist Blade</option>
+                  </select>
                 </div>
-                <p className="text-center text-sm text-gray-600 mt-4">
-                  Click on a build to show all matches for that build
-                </p>
-              </div>
-            )}
 
-            {selectedBuild && buildMatches.length > 0 && (
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                  Matches for <strong>{selectedBuild.build}</strong> by <strong>{selectedBuild.player}</strong>
-                </h4>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent's Bey</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {buildMatches.map((match, index) => (
-                        <tr key={index} className={match.result === 'Win' ? 'bg-green-50' : 'bg-red-50'}>
-                          <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                            match.result === 'Win' ? 'text-green-800' : 'text-red-800'
-                          }`}>
-                            {match.result}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponent}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponentBey}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.finish}</td>
-                        </tr>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Part Name</label>
+                  <select
+                    value={selectedPartName}
+                    onChange={(e) => setSelectedPartName(e.target.value)}
+                    disabled={!selectedPartType}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  >
+                    <option value="">Select Part Name</option>
+                    {selectedPartType && Object.values(partStats[selectedPartType] || {})
+                      .filter(part => part.usage > 0)
+                      .sort((a, b) => b.wilson - a.wilson)
+                      .map(part => (
+                        <option key={part.name} value={part.name}>{part.name}</option>
                       ))}
-                    </tbody>
-                  </table>
+                  </select>
                 </div>
               </div>
-            )}
-          </div>
 
-          <div className="space-y-8">
-            {(['blade', 'ratchet', 'bit', 'lockchip', 'mainBlade', 'assistBlade'] as const).map(partType => (
-              <div key={partType} className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 capitalize flex items-center">
-                  <BarChart3 className="mr-2" size={24} />
-                  {getPartTypeLabel(partType)}
-                </h2>
-                {matchData.length === 0 ? (
-                  <div className="text-center py-8">
-                    <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-500">No data available for analysis</p>
-                    <p className="text-sm text-gray-400 mt-1">Complete some matches to see {getPartTypeLabel(partType).toLowerCase()} statistics</p>
-                  </div>
-                ) : (
+              {/* Builds Table */}
+              {buildsData.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Builds using {selectedPartName} ({getPartTypeLabel(selectedPartType)})
+                  </h3>
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
-                          <SortableHeader sortKey="name">Name</SortableHeader>
-                          <SortableHeader sortKey="used">Usage</SortableHeader>
-                          <SortableHeader sortKey="wins">Wins</SortableHeader>
-                          <SortableHeader sortKey="losses">Losses</SortableHeader>
-                          <SortableHeader sortKey="winRate">Win Rate</SortableHeader>
-                          <SortableHeader sortKey="wilson">Wilson Score</SortableHeader>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Build</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Losses</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wilson Score</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {sortedPartsData(partType).map((part, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {part.name}
+                        {buildsData.map((build, index) => (
+                          <tr 
+                            key={index} 
+                            className="hover:bg-gray-50 cursor-pointer"
+                            onClick={() => handleBuildClick(build.build, build.player)}
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
+                              {build.build}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.used}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.wins}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.losses}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {part.winRate.toFixed(1)}%
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {part.wilson.toFixed(3)}
-                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.player}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wins}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.losses}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.winRate.toFixed(1)}%</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wilson.toFixed(3)}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                </div>
+              )}
+
+              {/* Build Matches */}
+              {selectedBuild && buildMatches.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                    Matches for <strong>{selectedBuild.build}</strong> by <strong>{selectedBuild.player}</strong>
+                  </h4>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent's Bey</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {buildMatches.map((match, index) => (
+                          <tr key={index} className={match.isWin ? 'bg-green-50' : 'bg-red-50'}>
+                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                              match.isWin ? 'text-green-800' : 'text-red-800'
+                            }`}>
+                              {match.isWin ? 'Win' : 'Loss'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponent}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponentBeyblade}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Part Statistics Tables */}
+          {!processingData && processedMatches.length > 0 && (
+            <div className="space-y-8">
+              {(['blade', 'ratchet', 'bit', 'lockchip', 'mainBlade', 'assistBlade'] as const).map(partType => (
+                <div key={partType} className="bg-white rounded-lg shadow-md p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 capitalize flex items-center">
+                    <BarChart3 className="mr-2" size={24} />
+                    {getPartTypeLabel(partType)}
+                  </h2>
+                  
+                  {Object.keys(partStats[partType] || {}).length === 0 ? (
+                    <div className="text-center py-8">
+                      <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
+                      <p className="text-gray-500">No {getPartTypeLabel(partType).toLowerCase()} data available</p>
+                      <p className="text-sm text-gray-400 mt-1">No matches used {getPartTypeLabel(partType).toLowerCase()} from this category</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <SortableHeader sortKey="name">Name</SortableHeader>
+                            <SortableHeader sortKey="usage">Usage</SortableHeader>
+                            <SortableHeader sortKey="wins">Wins</SortableHeader>
+                            <SortableHeader sortKey="losses">Losses</SortableHeader>
+                            <SortableHeader sortKey="winRate">Win Rate</SortableHeader>
+                            <SortableHeader sortKey="wilson">Wilson Score</SortableHeader>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {sortedPartsData(partType).map((part, index) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {part.name}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.usage}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.wins}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.losses}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {part.winRate.toFixed(1)}%
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {part.wilson.toFixed(3)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>
