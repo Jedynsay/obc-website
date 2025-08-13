@@ -53,24 +53,24 @@ export function DatabaseView() {
   const fetchTableCounts = async () => {
     try {
       console.log('🔍 DATABASE: Fetching table counts...');
-      const [usersRes, tournamentsRes, matchesRes, registrationsRes] = await Promise.all([
-        supabase.from('users').select('*', { count: 'exact', head: true }),
+      const [profilesRes, tournamentsRes, matchResultsRes, registrationsRes] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('tournaments').select('*', { count: 'exact', head: true }),
-        supabase.from('matches').select('*', { count: 'exact', head: true }),
+        supabase.from('match_results').select('*', { count: 'exact', head: true }),
         supabase.from('tournament_registrations').select('*', { count: 'exact', head: true })
       ]);
 
       console.log('📊 DATABASE: Table counts fetched:', {
-        users: { count: usersRes.count, error: usersRes.error },
+        profiles: { count: profilesRes.count, error: profilesRes.error },
         tournaments: { count: tournamentsRes.count, error: tournamentsRes.error },
-        matches: { count: matchesRes.count, error: matchesRes.error },
+        match_results: { count: matchResultsRes.count, error: matchResultsRes.error },
         registrations: { count: registrationsRes.count, error: registrationsRes.error }
       });
 
       setTables([
-        { name: 'users', records: usersRes.count || 0, icon: <Users size={16} />, description: 'User accounts and profiles' },
+        { name: 'users', records: profilesRes.count || 0, icon: <Users size={16} />, description: 'User accounts and profiles' },
         { name: 'tournaments', records: tournamentsRes.count || 0, icon: <Trophy size={16} />, description: 'Tournament information' },
-        { name: 'matches', records: matchesRes.count || 0, icon: <Calendar size={16} />, description: 'Match results and schedules' },
+        { name: 'matches', records: matchResultsRes.count || 0, icon: <Calendar size={16} />, description: 'Match results and schedules' },
         { name: 'registrations', records: registrationsRes.count || 0, icon: <Table size={16} />, description: 'Tournament registrations with Beyblades' }
       ]);
 
@@ -147,13 +147,21 @@ export function DatabaseView() {
         // Show tournament selection instead of registrations
         data = tournaments;
       } else {
-        const supabaseTableName = tableName === 'registrations' ? 'tournament_registrations' : tableName;
+        let supabaseTableName = tableName;
+        if (tableName === 'registrations') {
+          supabaseTableName = 'tournament_registrations';
+        } else if (tableName === 'users') {
+          supabaseTableName = 'profiles';
+        } else if (tableName === 'matches') {
+          supabaseTableName = 'match_results';
+        }
+        
         const { data: fetchedData, error } = await supabase
           .from(supabaseTableName)
           .select('*')
           .order(
             tableName === 'tournaments' ? 'tournament_date' : 
-            tableName === 'matches' ? 'created_at' : 
+            tableName === 'matches' ? 'submitted_at' : 
             'created_at', 
             { ascending: false }
           );
@@ -215,7 +223,7 @@ export function DatabaseView() {
   };
 
   const handleEdit = (row: any) => {
-    setEditingRow(row.id || row.registration_id);
+    setEditingRow(row.id || row.registration_id || row.tournament_id);
     setEditData({ ...row });
   };
 
@@ -223,7 +231,15 @@ export function DatabaseView() {
     if (!editingRow || !isAdmin) return;
 
     try {
-      const supabaseTableName = selectedTable === 'registrations' ? 'tournament_registrations' : selectedTable;
+      let supabaseTableName = selectedTable;
+      if (selectedTable === 'registrations') {
+        supabaseTableName = 'tournament_registrations';
+      } else if (selectedTable === 'users') {
+        supabaseTableName = 'profiles';
+      } else if (selectedTable === 'matches') {
+        supabaseTableName = 'match_results';
+      }
+      
       const { error } = await supabase
         .from(supabaseTableName)
         .update(editData)
@@ -254,7 +270,15 @@ export function DatabaseView() {
     }
 
     try {
-      const supabaseTableName = selectedTable === 'registrations' ? 'tournament_registrations' : selectedTable;
+      let supabaseTableName = selectedTable;
+      if (selectedTable === 'registrations') {
+        supabaseTableName = 'tournament_registrations';
+      } else if (selectedTable === 'users') {
+        supabaseTableName = 'profiles';
+      } else if (selectedTable === 'matches') {
+        supabaseTableName = 'match_results';
+      }
+      
       const { error } = await supabase
         .from(supabaseTableName)
         .delete()
@@ -472,7 +496,7 @@ export function DatabaseView() {
               <tr key={row.id || index} className="hover:bg-gray-50">
                 {Object.entries(row).map(([key, value], cellIndex) => (
                   <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {editingRow === (row.id || row.registration_id) && isAdmin ? (
+                    {editingRow === (row.id || row.registration_id || row.tournament_id) && isAdmin ? (
                       <input
                         type="text"
                         value={editData[key] || ''}
@@ -491,7 +515,7 @@ export function DatabaseView() {
                 {isAdmin && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      {editingRow === (row.id || row.registration_id) ? (
+                      {editingRow === (row.id || row.registration_id || row.tournament_id) ? (
                         <>
                           <button
                             onClick={handleSave}
@@ -518,7 +542,7 @@ export function DatabaseView() {
                             <Edit size={16} />
                           </button>
                           <button
-                            onClick={() => handleDelete(row.id || row.registration_id)}
+                            onClick={() => handleDelete(row.id || row.registration_id || row.tournament_id)}
                             className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                           >
                             <Trash2 size={16} />

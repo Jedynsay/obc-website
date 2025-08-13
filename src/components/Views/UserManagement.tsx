@@ -28,34 +28,34 @@ export function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      console.log('🔍 USER MANAGEMENT: Fetching users...');
+      console.log('🔍 USER MANAGEMENT: Fetching profiles...');
       const { data, error } = await supabase
-        .from('users')
+        .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ USER MANAGEMENT: Error fetching users:', error);
+        console.error('❌ USER MANAGEMENT: Error fetching profiles:', error);
         throw error;
       }
       
-      console.log('📊 USER MANAGEMENT: Raw users data:', {
+      console.log('📊 USER MANAGEMENT: Raw profiles data:', {
         count: data?.length || 0,
         sample: data?.slice(0, 3) || [],
-        allUsers: data || []
+        allProfiles: data || []
       });
       
-      const formattedUsers = (data || []).map(user => ({
-        id: user.id,
-        username: user.username,
-        email: user.email || '',
-        role: user.role,
-        joinedDate: user.created_at,
-        status: user.status,
-        lastLogin: user.last_login
+      const formattedUsers = (data || []).map(profile => ({
+        id: profile.id,
+        username: profile.username,
+        email: profile.email || '',
+        role: profile.role,
+        joinedDate: profile.created_at,
+        status: 'active', // profiles don't have status, default to active
+        lastLogin: null // profiles don't track last login
       }));
       
-      console.log('🔄 USER MANAGEMENT: Formatted users:', {
+      console.log('🔄 USER MANAGEMENT: Formatted profiles as users:', {
         count: formattedUsers.length,
         sample: formattedUsers.slice(0, 3),
         roles: formattedUsers.map(u => u.role),
@@ -63,9 +63,9 @@ export function UserManagement() {
       });
       
       setUsers(formattedUsers);
-      console.log('✅ USER MANAGEMENT: Users loaded successfully');
+      console.log('✅ USER MANAGEMENT: Profiles loaded successfully as users');
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching profiles:', error);
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export function UserManagement() {
   const updateUser = async (userId: string, updates: Partial<User>) => {
     try {
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update(updates)
         .eq('id', userId);
 
@@ -106,7 +106,7 @@ export function UserManagement() {
 
     try {
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .delete()
         .eq('id', userId);
 
@@ -220,7 +220,7 @@ export function UserManagement() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Active Users</p>
-              <p className="text-2xl font-bold text-gray-900">{users.filter(u => u.status === 'active').length}</p>
+              <p className="text-2xl font-bold text-gray-900">{users.length}</p>
             </div>
           </div>
         </div>
@@ -232,7 +232,7 @@ export function UserManagement() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Suspended</p>
-              <p className="text-2xl font-bold text-gray-900">{users.filter(u => u.status === 'suspended').length}</p>
+              <p className="text-2xl font-bold text-gray-900">0</p>
             </div>
           </div>
         </div>
@@ -296,14 +296,11 @@ export function UserManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
-                      value={user.status}
-                      onChange={(e) => updateUser(user.id, { status: e.target.value as User['status'] })}
+                      value="active"
                       disabled={!isAdmin}
-                      className={`text-xs font-medium px-2 py-1 rounded-full border-0 ${getStatusColor(user.status)}`}
+                      className={`text-xs font-medium px-2 py-1 rounded-full border-0 ${getStatusColor('active')}`}
                     >
                       <option value="active">Active</option>
-                      <option value="suspended">Suspended</option>
-                      <option value="pending">Pending</option>
                     </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -313,7 +310,7 @@ export function UserManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
+                    Never
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
