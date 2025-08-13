@@ -17,37 +17,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 AUTH STATE CHANGE:', event, 'Session exists:', !!session);
+      
       if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-        if (profile) {
-          setUser({
-            id: profile.id,
-            username: profile.username,
-            email: '',
-            role: profile.role || 'user',
-            joinedDate: profile.created_at
-          });
+          if (mounted) {
+            if (profile && !error) {
+              console.log('✅ Profile loaded:', profile.username, profile.role);
+              setUser({
+                id: profile.id,
+                username: profile.username,
+                email: profile.email || session.user.email || '',
+                role: profile.role || 'user',
+                joinedDate: profile.created_at
+              });
+            } else {
+              console.log('❌ No profile found for user:', session.user.id);
+              setUser(null);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+          if (mounted) {
+            setUser(null);
+          }
         }
       } else {
-        setUser(null);
+        console.log('🚪 No session - user logged out');
+        if (mounted) {
+          setUser(null);
+        }
       }
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        setUser(null);
+      
+      if (mounted) {
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('🔍 Initial session check:', !!session, error ? `Error: ${error.message}` : 'No error');
+      if (!session && mounted) {
+        setLoading(false);
+      }
+      // If there is a session, the onAuthStateChange will handle it
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
