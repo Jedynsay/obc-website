@@ -355,12 +355,30 @@ export function MetaAnalysis() {
         return {};
       }
 
+      // Find bit - try both full bit names and shortcuts
       let bit = '';
-      for (const b of Object.keys(partsData.bit).sort((a, b) => b.length - a.length)) {
-        if (b && remainingBey.endsWith(b)) {
-          bit = b;
-          remainingBey = remainingBey.slice(0, remainingBey.length - b.length).trim();
+      const availableBits = Object.values(partsData.bit);
+      
+      // First try to match by shortcut (like "F", "RN", "FB")
+      for (const bitData of availableBits.sort((a, b) => (b.Shortcut || b.Bit).length - (a.Shortcut || a.Bit).length)) {
+        const shortcut = bitData.Shortcut || bitData.Bit;
+        if (shortcut && remainingBey.endsWith(shortcut)) {
+          bit = shortcut;
+          remainingBey = remainingBey.slice(0, remainingBey.length - shortcut.length).trim();
+          console.log('✅ META ANALYSIS: Found bit by shortcut:', shortcut);
           break;
+        }
+      }
+      
+      // If no shortcut match, try full bit names
+      if (!bit) {
+        for (const bitData of availableBits.sort((a, b) => bitData.Bit.length - bitData.Bit.length)) {
+          if (bitData.Bit && remainingBey.endsWith(bitData.Bit)) {
+            bit = bitData.Shortcut || bitData.Bit;
+            remainingBey = remainingBey.slice(0, remainingBey.length - bitData.Bit.length).trim();
+            console.log('✅ META ANALYSIS: Found bit by full name:', bitData.Bit, '→', bit);
+            break;
+          }
         }
       }
 
@@ -396,21 +414,37 @@ export function MetaAnalysis() {
       // Standard parsing logic (Blade + Ratchet + Bit)
       console.log('🔍 META ANALYSIS: Parsing as standard beyblade');
       
-      // Find bit first (should be at the end)
+      // Find bit first - try both shortcuts and full names
       let remainingBey = bey;
       let bit = '';
+      const availableBits = Object.values(partsData.bit);
       
-      for (const b of Object.keys(partsData.bit).sort((a, b) => b.length - a.length)) {
-        if (b && remainingBey.endsWith(b)) {
-          bit = b;
-          remainingBey = remainingBey.slice(0, remainingBey.length - b.length).trim();
-          console.log('🔍 META ANALYSIS: Found bit:', b, 'remaining:', remainingBey);
+      // First try to match by shortcut (like "F", "RN", "FB")
+      for (const bitData of availableBits.sort((a, b) => (b.Shortcut || b.Bit).length - (a.Shortcut || a.Bit).length)) {
+        const shortcut = bitData.Shortcut || bitData.Bit;
+        if (shortcut && remainingBey.endsWith(shortcut)) {
+          bit = shortcut;
+          remainingBey = remainingBey.slice(0, remainingBey.length - shortcut.length).trim();
+          console.log('✅ META ANALYSIS: Found bit by shortcut:', shortcut, 'remaining:', remainingBey);
           break;
+        }
+      }
+      
+      // If no shortcut match, try full bit names
+      if (!bit) {
+        for (const bitData of availableBits.sort((a, b) => bitData.Bit.length - bitData.Bit.length)) {
+          if (bitData.Bit && remainingBey.endsWith(bitData.Bit)) {
+            bit = bitData.Shortcut || bitData.Bit;
+            remainingBey = remainingBey.slice(0, remainingBey.length - bitData.Bit.length).trim();
+            console.log('✅ META ANALYSIS: Found bit by full name:', bitData.Bit, '→', bit, 'remaining:', remainingBey);
+            break;
+          }
         }
       }
 
       if (!bit) {
         console.log('❌ META ANALYSIS: No bit found for standard bey:', bey);
+        console.log('🔍 META ANALYSIS: Available bit shortcuts:', availableBits.map(b => b.Shortcut || b.Bit));
         return {};
       }
 
@@ -427,6 +461,7 @@ export function MetaAnalysis() {
 
       if (!ratchet) {
         console.log('❌ META ANALYSIS: No ratchet found for standard bey:', bey);
+        console.log('🔍 META ANALYSIS: Available ratchets:', Object.keys(partsData.ratchet));
         return {};
       }
 
@@ -435,6 +470,7 @@ export function MetaAnalysis() {
       
       if (!blade || !partsData.blade[blade]) {
         console.log('❌ META ANALYSIS: No blade found or blade not in database:', blade, 'for bey:', bey);
+        console.log('🔍 META ANALYSIS: Available blades:', Object.keys(partsData.blade));
         return {};
       }
 
