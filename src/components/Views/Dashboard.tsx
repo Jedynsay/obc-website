@@ -19,8 +19,8 @@ export function Dashboard() {
       try {
         const [tournamentsRes, usersRes, matchesRes] = await Promise.all([
           supabase.from('tournaments').select('*'),
-          supabase.from('users').select('*', { count: 'exact', head: true }),
-          supabase.from('matches').select('*', { count: 'exact', head: true })
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('match_results').select('*', { count: 'exact', head: true })
         ]);
 
         const tournaments = tournamentsRes.data || [];
@@ -75,7 +75,6 @@ export function Dashboard() {
         </p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statsDisplay.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
@@ -93,7 +92,6 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Upcoming Tournaments */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Upcoming Tournaments</h2>
           <div className="space-y-4">
@@ -103,7 +101,7 @@ export function Dashboard() {
                 <p className="text-sm text-gray-600">{new Date(tournament.tournament_date).toLocaleDateString()} • {tournament.location}</p>
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-sm text-gray-500">
-                    {tournament.currentParticipants}/{tournament.maxParticipants} registered
+                    {tournament.current_participants}/{tournament.max_participants} registered
                   </span>
                   <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
                     {tournament.status}
@@ -114,7 +112,6 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">System Status</h2>
           <div className="text-center py-8">

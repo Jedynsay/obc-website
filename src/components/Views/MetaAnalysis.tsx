@@ -76,36 +76,24 @@ export function MetaAnalysis() {
 
   const fetchTournaments = async () => {
     try {
-      console.log('🔍 META ANALYSIS: Fetching tournaments...');
       const { data, error } = await supabase
         .from('tournaments')
         .select('id, name, status, tournament_date')
         .order('tournament_date', { ascending: false });
 
       if (error) {
-        console.error('❌ META ANALYSIS: Error fetching tournaments:', error);
         throw error;
       }
       
-      console.log('📊 META ANALYSIS: Tournaments fetched:', {
-        total: data?.length || 0,
-        tournaments: data?.map(t => ({ id: t.id, name: t.name, status: t.status })) || []
-      });
-      
       setTournaments(data || []);
       
-      // Auto-select first completed tournament
       const completedTournament = data?.find(t => t.status === 'completed');
       const firstTournament = data?.[0];
       
       if (completedTournament) {
-        console.log('✅ META ANALYSIS: Auto-selecting completed tournament:', completedTournament.name);
         setSelectedTournament(completedTournament.id);
       } else if (firstTournament) {
-        console.log('⚠️ META ANALYSIS: No completed tournaments found, selecting first available:', firstTournament.name);
         setSelectedTournament(firstTournament.id);
-      } else {
-        console.log('❌ META ANALYSIS: No tournaments found at all');
       }
     } catch (error) {
       console.error('Error fetching tournaments:', error);
@@ -116,9 +104,6 @@ export function MetaAnalysis() {
 
   const fetchTournamentData = async () => {
     try {
-      console.log('🔍 META ANALYSIS: Fetching tournament data for:', selectedTournament);
-      
-      // Fetch Beyblade parts data from all tables
       const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes, matchesRes] = await Promise.all([
         supabase.from('beypart_blade').select('*'),
         supabase.from('beypart_ratchet').select('*'),
@@ -128,41 +113,26 @@ export function MetaAnalysis() {
         supabase.from('match_results').select('*').eq('tournament_id', selectedTournament)
       ]);
 
-      console.log('📊 META ANALYSIS: Raw data fetched:', {
-        blades: { count: bladesRes.data?.length || 0, error: bladesRes.error },
-        ratchets: { count: ratchetsRes.data?.length || 0, error: ratchetsRes.error },
-        bits: { count: bitsRes.data?.length || 0, error: bitsRes.error },
-        lockchips: { count: lockchipsRes.data?.length || 0, error: lockchipsRes.error },
-        assistBlades: { count: assistBladesRes.data?.length || 0, error: assistBladesRes.error },
-        matches: { count: matchesRes.data?.length || 0, error: matchesRes.error }
-      });
 
       if (bladesRes.error) {
-        console.error('❌ META ANALYSIS: Blades error:', bladesRes.error);
         throw bladesRes.error;
       }
       if (ratchetsRes.error) {
-        console.error('❌ META ANALYSIS: Ratchets error:', ratchetsRes.error);
         throw ratchetsRes.error;
       }
       if (bitsRes.error) {
-        console.error('❌ META ANALYSIS: Bits error:', bitsRes.error);
         throw bitsRes.error;
       }
       if (lockchipsRes.error) {
-        console.error('❌ META ANALYSIS: Lockchips error:', lockchipsRes.error);
         throw lockchipsRes.error;
       }
       if (assistBladesRes.error) {
-        console.error('❌ META ANALYSIS: Assist blades error:', assistBladesRes.error);
         throw assistBladesRes.error;
       }
       if (matchesRes.error) {
-        console.error('❌ META ANALYSIS: Matches error:', matchesRes.error);
         throw matchesRes.error;
       }
 
-      // Initialize parts data
       const newPartsData = { 
         blade: {}, 
         ratchet: {}, 
@@ -172,11 +142,9 @@ export function MetaAnalysis() {
         assistBlade: {}
       };
 
-      // Process blades (both regular and main blades for custom)
       bladesRes.data?.forEach(blade => {
         const bladeName = blade.Blades;
         if (bladeName) {
-          // Regular blade
           newPartsData.blade[bladeName] = {
             name: bladeName,
             full: bladeName,
@@ -188,7 +156,6 @@ export function MetaAnalysis() {
             wilson: 0
           };
           
-          // Also add as main blade for custom builds
           newPartsData.mainBlade[bladeName] = {
             name: bladeName,
             full: bladeName,
@@ -202,7 +169,6 @@ export function MetaAnalysis() {
         }
       });
 
-      // Process ratchets
       ratchetsRes.data?.forEach(ratchet => {
         const ratchetName = ratchet.Ratchet;
         if (ratchetName) {
@@ -219,7 +185,6 @@ export function MetaAnalysis() {
         }
       });
 
-      // Process bits
       bitsRes.data?.forEach(bit => {
         const bitName = bit.Shortcut || bit.Bit;
         if (bitName) {
@@ -236,7 +201,6 @@ export function MetaAnalysis() {
         }
       });
 
-      // Process lockchips
       lockchipsRes.data?.forEach(lockchip => {
         const lockchipName = lockchip.Lockchip;
         if (lockchipName) {
@@ -253,7 +217,6 @@ export function MetaAnalysis() {
         }
       });
 
-      // Process assist blades
       assistBladesRes.data?.forEach(assistBlade => {
         const assistBladeName = assistBlade['Assist Blade'];
         if (assistBladeName) {
@@ -270,7 +233,6 @@ export function MetaAnalysis() {
         }
       });
 
-      // Transform match data
       const transformedMatches: MatchData[] = (matchesRes.data || []).map(match => ({
         p1: match.player1_name || '',
         p2: match.player2_name || '',
@@ -280,33 +242,15 @@ export function MetaAnalysis() {
         finish: match.outcome ? match.outcome.split(' (')[0].trim() : 'Unknown'
       }));
 
-      console.log('🔄 META ANALYSIS: Transformed matches:', {
-        total: transformedMatches.length,
-        sample: transformedMatches.slice(0, 3),
-        uniquePlayers: [...new Set([...transformedMatches.map(m => m.p1), ...transformedMatches.map(m => m.p2)])].filter(Boolean)
-      });
 
       setMatchData(transformedMatches);
 
-      // Compute stats
       computeStats(newPartsData, transformedMatches);
       
-      console.log('📈 META ANALYSIS: Final parts data:', {
-        blade: Object.keys(newPartsData.blade).length,
-        ratchet: Object.keys(newPartsData.ratchet).length,
-        bit: Object.keys(newPartsData.bit).length,
-        lockchip: Object.keys(newPartsData.lockchip).length,
-        mainBlade: Object.keys(newPartsData.mainBlade).length,
-        assistBlade: Object.keys(newPartsData.assistBlade).length
-      });
-      
       setPartsData(newPartsData);
-      
-      console.log('✅ META ANALYSIS: Data processing completed successfully');
 
     } catch (error) {
       console.error('Error fetching tournament data:', error);
-      // Set empty data on error
       setPartsData({ 
         blade: {}, 
         ratchet: {}, 
@@ -323,14 +267,11 @@ export function MetaAnalysis() {
   const parseParts = (bey: string): { [key: string]: string } => {
     if (!bey || !bey.trim()) return {};
 
-    // Check if it's a custom build (contains lockchip pattern)
     const isCustom = Object.keys(partsData.lockchip).some(lockchip => 
       lockchip && bey.startsWith(lockchip)
     );
 
     if (isCustom) {
-      // Parse custom build: LockchipMainBlade AssistBladeRatchetBit
-      // Find the lockchip
       let lockchip = '';
       let remainingBey = bey;
       
@@ -344,7 +285,6 @@ export function MetaAnalysis() {
 
       if (!lockchip) return {};
 
-      // Find main blade
       let mainBlade = '';
       for (const mb of Object.keys(partsData.mainBlade).sort((a, b) => b.length - a.length)) {
         if (mb && remainingBey.startsWith(mb)) {
@@ -356,7 +296,6 @@ export function MetaAnalysis() {
 
       if (!mainBlade) return {};
 
-      // Find bit (from the end)
       let bit = '';
       for (const b of Object.keys(partsData.bit).sort((a, b) => b.length - a.length)) {
         if (b && remainingBey.endsWith(b)) {
@@ -368,7 +307,6 @@ export function MetaAnalysis() {
 
       if (!bit) return {};
 
-      // Find ratchet (from the end of remaining)
       let ratchet = '';
       for (const r of Object.keys(partsData.ratchet).sort((a, b) => b.length - a.length)) {
         if (r && remainingBey.endsWith(r)) {
@@ -380,7 +318,6 @@ export function MetaAnalysis() {
 
       if (!ratchet) return {};
 
-      // Remaining should be assist blade
       const assistBlade = remainingBey;
 
       return {
@@ -391,8 +328,6 @@ export function MetaAnalysis() {
         bit
       };
     } else {
-      // Parse regular build: Blade RatchetBit
-      // Find bit (from the end)
       let bit = '';
       let remainingBey = bey;
       
@@ -406,7 +341,6 @@ export function MetaAnalysis() {
 
       if (!bit) return {};
 
-      // Find ratchet (from the end of remaining)
       let ratchet = '';
       for (const r of Object.keys(partsData.ratchet).sort((a, b) => b.length - a.length)) {
         if (r && remainingBey.endsWith(r)) {
@@ -418,7 +352,6 @@ export function MetaAnalysis() {
 
       if (!ratchet) return {};
 
-      // Remaining should be blade
       const blade = remainingBey;
 
       return {
@@ -434,7 +367,6 @@ export function MetaAnalysis() {
   };
 
   const computeStats = (parts: typeof partsData, matches: MatchData[]) => {
-    // Reset stats
     Object.keys(parts).forEach(partType => {
       Object.values(parts[partType as keyof typeof parts]).forEach(p => { 
         p.used = 0; 
@@ -447,10 +379,8 @@ export function MetaAnalysis() {
       const parts1 = parseParts(match.bey1);
       const parts2 = parseParts(match.bey2);
       
-      // Skip matches with missing data
       if (!match.winner || !match.p1 || !match.p2) continue;
 
-      // Count usage and wins/losses for each part type
       const countParts = (playerParts: { [key: string]: string }, isWin: boolean) => {
         Object.entries(playerParts).forEach(([partType, partName]) => {
           if (!isValidPart(partName) || !parts[partType as keyof typeof parts]) return;
@@ -471,7 +401,6 @@ export function MetaAnalysis() {
       countParts(parts2, match.winner === match.p2);
     }
 
-    // Calculate win rates and Wilson scores
     Object.keys(parts).forEach(partType => {
       Object.values(parts[partType as keyof typeof parts]).forEach(part => {
         const total = part.wins + part.losses;
@@ -498,10 +427,9 @@ export function MetaAnalysis() {
         const parts = parseParts(bey);
         const matchKey = parts[selectedPartType] || '';
         
-        // Skip if part doesn't match or is invalid
         if (!isValidPart(matchKey) || matchKey !== selectedPartName) return;
 
-        const build = bey; // Use full beyblade name as build
+        const build = bey;
         const id = `${build}_${player}`;
         
         if (!builds[id]) {
@@ -524,7 +452,7 @@ export function MetaAnalysis() {
       build.winRate = total ? (build.wins / total) * 100 : 0;
       build.wilson = wilson(build.wins, total);
       return build;
-    }).sort((a, b) => b.wilson - a.wilson); // Sort by Wilson score
+    }).sort((a, b) => b.wilson - a.wilson);
 
     setBuildsData(buildsArray);
   };
@@ -541,7 +469,6 @@ export function MetaAnalysis() {
     for (const match of matchData) {
       const addMatch = (p: string, bey: string, opponent: string, opponentBey: string, winner: string) => {
         if (bey === build && p === player) {
-          // Clean up finish type
           const cleanFinish = match.finish && match.finish !== 'Unknown' 
             ? match.finish : 'Unknown Finish';
           const result = p === winner ? "Win" : "Loss";
@@ -572,7 +499,7 @@ export function MetaAnalysis() {
   const sortedPartsData = (type: keyof typeof partsData) => {    
     const data = getFilteredPartsData(type);
     
-    if (!sortConfig.key) return data.sort((a, b) => b.wilson - a.wilson); // Default sort by Wilson score
+    if (!sortConfig.key) return data.sort((a, b) => b.wilson - a.wilson);
     
     return [...data].sort((a, b) => {
       const aVal = a[sortConfig.key as keyof PartStats];
@@ -625,7 +552,6 @@ export function MetaAnalysis() {
     );
   }
   
-  // Show loading state while fetching data
   if (selectedTournament && Object.keys(partsData.blade).length === 0) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
@@ -644,7 +570,6 @@ export function MetaAnalysis() {
         <p className="text-gray-600">Analyze Beyblade part usage and performance statistics</p>
       </div>
 
-      {/* Tournament Selection */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Tournament Selection</h2>
         <div className="max-w-md">
@@ -668,7 +593,6 @@ export function MetaAnalysis() {
 
       {selectedTournament && (
         <>
-          {/* Builds by Part Section */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
               <Target className="mr-2" size={24} />
@@ -794,7 +718,6 @@ export function MetaAnalysis() {
             )}
           </div>
 
-          {/* Parts Statistics Tables */}
           <div className="space-y-8">
             {(['blade', 'ratchet', 'bit', 'lockchip', 'mainBlade', 'assistBlade'] as const).map(partType => (
               <div key={partType} className="bg-white rounded-lg shadow-md p-6">

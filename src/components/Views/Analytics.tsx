@@ -20,10 +20,9 @@ export function Analytics() {
   React.useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        // Fetch real data from Supabase
         const [tournamentsRes, usersRes, matchesRes, registrationsRes] = await Promise.all([
           supabase.from('tournaments').select('*'),
-          supabase.from('users').select('*', { count: 'exact', head: true }),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('match_results').select('*'),
           supabase.from('tournament_registrations').select('*', { count: 'exact', head: true })
         ]);
@@ -34,7 +33,7 @@ export function Analytics() {
         const completedTournaments = tournaments.filter(t => t.status === 'completed');
         const activeTournaments = tournaments.filter(t => t.status === 'active').length;
         const upcomingTournaments = tournaments.filter(t => t.status === 'upcoming').length;
-        const completedMatches = matchResults.length; // All match_results are completed
+        const completedMatches = matchResults.length;
 
         setAnalytics({
           totalTournaments: tournaments.length,
@@ -47,7 +46,6 @@ export function Analytics() {
         });
       } catch (error) {
         console.error('Error fetching analytics:', error);
-        // Set default values on error
         setAnalytics({
           totalTournaments: 0,
           activePlayers: 0,
@@ -79,7 +77,6 @@ export function Analytics() {
         const playerStats = {};
         
         matches.forEach(match => {
-          // Skip matches with missing data
           if (!match.player1_name || !match.player2_name || !match.winner_name) return;
           
           [match.player1_name, match.player2_name].forEach(player => {
@@ -182,7 +179,6 @@ export function Analytics() {
         </div>
       </div>
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg shadow-md p-6">
@@ -200,7 +196,6 @@ export function Analytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Tournament Status Distribution */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
             <BarChart3 className="mr-2" size={24} />
@@ -237,7 +232,6 @@ export function Analytics() {
           </div>
         </div>
 
-        {/* Top Players Win Rates */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
             <TrendingUp className="mr-2" size={24} />
@@ -270,7 +264,6 @@ export function Analytics() {
         </div>
       </div>
 
-      {/* Match Statistics */}
       <div className="mt-8 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Match Statistics</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
