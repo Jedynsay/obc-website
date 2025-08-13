@@ -8,6 +8,7 @@ interface SignupFormProps {
 
 export function SignupForm({ onBackToLogin }: SignupFormProps) {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState<'user' | 'technical_officer' | 'admin' | 'developer'>('user');
@@ -74,7 +75,7 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
       setLoading(false);
       return;
     }
-    const success = await signup(username.trim(), password, selectedRole);
+    const success = await signup(username.trim(), email.trim(), password, selectedRole);
     if (success) {
       setSuccess(true);
     } else {
@@ -137,6 +138,21 @@ export function SignupForm({ onBackToLogin }: SignupFormProps) {
               required
               minLength={3}
               placeholder="Choose a unique username"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
+              placeholder="your.email@example.com"
             />
           </div>
 

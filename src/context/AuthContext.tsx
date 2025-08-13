@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 interface AuthContextType {
   user: User | null;
   login: (username: string, password: string) => Promise<boolean>;
-  signup: (username: string, password: string, role: User['role']) => Promise<boolean>;
+  signup: (username: string, email: string, password: string, role: User['role']) => Promise<boolean>;
   logout: () => Promise<void>;
   loading: boolean;
 }
@@ -75,10 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (username: string, password: string, role: User['role']): Promise<boolean> => {
+  const signup = async (username: string, email: string, password: string, role: User['role']): Promise<boolean> => {
     try {
-      // Generate a valid email format for Supabase auth
-      const email = `${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@obcbeyblade.com`;
-      
       const { data, error } = await supabase.auth.signUp({
         email,
         password
