@@ -86,6 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (username: string, email: string, password: string, role: User['role']): Promise<boolean> => {
     try {
+      console.log('📝 SIGNUP ATTEMPT - Username:', username, 'Email:', email);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -95,14 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       });
-
-      console.log('✅ LOGIN SUCCESSFUL');
-      return true;
-    } catch (error) {
-      console.error('Signup error:', error);
-      return false;
-    }
-  };
 
       if (error) {
         console.error('❌ SUPABASE SIGNUP ERROR:', error.message, 'Code:', error.status);
@@ -116,10 +110,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user_metadata: data.user?.user_metadata
       });
       
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      return false;
+    }
+  };
+
   const logout = async (): Promise<void> => {
     await supabase.auth.signOut();
-      console.log('📝 SIGNUP ATTEMPT - Username:', username, 'Email:', email);
-      
     setUser(null);
   };
 
