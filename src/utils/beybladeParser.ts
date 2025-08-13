@@ -46,13 +46,119 @@ export function calculateWilsonScore(wins: number, total: number, z: number = 1.
 }
 
 // Check if a Beyblade is Custom type by looking for lockchip prefix
-function isCustomBeyblade(beybladeName: string, lockchips: any[]): boolean {
-  return lockchips.some(lockchip => 
-    lockchip.Lockchip && beybladeName.startsWith(lockchip.Lockchip)
-  );
+function tryParseStandardBeyblade(beybladeName: string, partsData: AllPartsData): ParsedBeyblade | null {
+  console.log(`⚙️ PARSER: Attempting Standard parsing for: "${beybladeName}"`);
+  
+  let remainingName = beybladeName;
+  
+  // 1. Find bit (suffix) - try both shortcuts and full names
+  const bitResult = findBit(remainingName, partsData.bits);
+  if (!bitResult) {
+    console.log(`❌ PARSER: Standard parsing failed - no bit found`);
+    return null;
+  }
+  
+  remainingName = remainingName.slice(0, remainingName.length - bitResult.bitName.length).trim();
+  console.log(`⚙️ PARSER: After bit removal: "${remainingName}"`);
+  
+  // 2. Find ratchet (suffix)
+  const ratchetResult = findRatchet(remainingName, partsData.ratchets);
+  if (!ratchetResult) {
+    console.log(`❌ PARSER: Standard parsing failed - no ratchet found`);
+    return null;
+  }
+  
+  remainingName = remainingName.slice(0, remainingName.length - ratchetResult.ratchetName.length).trim();
+  console.log(`⚙️ PARSER: After ratchet removal: "${remainingName}"`);
+  
+  // 3. What's left should be the blade - check Basic and Unique lines
+  const bladeResult = findBlade(remainingName, partsData.blades.filter(blade => 
+    blade.Line === 'Basic' || blade.Line === 'Unique'
+  ));
+  if (!bladeResult) {
+    console.log(`❌ PARSER: Standard parsing failed - no Basic/Unique blade found for "${remainingName}"`);
+    return null;
+  }
+  
+  const result = {
+    isCustom: false,
+    blade: bladeResult.bladeName,
+    ratchet: ratchetResult.ratchetName,
+    bit: bitResult.bitName
+  };
+  
+  console.log(`✅ PARSER: Standard parsing successful:`, result);
+  return result;
 }
 
-// Find bit by trying both shortcuts and full names
+function tryParseCustomBeyblade(beybladeName: string, partsData: AllPartsData): ParsedBeyblade | null {
+  console.log(`🔧 PARSER: Attempting Custom parsing for: "${beybladeName}"`);
+  
+  let remainingName = beybladeName;
+  
+  // 1. Find lockchip (prefix)
+  const lockchipResult = findLockchip(beybladeName, partsData.lockchips);
+  if (!lockchipResult) {
+    console.log(`❌ PARSER: Custom parsing failed - no lockchip found`);
+    return null;
+  }
+  
+  remainingName = beybladeName.slice(lockchipResult.lockchipName.length);
+  console.log(`🔧 PARSER: After lockchip removal: "${remainingName}"`);
+  
+  // 2. Find bit (suffix)
+  const bitResult = findBit(remainingName, partsData.bits);
+  if (!bitResult) {
+    console.log(`❌ PARSER: Custom parsing failed - no bit found`);
+    return null;
+  }
+  
+  remainingName = remainingName.slice(0, remainingName.length - bitResult.bitName.length).trim();
+  console.log(`🔧 PARSER: After bit removal: "${remainingName}"`);
+  
+  // 3. Find ratchet (suffix)
+  const ratchetResult = findRatchet(remainingName, partsData.ratchets);
+  if (!ratchetResult) {
+    console.log(`❌ PARSER: Custom parsing failed - no ratchet found`);
+    return null;
+  }
+  
+  remainingName = remainingName.slice(0, remainingName.length - ratchetResult.ratchetName.length).trim();
+  console.log(`🔧 PARSER: After ratchet removal: "${remainingName}"`);
+  
+  // 4. Find assist blade (suffix of remaining)
+  const assistBladeResult = findAssistBlade(remainingName, partsData.assistBlades);
+  if (!assistBladeResult) {
+    console.log(`❌ PARSER: Custom parsing failed - no assist blade found`);
+    return null;
+  }
+  
+  remainingName = remainingName.slice(assistBladeResult.assistBladeName.length).trim();
+  console.log(`🔧 PARSER: After assist blade removal: "${remainingName}"`);
+  
+  // 5. What's left should be the main blade - check Custom line
+  const mainBladeResult = findBlade(remainingName, partsData.blades.filter(blade => 
+    blade.Line === 'Custom'
+  ));
+  if (!mainBladeResult) {
+    console.log(`❌ PARSER: Custom parsing failed - no Custom main blade found for "${remainingName}"`);
+    return null;
+  }
+  
+  const result = {
+    isCustom: true,
+    lockchip: lockchipResult.lockchipName,
+    mainBlade: mainBladeResult.bladeName,
+    assistBlade: assistBladeResult.assistBladeName,
+    ratchet: ratchetResult.ratchetName,
+    bit: bitResult.bitName
+  };
+  
+  console.log(`✅ PARSER: Custom parsing successful:`, result);
+  return result;
+}
+
+// Find bit by trying both shortcuts and full names</parameter>
 function findBit(remainingName: string, bits: any[]): { bit: any; bitName: string } | null {
   console.log(`🔍 PARSER: Finding bit in "${remainingName}"`);
   console.log(`🔍 PARSER: Available bits:`, bits.map(b => ({ shortcut: b.Shortcut, full: b.Bit })));
@@ -112,16 +218,17 @@ function findRatchet(remainingName: string, ratchets: any[]): { ratchet: any; ra
 // Find blade by name
 function findBlade(remainingName: string, blades: any[]): { blade: any; bladeName: string } | null {
   console.log(`🔍 PARSER: Finding blade in "${remainingName}"`);
+  console.log(`🔍 PARSER: Available blades:`, blades.map(b => ({ name: b.Blades, line: b.Line })));
   
   for (const blade of blades) {
     const bladeName = blade.Blades;
     if (bladeName && remainingName === bladeName) {
-      console.log(`✅ PARSER: Found blade: ${bladeName}`);
+      console.log(`✅ PARSER: Found blade: ${bladeName} (${blade.Line} line)`);
       return { blade, bladeName };
     }
   }
   
-  console.log(`❌ PARSER: No blade found for "${remainingName}"`);
+  console.log(`❌ PARSER: No blade found for "${remainingName}" in available blades`);
   return null;
 }
 
@@ -160,131 +267,6 @@ function findAssistBlade(remainingName: string, assistBlades: any[]): { assistBl
     }
   }
   
-  console.log(`❌ PARSER: No assist blade found in "${remainingName}"`);
-  return null;
-}
-
-// Parse Custom Beyblade (Lockchip + Main Blade + Assist Blade + Ratchet + Bit)
-function parseCustomBeyblade(beybladeName: string, partsData: AllPartsData): ParsedBeyblade {
-  console.log(`🔧 PARSER: Parsing Custom Beyblade: "${beybladeName}"`);
-  
-  let remainingName = beybladeName;
-  
-  // 1. Find lockchip (prefix)
-  const lockchipResult = findLockchip(beybladeName, partsData.lockchips);
-  if (!lockchipResult) {
-    console.log(`❌ PARSER: Custom parsing failed - no lockchip found`);
-    return { isCustom: true };
-  }
-  
-  remainingName = beybladeName.slice(lockchipResult.lockchipName.length);
-  console.log(`🔧 PARSER: After lockchip removal: "${remainingName}"`);
-  
-  // 2. Find bit (suffix)
-  const bitResult = findBit(remainingName, partsData.bits);
-  if (!bitResult) {
-    console.log(`❌ PARSER: Custom parsing failed - no bit found`);
-    return { isCustom: true, lockchip: lockchipResult.lockchipName };
-  }
-  
-  remainingName = remainingName.slice(0, remainingName.length - bitResult.bitName.length).trim();
-  console.log(`🔧 PARSER: After bit removal: "${remainingName}"`);
-  
-  // 3. Find ratchet (suffix)
-  const ratchetResult = findRatchet(remainingName, partsData.ratchets);
-  if (!ratchetResult) {
-    console.log(`❌ PARSER: Custom parsing failed - no ratchet found`);
-    return { isCustom: true, lockchip: lockchipResult.lockchipName, bit: bitResult.bitName };
-  }
-  
-  remainingName = remainingName.slice(0, remainingName.length - ratchetResult.ratchetName.length).trim();
-  console.log(`🔧 PARSER: After ratchet removal: "${remainingName}"`);
-  
-  // 4. Find assist blade (suffix of remaining)
-  const assistBladeResult = findAssistBlade(remainingName, partsData.assistBlades);
-  if (!assistBladeResult) {
-    console.log(`❌ PARSER: Custom parsing failed - no assist blade found`);
-    return { 
-      isCustom: true, 
-      lockchip: lockchipResult.lockchipName, 
-      bit: bitResult.bitName, 
-      ratchet: ratchetResult.ratchetName 
-    };
-  }
-  
-  remainingName = remainingName.slice(assistBladeResult.assistBladeName.length).trim();
-  console.log(`🔧 PARSER: After assist blade removal: "${remainingName}"`);
-  
-  // 5. What's left should be the main blade
-  const mainBladeResult = findBlade(remainingName, partsData.blades);
-  if (!mainBladeResult) {
-    console.log(`❌ PARSER: Custom parsing failed - no main blade found for "${remainingName}"`);
-    return { 
-      isCustom: true, 
-      lockchip: lockchipResult.lockchipName, 
-      bit: bitResult.bitName, 
-      ratchet: ratchetResult.ratchetName,
-      assistBlade: assistBladeResult.assistBladeName
-    };
-  }
-  
-  const result = {
-    isCustom: true,
-    lockchip: lockchipResult.lockchipName,
-    mainBlade: mainBladeResult.bladeName,
-    assistBlade: assistBladeResult.assistBladeName,
-    ratchet: ratchetResult.ratchetName,
-    bit: bitResult.bitName
-  };
-  
-  console.log(`✅ PARSER: Custom parsing successful:`, result);
-  return result;
-}
-
-// Parse Standard Beyblade (Blade + Ratchet + Bit)
-function parseStandardBeyblade(beybladeName: string, partsData: AllPartsData): ParsedBeyblade {
-  console.log(`⚙️ PARSER: Parsing Standard Beyblade: "${beybladeName}"`);
-  
-  let remainingName = beybladeName;
-  
-  // 1. Find bit (suffix)
-  const bitResult = findBit(remainingName, partsData.bits);
-  if (!bitResult) {
-    console.log(`❌ PARSER: Standard parsing failed - no bit found`);
-    return { isCustom: false };
-  }
-  
-  remainingName = remainingName.slice(0, remainingName.length - bitResult.bitName.length).trim();
-  console.log(`⚙️ PARSER: After bit removal: "${remainingName}"`);
-  
-  // 2. Find ratchet (suffix)
-  const ratchetResult = findRatchet(remainingName, partsData.ratchets);
-  if (!ratchetResult) {
-    console.log(`❌ PARSER: Standard parsing failed - no ratchet found`);
-    return { isCustom: false, bit: bitResult.bitName };
-  }
-  
-  remainingName = remainingName.slice(0, remainingName.length - ratchetResult.ratchetName.length).trim();
-  console.log(`⚙️ PARSER: After ratchet removal: "${remainingName}"`);
-  
-  // 3. What's left should be the blade
-  const bladeResult = findBlade(remainingName, partsData.blades);
-  if (!bladeResult) {
-    console.log(`❌ PARSER: Standard parsing failed - no blade found for "${remainingName}"`);
-    return { isCustom: false, bit: bitResult.bitName, ratchet: ratchetResult.ratchetName };
-  }
-  
-  const result = {
-    isCustom: false,
-    blade: bladeResult.bladeName,
-    ratchet: ratchetResult.ratchetName,
-    bit: bitResult.bitName
-  };
-  
-  console.log(`✅ PARSER: Standard parsing successful:`, result);
-  return result;
-}
-
 // Main parsing function
 export function parseBeybladeName(beybladeName: string, partsData: AllPartsData): ParsedBeyblade {
   if (!beybladeName || !beybladeName.trim()) {
@@ -292,12 +274,24 @@ export function parseBeybladeName(beybladeName: string, partsData: AllPartsData)
     return { isCustom: false };
   }
   
-  console.log(`\n🎯 PARSER: Starting to parse "${beybladeName}"`);
+  console.log(`\n🎯 PARSER: Starting to parse "${beybladeName}" - Priority: Standard first, then Custom`);
   
-  // Check if it's a Custom Beyblade
-  if (isCustomBeyblade(beybladeName, partsData.lockchips)) {
-    return parseCustomBeyblade(beybladeName, partsData);
-  } else {
-    return parseStandardBeyblade(beybladeName, partsData);
+  // 1. Try Standard parsing first (Basic/Unique Blade + Ratchet + Bit)
+  const standardResult = tryParseStandardBeyblade(beybladeName, partsData);
+  if (standardResult) {
+    console.log(`🎯 PARSER: Successfully parsed as Standard Beyblade`);
+    return standardResult;
   }
+  
+  console.log(`🎯 PARSER: Standard parsing failed, trying Custom parsing...`);
+  
+  // 2. Try Custom parsing (Lockchip + Main Blade + Assist Blade + Ratchet + Bit)
+  const customResult = tryParseCustomBeyblade(beybladeName, partsData);
+  if (customResult) {
+    console.log(`🎯 PARSER: Successfully parsed as Custom Beyblade`);
+    return customResult;
+  }
+  
+  console.log(`❌ PARSER: Both Standard and Custom parsing failed for "${beybladeName}"`);
+  return { isCustom: false };
 }
