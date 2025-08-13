@@ -255,8 +255,6 @@ export function MetaAnalysis() {
           opponent: match.player1_name,
           beyblade: match.player2_beyblade,
           opponentBeyblade: match.player1_beyblade,
-        const winBladeLine = winner === p1 ? bl1 : bl2;
-        const loseBladeLine = winner === p1 ? bl2 : bl1;
           isWin: match.winner_name === match.player2_name,
           outcome: match.outcome || 'Unknown',
           parsedParts: p2Parts
