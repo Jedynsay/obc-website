@@ -23,21 +23,26 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
   };
 
   return (
-    <header className="bg-blue-900 text-white shadow-lg">
+    <header className="bg-gradient-to-r from-slate-900/95 to-blue-900/95 backdrop-blur-md border-b border-slate-700/50 shadow-2xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center space-x-4">
             <button
               onClick={onMenuToggle}
-              className="lg:hidden p-2 rounded-md hover:bg-blue-800 transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-800/50 transition-all duration-300 hover:shadow-glow"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center font-bold">
-                B
+              <div className="w-10 h-10 bg-gradient-to-br from-energy-400 to-battle-500 rounded-full flex items-center justify-center font-orbitron font-bold text-lg shadow-energy animate-spin-slow">
+                ⚡
               </div>
-              <h1 className="text-xl font-bold">Beyblade Community</h1>
+              <div>
+                <h1 className="text-xl font-orbitron font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                  BEYBLADE
+                </h1>
+                <p className="text-xs text-slate-400 font-rajdhani">COMMUNITY</p>
+              </div>
             </div>
           </div>
 
@@ -46,32 +51,36 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 p-2 rounded-md hover:bg-blue-800 transition-colors"
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all duration-300 hover:shadow-glow beyblade-glow"
                 >
-                  <User size={20} />
-                  <span className="hidden sm:block">{user.username}</span>
-                  <span className={`text-xs px-2 py-1 rounded-full capitalize ${getRoleColor(user.role)}`}>
-                    {user.role.replace('_', ' ')}
-                  </span>
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center font-orbitron font-bold text-sm">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="hidden sm:block text-left">
+                    <p className="font-rajdhani font-semibold text-white">{user.username}</p>
+                    <p className={`text-xs font-rajdhani capitalize ${getRoleColor(user.role)}`}>
+                      {user.role.replace('_', ' ')}
+                    </p>
+                  </div>
                 </button>
 
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-md shadow-lg z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-2xl z-50">
                     <div className="py-1">
-                      <div className="px-4 py-2 border-b">
-                        <p className="font-medium">{user.username}</p>
-                        <p className="text-sm text-gray-600 capitalize">{user.role.replace('_', ' ')}</p>
+                      <div className="px-4 py-3 border-b border-slate-700/50">
+                        <p className="font-rajdhani font-semibold text-white">{user.username}</p>
+                        <p className="text-sm text-slate-400 capitalize font-rajdhani">{user.role.replace('_', ' ')}</p>
                       </div>
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                      <button className="w-full text-left px-4 py-3 hover:bg-slate-700/50 flex items-center space-x-2 text-slate-300 hover:text-white transition-colors">
                         <Settings size={16} />
-                        <span>Settings</span>
+                        <span className="font-rajdhani">Settings</span>
                       </button>
                       <button
                         onClick={logout}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center space-x-2 text-red-600"
+                        className="w-full text-left px-4 py-3 hover:bg-red-900/20 flex items-center space-x-2 text-red-400 hover:text-red-300 transition-colors"
                       >
                         <LogOut size={16} />
-                        <span>Logout</span>
+                        <span className="font-rajdhani">Logout</span>
                       </button>
                     </div>
                   </div>
@@ -84,10 +93,10 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="flex items-center space-x-2 p-2 rounded-md hover:bg-blue-800 transition-colors text-white"
+                className="beyblade-button flex items-center space-x-2"
               >
                 <LogIn size={20} />
-                <span className="hidden sm:block">Login</span>
+                <span className="hidden sm:block font-rajdhani font-semibold">Login</span>
               </button>
             </div>
           )}
@@ -105,12 +114,12 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="relative">
             <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
             <button
               onClick={() => setShowLoginModal(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="absolute -top-2 -right-2 p-2 bg-slate-800/90 hover:bg-slate-700/90 rounded-full transition-colors text-white hover:text-red-400"
             >
               <X size={20} />
             </button>

@@ -138,40 +138,40 @@ export function Analytics() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-8">
+    <div className="page-container">
+      <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tournament Analytics</h1>
-            <p className="text-gray-600">Comprehensive tournament and player statistics</p>
+            <h1 className="page-title">Tournament Analytics</h1>
+            <p className="page-subtitle">Comprehensive tournament and player statistics</p>
           </div>
-          <div className="flex space-x-3">
+          <div className="flex space-x-4">
             <button
               onClick={() => setCurrentView('overview')}
-              className={`px-4 py-2 rounded-md transition-colors ${
+              className={`px-6 py-3 rounded-xl font-rajdhani font-bold transition-all duration-300 ${
                 currentView === 'overview' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-glow scale-105' 
+                  : 'bg-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-700/60 border border-slate-600/30'
               }`}
             >
               Overview
             </button>
             <button
               onClick={() => setCurrentView('meta')}
-              className={`px-4 py-2 rounded-md transition-colors ${
+              className={`px-6 py-3 rounded-xl font-rajdhani font-bold transition-all duration-300 ${
                 currentView === 'meta' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-glow scale-105' 
+                  : 'bg-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-700/60 border border-slate-600/30'
               }`}
             >
               Meta Analysis
             </button>
             <button
               onClick={() => setCurrentView('player')}
-              className={`px-4 py-2 rounded-md transition-colors ${
+              className={`px-6 py-3 rounded-xl font-rajdhani font-bold transition-all duration-300 ${
                 currentView === 'player' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-glow scale-105' 
+                  : 'bg-slate-800/60 text-slate-300 hover:text-white hover:bg-slate-700/60 border border-slate-600/30'
               }`}
             >
               Player Analytics
@@ -180,81 +180,81 @@ export function Analytics() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md p-6">
+          <div key={index} className="stat-card">
             <div className="flex items-center">
-              <div className={`p-3 rounded-lg ${stat.bgColor} ${stat.color}`}>
+              <div className={`p-4 rounded-xl ${stat.bgColor} ${stat.color} shadow-glow`}>
                 <stat.icon size={24} />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+              <div className="ml-6">
+                <p className="text-sm font-rajdhani font-semibold text-slate-300">{stat.label}</p>
+                <p className="text-3xl font-orbitron font-bold text-white">{stat.value}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="section-card">
+          <h2 className="section-title">
             <BarChart3 className="mr-2" size={24} />
             Tournament Status
           </h2>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-700">Completed</span>
+              <span className="text-slate-300 font-rajdhani font-semibold text-lg">Completed</span>
               <div className="flex items-center space-x-2">
-                <div className="w-32 bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.completedTournaments.length / analytics.totalTournaments) * 100 : 0}%` }}></div>
+                <div className="w-40 bg-slate-700/50 rounded-full h-3">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full shadow-glow" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.completedTournaments.length / analytics.totalTournaments) * 100 : 0}%` }}></div>
                 </div>
-                <span className="text-sm font-medium">{analytics.completedTournaments.length}</span>
+                <span className="text-lg font-orbitron font-bold text-white">{analytics.completedTournaments.length}</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-700">Active</span>
+              <span className="text-slate-300 font-rajdhani font-semibold text-lg">Active</span>
               <div className="flex items-center space-x-2">
-                <div className="w-32 bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.activeTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
+                <div className="w-40 bg-slate-700/50 rounded-full h-3">
+                  <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full shadow-glow" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.activeTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
                 </div>
-                <span className="text-sm font-medium">{analytics.activeTournaments}</span>
+                <span className="text-lg font-orbitron font-bold text-white">{analytics.activeTournaments}</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-700">Upcoming</span>
+              <span className="text-slate-300 font-rajdhani font-semibold text-lg">Upcoming</span>
               <div className="flex items-center space-x-2">
-                <div className="w-32 bg-gray-200 rounded-full h-2">
-                  <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.upcomingTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
+                <div className="w-40 bg-slate-700/50 rounded-full h-3">
+                  <div className="bg-gradient-to-r from-orange-500 to-yellow-500 h-3 rounded-full shadow-glow" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.upcomingTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
                 </div>
-                <span className="text-sm font-medium">{analytics.upcomingTournaments}</span>
+                <span className="text-lg font-orbitron font-bold text-white">{analytics.upcomingTournaments}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+        <div className="section-card">
+          <h2 className="section-title">
             <TrendingUp className="mr-2" size={24} />
             Top Player Win Rates
           </h2>
           <div className="space-y-4">
             {winRates.map((player, index) => (
-              <div key={player.player} className="flex items-center justify-between">
+              <div key={player.player} className="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl backdrop-blur-sm">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-orbitron font-bold shadow-glow">
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{player.player}</p>
-                    <p className="text-sm text-gray-600">{player.wins}/{player.matches} matches</p>
+                    <p className="font-orbitron font-bold text-white text-lg">{player.player}</p>
+                    <p className="text-slate-300 font-rajdhani font-medium">{player.wins}/{player.matches} matches</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-lg text-gray-900">{player.winRate}%</p>
-                  <div className="w-16 bg-gray-200 rounded-full h-2">
+                  <p className="font-orbitron font-bold text-xl text-white">{player.winRate}%</p>
+                  <div className="w-20 bg-slate-700/50 rounded-full h-3">
                     <div 
-                      className="bg-green-500 h-2 rounded-full" 
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full shadow-glow" 
                       style={{ width: `${player.winRate}%` }}
                     ></div>
                   </div>
@@ -265,26 +265,26 @@ export function Analytics() {
         </div>
       </div>
 
-      <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Match Statistics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="section-card mt-12">
+        <h2 className="section-title">Match Statistics</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">
+            <div className="text-4xl font-orbitron font-bold text-blue-400 mb-3">
               {analytics.completedMatches}
             </div>
-            <p className="text-gray-600">Completed Matches</p>
+            <p className="text-slate-300 font-rajdhani font-semibold text-lg">Completed Matches</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-orange-600 mb-2">
+            <div className="text-4xl font-orbitron font-bold text-orange-400 mb-3">
               0
             </div>
-            <p className="text-gray-600">Ongoing Matches</p>
+            <p className="text-slate-300 font-rajdhani font-semibold text-lg">Ongoing Matches</p>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">
+            <div className="text-4xl font-orbitron font-bold text-green-400 mb-3">
               0
             </div>
-            <p className="text-gray-600">Scheduled Matches</p>
+            <p className="text-slate-300 font-rajdhani font-semibold text-lg">Scheduled Matches</p>
           </div>
         </div>
       </div>

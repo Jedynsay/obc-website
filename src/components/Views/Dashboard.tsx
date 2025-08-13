@@ -62,12 +62,12 @@ export function Dashboard() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+    <div className="page-container">
+      <div className="page-header">
+        <h1 className="page-title">
           Welcome{user ? ` back, ${user.username}` : ' to OBC Portal'}!
         </h1>
-        <p className="text-gray-600">
+        <p className="page-subtitle">
           {user 
             ? 'Check out upcoming tournaments and manage your Beyblade collection!' 
             : 'Explore tournaments and Beyblade data. Login to access personal features like inventory and deck building.'
@@ -77,33 +77,42 @@ export function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statsDisplay.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+          <div key={index} className="stat-card group">
             <div className="flex items-center">
-              <div className={`p-3 rounded-lg bg-gray-100 ${stat.color}`}>
+              <div className={`p-4 rounded-xl bg-gradient-to-br ${
+                index === 0 ? 'from-blue-500/20 to-indigo-500/20' :
+                index === 1 ? 'from-green-500/20 to-emerald-500/20' :
+                index === 2 ? 'from-orange-500/20 to-yellow-500/20' : 'from-purple-500/20 to-pink-500/20'
+              } ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
                 <stat.icon size={24} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm font-rajdhani font-medium text-slate-400">{stat.label}</p>
+                <p className="text-3xl font-orbitron font-bold text-white">{stat.value}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Upcoming Tournaments</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="beyblade-card p-6">
+          <h2 className="section-title">
+            <div className="section-icon">
+              <Trophy size={20} className="text-white" />
+            </div>
+            Upcoming Tournaments
+          </h2>
           <div className="space-y-4">
             {upcomingTournaments.map((tournament) => (
-              <div key={tournament.id} className="border-l-4 border-blue-500 pl-4 py-2">
-                <h3 className="font-semibold text-gray-900">{tournament.name}</h3>
-                <p className="text-sm text-gray-600">{new Date(tournament.tournament_date).toLocaleDateString()} • {tournament.location}</p>
+              <div key={tournament.id} className="bg-gradient-to-r from-slate-800/60 to-slate-700/60 rounded-xl p-6 border-l-4 border-blue-500 hover:border-indigo-400 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
+                <h3 className="font-orbitron font-bold text-white mb-2 text-lg">{tournament.name}</h3>
+                <p className="text-slate-300 font-rajdhani mb-3 text-base">{new Date(tournament.tournament_date).toLocaleDateString()} • {tournament.location}</p>
                 <div className="flex justify-between items-center mt-2">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-slate-400 font-rajdhani font-medium">
                     {tournament.current_participants}/{tournament.max_participants} registered
                   </span>
-                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                  <span className="tournament-status-upcoming text-sm px-4 py-2 rounded-full font-rajdhani font-bold">
                     {tournament.status}
                   </span>
                 </div>
@@ -112,12 +121,31 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">System Status</h2>
-          <div className="text-center py-8">
-            <div className="text-green-600 text-4xl mb-4">✓</div>
-            <p className="text-gray-600">All systems operational</p>
-            <p className="text-sm text-gray-500 mt-2">Connected to Supabase database</p>
+        <div className="beyblade-card p-6">
+          <h2 className="section-title">
+            <div className="section-icon bg-gradient-to-br from-green-500 to-emerald-600">
+              <span className="text-white text-2xl">⚡</span>
+            </div>
+            System Status
+          </h2>
+          <div className="text-center py-8 space-y-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-glow animate-pulse-glow">
+              <span className="text-white text-2xl">✓</span>
+            </div>
+            <div>
+              <p className="text-white font-orbitron font-bold text-xl">All Systems Operational</p>
+              <p className="text-slate-300 font-rajdhani mt-3 text-lg">Connected to Supabase database</p>
+            </div>
+            <div className="grid grid-cols-2 gap-6 mt-8">
+              <div className="bg-slate-800/60 rounded-xl p-4 backdrop-blur-sm border border-slate-600/30">
+                <p className="text-green-400 font-orbitron font-bold text-2xl">99.9%</p>
+                <p className="text-slate-300 font-rajdhani font-medium">Uptime</p>
+              </div>
+              <div className="bg-slate-800/60 rounded-xl p-4 backdrop-blur-sm border border-slate-600/30">
+                <p className="text-blue-400 font-orbitron font-bold text-2xl"><50ms</p>
+                <p className="text-slate-300 font-rajdhani font-medium">Response</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

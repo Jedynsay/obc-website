@@ -1,163 +1,137 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, User, Shield, Save } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase';
+import { SignupForm } from './SignupForm';
 
-export function Settings() {
-  const { user, setUser } = useAuth();
-  const [selectedRole, setSelectedRole] = useState(user?.role || 'user');
-  const [saving, setSaving] = useState(false);
+interface LoginFormProps {
+  onLoginSuccess?: () => void;
+}
 
-  const roles = [
-    { value: 'user', label: 'User', description: 'Basic user access' },
-    { value: 'technical_officer', label: 'Technical Officer', description: 'Can manage matches and analytics' },
-    { value: 'admin', label: 'Admin', description: 'Can manage tournaments and users' },
-    { value: 'developer', label: 'Developer', description: 'Full system access' }
-  ];
+export function LoginForm({ onLoginSuccess }: LoginFormProps) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [currentView, setCurrentView] = useState<'login' | 'signup'>('login');
+  const { login } = useAuth();
 
-  const updateRole = async () => {
-    if (!user || selectedRole === user.role) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: selectedRole })
-        .eq('id', user.id);
-
-      if (error) throw error;
-
-      // Update local user state
-      setUser({
-        ...user,
-        role: selectedRole as any
-      });
-
-      alert('Role updated successfully!');
-    } catch (error) {
-      console.error('Error updating role:', error);
-      alert('Failed to update role. Please try again.');
-    } finally {
-      setSaving(false);
+    const success = await login(username, password);
+    if (success) {
+      // Login successful - close modal and reset form
+      setUsername('');
+      setPassword('');
+      setError('');
+      onLoginSuccess?.();
+    } else {
+      setError('Invalid username or password. Please check your credentials and try again.');
     }
+    setLoading(false);
   };
 
-  if (!user || user.id.startsWith('guest-')) {
-    return (
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="text-center py-12">
-          <SettingsIcon size={48} className="mx-auto text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Settings</h2>
-          <p className="text-gray-600 mb-6">Manage your account settings and preferences</p>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                🔒
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Login Required</h3>
-            <p className="text-yellow-800 text-sm mb-4">
-              You need to create an account and log in to access your account settings.
-            </p>
-            <p className="text-yellow-700 text-xs">
-              Create a free account to customize your profile and preferences!
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+  if (currentView === 'signup') {
+    return <SignupForm onBackToLogin={() => setCurrentView('login')} onSignupSuccess={onLoginSuccess} />;
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-        <p className="text-gray-600">Manage your account settings and preferences</p>
-      </div>
+    <div className="max-w-md w-full beyblade-card p-8">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-gradient-to-br from-energy-400 to-battle-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-energy animate-spin-slow">
+            <span className="text-white text-3xl font-orbitron font-bold">⚡</span>
+          </div>
+          <h2 className="text-3xl font-orbitron font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">OBC PORTAL</h2>
+          <p className="text-slate-300 mt-2 font-rajdhani">Sign in to access your account</p>
+        </div>
 
-      {/* User Info */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div className="flex items-center mb-6">
-          <User className="text-blue-600 mr-2" size={20} />
-          <h2 className="text-xl font-bold text-gray-900">User Information</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <User className="text-white" size={24} />
+          </div>
+          <h2 className="text-2xl font-orbitron font-bold text-white">User Information</h2>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-            <div className="w-full border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-gray-700">
+            <label className="block text-sm font-rajdhani font-semibold text-slate-300 mb-3">Username</label>
+            <div className="beyblade-input bg-slate-800/80 border-slate-600/50 text-white font-rajdhani font-medium text-lg">
               {user.username}
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <div className="w-full border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-gray-700">
+            <label className="block text-sm font-rajdhani font-semibold text-slate-300 mb-3">Email</label>
+            <div className="beyblade-input bg-slate-800/80 border-slate-600/50 text-white font-rajdhani font-medium text-lg">
               {user.email}
             </div>
           </div>
         </div>
       </div>
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
 
-      {/* Role Management (Debug) */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
-        <div className="flex items-center mb-6">
-          <Shield className="text-yellow-600 mr-2" size={20} />
-          <h2 className="text-xl font-bold text-yellow-900">Role Management (Debug)</h2>
-        </div>
-        
-        <div className="mb-4 p-3 bg-white rounded-lg border border-yellow-200">
-          <p className="text-sm text-yellow-800">
-            <strong>Debug Feature:</strong> Change your role for testing different access levels. 
-            This is for development purposes only.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Current Role</label>
-            <div className="w-full border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-gray-700 capitalize">
-              {user.role.replace('_', ' ')}
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="text-red-600 text-sm">{error}</div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or</span>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Change Role To</label>
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+
+          <div className="mt-6 space-y-3">
+            <button
+              onClick={() => setCurrentView('signup')}
+              className="w-full flex justify-center py-2 px-4 border border-green-300 rounded-md shadow-sm text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              {roles.map(role => (
-                <option key={role.value} value={role.value}>
-                  {role.label}
-                </option>
-              ))}
-            </select>
+              Create New Account
+            </button>
           </div>
         </div>
 
-        {selectedRole !== user.role && (
-          <div className="mt-4 p-3 bg-white rounded-lg border border-yellow-200">
-            <p className="text-sm text-yellow-800 mb-2">
-              <strong>Selected Role:</strong> {roles.find(r => r.value === selectedRole)?.label}
-            </p>
-            <p className="text-xs text-yellow-700">
-              {roles.find(r => r.value === selectedRole)?.description}
-            </p>
-          </div>
-        )}
-
-        <div className="flex justify-end mt-6">
-          <button
-            onClick={updateRole}
-            disabled={selectedRole === user.role || saving}
-            className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-          >
-            {saving && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
-            <Save size={16} />
-            <span>Update Role</span>
-          </button>
+        <div className="mt-6 text-center">
+          <p className="text-xs text-gray-500">
+            Create an account to participate in tournaments and access all features.
+          </p>
         </div>
-      </div>
     </div>
   );
 }
