@@ -361,6 +361,17 @@ export function MetaAnalysis() {
     console.log(`👁️ META ANALYSIS: Showing ${matchesForBuild.length} matches for ${build} by ${player}`);
   };
 
+  // Temporary function to infer blade line - ideally we'd get this from registration data
+  const inferBladeLine = (beybladeName: string): string => {
+    // Simple heuristic: if it starts with a single letter followed by a blade name, it's likely Custom
+    // Otherwise, assume it's Basic/Unique
+    const customPattern = /^[A-Z][a-z]*[A-Z]/; // Like "ValkyrieBlast" or "RhinoHorn"
+    if (customPattern.test(beybladeName)) {
+      return 'Custom';
+    }
+    return 'Basic'; // Default to Basic for now
+  };
+
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
