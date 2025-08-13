@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .from('profiles')
         .select('*')
         .eq('username', username)
-        .single();
+        .maybeSingle();
 
       if (profileError || !profile) {
         console.error('❌ LOGIN FAILED - Profile not found:', profileError);
