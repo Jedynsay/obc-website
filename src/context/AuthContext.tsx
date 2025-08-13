@@ -22,10 +22,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setLoading(false);
     
-    // Clear any existing session silently
-    supabase.auth.signOut().catch(() => {
-      // Ignore errors, we just want to be logged out
-    });
+    // Clear any existing session silently, but only if one exists
+    const clearSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await supabase.auth.signOut();
+        }
+      } catch (error) {
+        // Ignore errors, we just want to be logged out
+        console.log('Session cleanup completed');
+      }
+    };
+    
+    clearSession();
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
