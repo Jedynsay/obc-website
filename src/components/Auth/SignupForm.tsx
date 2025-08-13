@@ -63,7 +63,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
 
   if (success) {
     return (
-      <div className="w-full bg-white rounded-lg shadow-xl p-8">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-2xl p-8 mx-auto">
           <div className="text-center">
             <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-white text-2xl">✓</span>
@@ -84,7 +84,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-xl p-8">
+    <div className="w-full max-w-md bg-white rounded-xl shadow-2xl p-8 mx-auto">
         <div className="flex items-center mb-6">
           <button
             onClick={onBackToLogin}

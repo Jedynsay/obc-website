@@ -115,18 +115,30 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
 
         {/* Login Modal */}
         {showLoginModal && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 999999 }}>
-            <div className="relative w-full max-w-md">
-              <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
-              <button
-                onClick={() => setShowLoginModal(false)}
-                className="absolute -top-4 -right-4 p-2 bg-slate-800/90 hover:bg-slate-700/90 rounded-full transition-colors text-white hover:text-red-400 shadow-lg"
-                style={{ zIndex: 1000000 }}
-              >
-                <X size={20} />
-              </button>
+          <>
+            {/* Modal Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+              style={{ zIndex: 999999 }}
+              onClick={() => setShowLoginModal(false)}
+            />
+            
+            {/* Modal Content */}
+            <div 
+              className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
+              style={{ zIndex: 1000000 }}
+            >
+              <div className="relative pointer-events-auto">
+                <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
+                <button
+                  onClick={() => setShowLoginModal(false)}
+                  className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg transition-colors z-10"
+                >
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </header>
     </>

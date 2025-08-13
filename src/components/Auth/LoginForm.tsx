@@ -37,7 +37,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-xl p-8">
+    <div className="w-full max-w-md bg-white rounded-xl shadow-2xl p-8 mx-auto">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-white text-2xl font-bold">B</span>
