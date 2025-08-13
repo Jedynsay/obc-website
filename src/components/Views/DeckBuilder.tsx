@@ -313,6 +313,7 @@ export function DeckBuilder() {
     setEditingId(null);
     setDeckName('');
     setDeckDescription('');
+    setDeckSize(3);
     setBeyblades([{ id: '1', name: '', blade_line: 'Basic', parts: {} }]);
   };
 
