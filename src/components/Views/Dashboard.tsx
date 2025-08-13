@@ -62,7 +62,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container relative">
       <div className="page-header">
         <h1 className="page-title">
           Welcome{user ? ` back, ${user.username}` : ' to OBC Portal'}!
@@ -77,7 +77,7 @@ export function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statsDisplay.map((stat, index) => (
-          <div key={index} className="stat-card group">
+          <div key={index} className="stat-card group relative">
             <div className="flex items-center">
               <div className={`p-4 rounded-xl bg-gradient-to-br ${
                 index === 0 ? 'from-blue-500/20 to-indigo-500/20' :
@@ -96,7 +96,7 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="beyblade-card p-6">
+        <div className="beyblade-card p-6 relative">
           <h2 className="section-title">
             <div className="section-icon">
               <Trophy size={20} className="text-white" />
@@ -121,7 +121,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="beyblade-card p-6">
+        <div className="beyblade-card p-6 relative">
           <h2 className="section-title">
             <div className="section-icon bg-gradient-to-br from-green-500 to-emerald-600">
               <span className="text-white text-2xl">⚡</span>

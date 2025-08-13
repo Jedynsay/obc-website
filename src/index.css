@@ -23,6 +23,7 @@
     @apply hover:shadow-glow transition-all duration-500;
     @apply hover:border-blue-400/60 hover:scale-[1.02];
     @apply relative overflow-hidden;
+    z-index: 1;
   }
   
   .beyblade-card::before {
@@ -73,6 +74,7 @@
     @apply hover:shadow-glow transition-all duration-500 backdrop-blur-md;
     @apply hover:scale-105 hover:-translate-y-2;
     @apply relative overflow-hidden;
+    z-index: 1;
   }
   
   .stat-card::before {
