@@ -6,7 +6,7 @@ interface LoginFormProps {
   onLoginSuccess?: () => void;
 }
 
-export function LoginForm({ onLoginSuccess }: LoginFormProps) {
+export function Settings({ onLoginSuccess }: LoginFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
