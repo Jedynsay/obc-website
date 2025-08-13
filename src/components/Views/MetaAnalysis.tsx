@@ -315,13 +315,16 @@ export function MetaAnalysis() {
   const parseParts = (bey: string): { [key: string]: string } => {
     if (!bey || !bey.trim()) return {};
 
-    console.log('🔍 PARSING:', bey);
+    console.log('🔍 META ANALYSIS: Parsing Beyblade:', bey);
 
     const isCustom = Object.keys(partsData.lockchip).some(lockchip => 
       lockchip && bey.startsWith(lockchip)
     );
 
+    console.log('🔍 META ANALYSIS: Is Custom?', isCustom);
+
     if (isCustom) {
+      // Custom parsing logic (Lockchip + Main Blade + Assist Blade + Ratchet + Bit)
       let lockchip = '';
       let remainingBey = bey;
       
@@ -333,7 +336,10 @@ export function MetaAnalysis() {
         }
       }
 
-      if (!lockchip) return {};
+      if (!lockchip) {
+        console.log('❌ META ANALYSIS: No lockchip found for custom bey:', bey);
+        return {};
+      }
 
       let mainBlade = '';
       for (const mb of Object.keys(partsData.mainBlade).sort((a, b) => b.length - a.length)) {
@@ -344,7 +350,10 @@ export function MetaAnalysis() {
         }
       }
 
-      if (!mainBlade) return {};
+      if (!mainBlade) {
+        console.log('❌ META ANALYSIS: No main blade found for custom bey:', bey, 'after lockchip:', lockchip);
+        return {};
+      }
 
       let bit = '';
       for (const b of Object.keys(partsData.bit).sort((a, b) => b.length - a.length)) {
@@ -366,51 +375,77 @@ export function MetaAnalysis() {
         }
       }
 
-      if (!ratchet) return {};
+      if (!ratchet) {
+        console.log('❌ META ANALYSIS: No ratchet found for custom bey:', bey);
+        return {};
+      }
 
       const assistBlade = remainingBey;
 
-      return {
+      const result = {
         lockchip,
         mainBlade,
         assistBlade,
         ratchet,
         bit
       };
-      console.log('🔍 CUSTOM PARSED:', result);
+      
+      console.log('✅ META ANALYSIS: Custom parsed successfully:', result);
+      return result;
     } else {
-      let bit = '';
+      // Standard parsing logic (Blade + Ratchet + Bit)
+      console.log('🔍 META ANALYSIS: Parsing as standard beyblade');
+      
+      // Find bit first (should be at the end)
       let remainingBey = bey;
+      let bit = '';
       
       for (const b of Object.keys(partsData.bit).sort((a, b) => b.length - a.length)) {
-        if (b && bey.endsWith(b)) {
+        if (b && remainingBey.endsWith(b)) {
           bit = b;
-          remainingBey = bey.slice(0, bey.length - b.length).trim();
+          remainingBey = remainingBey.slice(0, remainingBey.length - b.length).trim();
+          console.log('🔍 META ANALYSIS: Found bit:', b, 'remaining:', remainingBey);
           break;
         }
       }
 
-      if (!bit) return {};
+      if (!bit) {
+        console.log('❌ META ANALYSIS: No bit found for standard bey:', bey);
+        return {};
+      }
 
+      // Find ratchet (should be at the end of remaining string)
       let ratchet = '';
       for (const r of Object.keys(partsData.ratchet).sort((a, b) => b.length - a.length)) {
         if (r && remainingBey.endsWith(r)) {
           ratchet = r;
           remainingBey = remainingBey.slice(0, remainingBey.length - r.length).trim();
+          console.log('🔍 META ANALYSIS: Found ratchet:', r, 'remaining:', remainingBey);
           break;
         }
       }
 
-      if (!ratchet) return {};
+      if (!ratchet) {
+        console.log('❌ META ANALYSIS: No ratchet found for standard bey:', bey);
+        return {};
+      }
 
+      // What's left should be the blade
       const blade = remainingBey;
+      
+      if (!blade || !partsData.blade[blade]) {
+        console.log('❌ META ANALYSIS: No blade found or blade not in database:', blade, 'for bey:', bey);
+        return {};
+      }
 
-      return {
+      const result = {
         blade,
         ratchet,
         bit
       };
-      console.log('🔍 STANDARD PARSED:', { blade, ratchet, bit });
+      
+      console.log('✅ META ANALYSIS: Standard parsed successfully:', result);
+      return result;
     }
   };
 
