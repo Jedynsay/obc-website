@@ -141,7 +141,13 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
     switch (partType) {
       case 'Blade':
       case 'Main Blade':
-        options = partsData.blades.filter(blade => blade.Line === bladeLine);
+        options = partsData.blades.filter(blade => {
+          // For Custom line, Main Blade can use any line, but regular Blade should match
+          if (bladeLine === 'Custom' && partType === 'Main Blade') {
+            return true; // Custom Main Blade can use any blade
+          }
+          return blade.Line === bladeLine;
+        });
         break;
       case 'Ratchet':
         options = partsData.ratchets;

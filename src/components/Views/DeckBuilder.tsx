@@ -103,11 +103,6 @@ export function DeckBuilder() {
     const mappedType = partType === 'Main Blade' ? 'Blade' : partType;
     const parts = inventory.filter(item => item.part_type === mappedType);
     
-    // For Custom line parts, filter by line if it's a blade
-    if (mappedType === 'Blade') {
-      return parts; // Return all blades, filtering will be done in the component
-    }
-    
     return parts;
   };
 
@@ -495,11 +490,19 @@ export function DeckBuilder() {
                             {getStatIcon(stat)}
                           </div>
                           <div className="text-xs font-medium text-gray-600 capitalize">
-                            {stat === 'burstRes' ? 'Burst Res' : stat}
-                          </div>
-                          <div className="text-lg font-bold text-gray-900">{value}</div>
-                        </div>
-                      ))}
+                      {getAvailableParts(partType)
+                        .filter((item) => {
+                          // Filter blades by blade line
+                          if ((partType === 'Blade' || partType === 'Main Blade') && item.part_data?.Line) {
+                            return item.part_data.Line === beyblade.blade_line;
+                          }
+                          return true;
+                        })
+                        .map((item) => (
+                          <option key={item.id} value={JSON.stringify(item.part_data)}>
+                            {item.part_name} (Qty: {item.quantity})
+                          </option>
+                        ))}
                     </div>
                   </div>
                 )}
