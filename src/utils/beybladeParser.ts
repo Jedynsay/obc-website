@@ -267,6 +267,7 @@ function findAssistBlade(remainingName: string, assistBlades: any[]): { assistBl
     }
   }
   
+}
 // Main parsing function
 export function parseBeybladeName(beybladeName: string, partsData: AllPartsData): ParsedBeyblade {
   if (!beybladeName || !beybladeName.trim()) {
