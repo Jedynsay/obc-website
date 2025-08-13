@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // First, find the user by username to get their email
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
         .eq('username', username)
         .maybeSingle();
