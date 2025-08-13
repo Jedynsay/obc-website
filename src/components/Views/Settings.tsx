@@ -47,30 +47,10 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <User className="text-white" size={24} />
-          </div>
-          <h2 className="text-2xl font-orbitron font-bold text-white">User Information</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-rajdhani font-semibold text-slate-300 mb-3">Username</label>
-            <div className="beyblade-input bg-slate-800/80 border-slate-600/50 text-white font-rajdhani font-medium text-lg">
-              {user.username}
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-rajdhani font-semibold text-slate-300 mb-3">Email</label>
-            <div className="beyblade-input bg-slate-800/80 border-slate-600/50 text-white font-rajdhani font-medium text-lg">
-              {user.email}
-            </div>
-          </div>
-        </div>
-      </div>
+            <input
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
               Username
             </label>
-            <input
               type="text"
               id="username"
               value={username}
