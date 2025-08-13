@@ -23,7 +23,6 @@ function AppContent() {
       case 'tournaments': return <Tournaments />;
       case 'inventory': return <Inventory />;
       case 'deck-builder': return <DeckBuilder />;
-      case 'settings': return <Settings />;
       case 'analytics': return <Analytics />;
       case 'match-tracker': return <MatchTracker />;
       case 'tournament-manager': return <TournamentManager />;
