@@ -38,6 +38,7 @@ export function DeckBuilder() {
   // Form state
   const [deckName, setDeckName] = useState('');
   const [deckDescription, setDeckDescription] = useState('');
+  const [deckSize, setDeckSize] = useState(3);
   const [beyblades, setBeyblades] = useState<BeybladeConfig[]>([
     { id: '1', name: '', blade_line: 'Basic', parts: {} }
   ]);
@@ -100,7 +101,14 @@ export function DeckBuilder() {
 
   const getAvailableParts = (partType: string) => {
     const mappedType = partType === 'Main Blade' ? 'Blade' : partType;
-    return inventory.filter(item => item.part_type === mappedType);
+    const parts = inventory.filter(item => item.part_type === mappedType);
+    
+    // For Custom line parts, filter by line if it's a blade
+    if (mappedType === 'Blade') {
+      return parts; // Return all blades, filtering will be done in the component
+    }
+    
+    return parts;
   };
 
   const getPartDisplayName = (part: any, partType: string): string => {
@@ -172,6 +180,7 @@ export function DeckBuilder() {
     setIsCreating(true);
     setDeckName('');
     setDeckDescription('');
+    setDeckSize(3);
     setBeyblades([{ id: '1', name: '', blade_line: 'Basic', parts: {} }]);
   };
 
@@ -179,11 +188,12 @@ export function DeckBuilder() {
     setEditingId(preset.id);
     setDeckName(preset.name);
     setDeckDescription(preset.description || '');
+    setDeckSize(preset.beyblades.length);
     setBeyblades(preset.beyblades);
   };
 
   const addBeyblade = () => {
-    if (beyblades.length < 5) {
+    if (beyblades.length < deckSize) {
       setBeyblades([
         ...beyblades,
         { id: Date.now().toString(), name: '', blade_line: 'Basic', parts: {} }

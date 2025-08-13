@@ -11,6 +11,7 @@ import { UserManagement } from './components/Views/UserManagement';
 import { DatabaseView } from './components/Views/Database';
 import { Inventory } from './components/Views/Inventory';
 import { DeckBuilder } from './components/Views/DeckBuilder';
+import { Settings } from './components/Views/Settings';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -22,6 +23,7 @@ function AppContent() {
       case 'tournaments': return <Tournaments />;
       case 'inventory': return <Inventory />;
       case 'deck-builder': return <DeckBuilder />;
+      case 'settings': return <Settings />;
       case 'analytics': return <Analytics />;
       case 'match-tracker': return <MatchTracker />;
       case 'tournament-manager': return <TournamentManager />;
