@@ -289,8 +289,17 @@ export function parseBeybladeName(beybladeName: string, bladeLine: string, parts
   
   console.log(`\n🎯 PARSER: Starting to parse "${beybladeName}" with blade line: "${bladeLine}"`);
   
+  // Auto-detect blade line if missing or defaulted to Basic
+  let detectedBladeLine = bladeLine;
+  if (!bladeLine || bladeLine === 'Basic') {
+    detectedBladeLine = detectBladeLineFromName(beybladeName, partsData);
+    if (detectedBladeLine !== bladeLine) {
+      console.log(`🔍 PARSER: Auto-detected blade line: "${detectedBladeLine}" (was: "${bladeLine}")`);
+    }
+  }
+  
   // Use blade line to determine parsing method
-  if (bladeLine === 'Custom') {
+  if (detectedBladeLine === 'Custom') {
     console.log(`🔧 PARSER: Using Custom parsing for Custom blade line`);
     const customResult = tryParseCustomBeyblade(beybladeName, partsData);
     if (customResult) {
@@ -300,15 +309,45 @@ export function parseBeybladeName(beybladeName: string, bladeLine: string, parts
     console.log(`❌ PARSER: Custom parsing failed for "${beybladeName}"`);
   } else {
     // Basic, Unique, X-Over use standard parsing
-    console.log(`⚙️ PARSER: Using Standard parsing for ${bladeLine} blade line`);
-    const standardResult = tryParseStandardBeyblade(beybladeName, bladeLine, partsData);
+    console.log(`⚙️ PARSER: Using Standard parsing for ${detectedBladeLine} blade line`);
+    const standardResult = tryParseStandardBeyblade(beybladeName, detectedBladeLine, partsData);
     if (standardResult) {
       console.log(`🎯 PARSER: Successfully parsed as Standard Beyblade`);
       return standardResult;
     }
     console.log(`❌ PARSER: Standard parsing failed for "${beybladeName}"`);
+    
+    // If standard parsing failed and we haven't tried Custom yet, try it
+    if (detectedBladeLine !== 'Custom') {
+      console.log(`🔄 PARSER: Trying Custom parsing as fallback`);
+      const customResult = tryParseCustomBeyblade(beybladeName, partsData);
+      if (customResult) {
+        console.log(`🎯 PARSER: Successfully parsed as Custom Beyblade (fallback)`);
+        return customResult;
+      }
+    }
   }
   
-  console.log(`❌ PARSER: All parsing attempts failed for "${beybladeName}" with blade line "${bladeLine}"`);
+  console.log(`❌ PARSER: All parsing attempts failed for "${beybladeName}" with blade line "${detectedBladeLine}"`);
   return { isCustom: false };
+}
+
+// Auto-detect blade line from Beyblade name structure
+function detectBladeLineFromName(beybladeName: string, partsData: AllPartsData): string {
+  console.log(`🔍 PARSER: Auto-detecting blade line for "${beybladeName}"`);
+  
+  // Check if it starts with a known lockchip (indicates Custom)
+  const lockchips = partsData.lockchips || [];
+  for (const lockchip of lockchips) {
+    const lockchipName = lockchip.Lockchip;
+    if (lockchipName && beybladeName.startsWith(lockchipName)) {
+      console.log(`✅ PARSER: Detected Custom blade line (starts with lockchip: ${lockchipName})`);
+      return 'Custom';
+    }
+  }
+  
+  // For now, default to Basic if no lockchip detected
+  // TODO: Add detection for Unique and X-Over based on blade database
+  console.log(`📝 PARSER: Defaulting to Basic blade line`);
+  return 'Basic';
 }
