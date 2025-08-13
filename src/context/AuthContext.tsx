@@ -52,6 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
+      console.log('🔐 LOGIN ATTEMPT - Username:', username);
+      
       // First, find the user by username to get their email
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -60,13 +62,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (profileError || !profile) {
+        console.error('❌ LOGIN FAILED - Profile not found:', profileError);
         return false;
       }
 
+      console.log('✅ Profile found - Email:', profile.email, 'Role:', profile.role);
+      
       const { error } = await supabase.auth.signInWithPassword({
         email: profile.email,
         password
       });
+      
+      if (error) {
+        console.error('❌ SUPABASE AUTH ERROR:', error.message, 'Code:', error.status);
+        return false;
+      }
       return !error;
     } catch (error) {
       console.error('Login error:', error);
@@ -86,15 +96,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       });
 
-      return !error;
+      console.log('✅ LOGIN SUCCESSFUL');
+      return true;
     } catch (error) {
       console.error('Signup error:', error);
       return false;
     }
   };
 
+      if (error) {
+        console.error('❌ SUPABASE SIGNUP ERROR:', error.message, 'Code:', error.status);
+        return false;
+      }
+      
+      console.log('✅ SUPABASE SIGNUP SUCCESS:', {
+        user_id: data.user?.id,
+        email: data.user?.email,
+        email_confirmed: data.user?.email_confirmed_at,
+        user_metadata: data.user?.user_metadata
+      });
+      
   const logout = async (): Promise<void> => {
     await supabase.auth.signOut();
+      console.log('📝 SIGNUP ATTEMPT - Username:', username, 'Email:', email);
+      
     setUser(null);
   };
 
