@@ -337,27 +337,48 @@ export function DeckBuilder() {
   if (user?.id.startsWith('guest-')) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Deck Builder</h1>
+          <p className="text-gray-600">Create and save Beyblade deck presets</p>
+        </div>
+        
         <div className="text-center py-12">
-          <Layers size={48} className="mx-auto text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Deck Builder</h2>
-          <p className="text-gray-600 mb-6">Create and save deck presets</p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto mb-6">
-            <p className="text-blue-800 text-sm">
-              Build custom decks from your inventory and save presets for quick tournament registration.
-            </p>
-          </div>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                🔒
+          <Layers size={64} className="mx-auto text-gray-400 mb-6" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Advanced Deck Builder</h2>
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+            Create powerful Beyblade combinations from your inventory. Build multiple deck presets, 
+            analyze stats, and save your favorite combinations for quick tournament registration.
+          </p>
+          
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-8 max-w-md mx-auto mb-8">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                🏗️
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Login Required</h3>
-            <p className="text-yellow-800 text-sm mb-4">
-              You need to create an account and log in to access the deck builder feature.
+            <h3 className="text-xl font-bold text-purple-900 mb-3">Login to Start Building</h3>
+            <p className="text-purple-800 text-sm mb-6">
+              Create a free account to access the advanced deck builder and save your custom combinations!
             </p>
-            <p className="text-yellow-700 text-xs">
-              Create a free account to start building and saving custom Beyblade decks!
+            <div className="space-y-2 text-sm text-purple-700">
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Build from your inventory
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Save unlimited deck presets
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Analyze combined stats
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 rounded-lg p-6 max-w-lg mx-auto">
+            <p className="text-gray-600 text-sm">
+              <strong>Ready to build?</strong> Click the "Login" button in the top right corner to create your account and start building powerful deck combinations.
             </p>
           </div>
         </div>

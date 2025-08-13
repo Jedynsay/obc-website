@@ -235,27 +235,48 @@ export function Inventory() {
   if (user?.id.startsWith('guest-')) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Inventory</h1>
+          <p className="text-gray-600">Track your Beyblade parts collection</p>
+        </div>
+        
         <div className="text-center py-12">
-          <Package size={48} className="mx-auto text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Inventory Tracker</h2>
-          <p className="text-gray-600 mb-6">Manage your Beyblade parts inventory</p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto mb-6">
-            <p className="text-blue-800 text-sm">
-              Track your Beyblade parts, build custom decks, and save presets for tournament registration.
-            </p>
-          </div>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-md mx-auto">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                🔒
+          <Package size={64} className="mx-auto text-gray-400 mb-6" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Inventory Tracker</h2>
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+            Keep track of all your Beyblade parts, organize your collection, and build custom decks. 
+            Save presets for quick tournament registration and never forget which parts you own.
+          </p>
+          
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-8 max-w-md mx-auto mb-8">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                📦
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Login Required</h3>
-            <p className="text-yellow-800 text-sm mb-4">
-              You need to create an account and log in to access the inventory tracker feature.
-            </p>
-            <p className="text-yellow-700 text-xs">
+            <h3 className="text-xl font-bold text-blue-900 mb-3">Login to Get Started</h3>
+            <p className="text-blue-800 text-sm mb-6">
               Create a free account to start tracking your Beyblade parts and building custom decks!
+            </p>
+            <div className="space-y-2 text-sm text-blue-700">
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                Track unlimited Beyblade parts
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                Build and save custom decks
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                Quick tournament registration
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 rounded-lg p-6 max-w-lg mx-auto">
+            <p className="text-gray-600 text-sm">
+              <strong>No account yet?</strong> Click the "Login" button in the top right corner to create your free account and unlock all inventory features.
             </p>
           </div>
         </div>
