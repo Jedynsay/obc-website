@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Target, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 interface PartStats {
   name: string;
@@ -32,6 +33,7 @@ interface MatchData {
 }
 
 export function MetaAnalysis() {
+  const { user } = useAuth();
   const [tournaments, setTournaments] = useState([]);
   const [selectedTournament, setSelectedTournament] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -76,12 +78,14 @@ export function MetaAnalysis() {
 
   const fetchTournaments = async () => {
     try {
+      console.log('🔍 META ANALYSIS: Fetching tournaments...');
       const { data, error } = await supabase
         .from('tournaments')
         .select('id, name, status, tournament_date')
         .order('tournament_date', { ascending: false });
 
       if (error) {
+      console.log('📊 META ANALYSIS: Tournaments fetched:', data?.length || 0);
         throw error;
       }
       
@@ -92,6 +96,7 @@ export function MetaAnalysis() {
       
       if (completedTournament) {
         setSelectedTournament(completedTournament.id);
+        console.log('✅ META ANALYSIS: Auto-selected completed tournament:', completedTournament.name);
       } else if (firstTournament) {
         setSelectedTournament(firstTournament.id);
       }
@@ -104,6 +109,7 @@ export function MetaAnalysis() {
 
   const fetchTournamentData = async () => {
     try {
+      console.log('🔍 META ANALYSIS: Fetching tournament data for:', selectedTournament);
       const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes, matchesRes] = await Promise.all([
         supabase.from('beypart_blade').select('*'),
         supabase.from('beypart_ratchet').select('*'),
@@ -113,6 +119,14 @@ export function MetaAnalysis() {
         supabase.from('match_results').select('*').eq('tournament_id', selectedTournament)
       ]);
 
+      console.log('📊 META ANALYSIS: Raw data fetched:', {
+        blades: bladesRes.data?.length || 0,
+        ratchets: ratchetsRes.data?.length || 0,
+        bits: bitsRes.data?.length || 0,
+        lockchips: lockchipsRes.data?.length || 0,
+        assistBlades: assistBladesRes.data?.length || 0,
+        matches: matchesRes.data?.length || 0
+      });
 
       if (bladesRes.error) {
         throw bladesRes.error;
@@ -242,12 +256,14 @@ export function MetaAnalysis() {
         finish: match.outcome ? match.outcome.split(' (')[0].trim() : 'Unknown'
       }));
 
+      console.log('🔄 META ANALYSIS: Transformed matches:', transformedMatches.length);
 
       setMatchData(transformedMatches);
 
       computeStats(newPartsData, transformedMatches);
       
       setPartsData(newPartsData);
+      console.log('✅ META ANALYSIS: Data processing complete');
 
     } catch (error) {
       console.error('Error fetching tournament data:', error);
@@ -367,6 +383,8 @@ export function MetaAnalysis() {
   };
 
   const computeStats = (parts: typeof partsData, matches: MatchData[]) => {
+    console.log('🧮 META ANALYSIS: Computing stats for', matches.length, 'matches');
+    
     Object.keys(parts).forEach(partType => {
       Object.values(parts[partType as keyof typeof parts]).forEach(p => { 
         p.used = 0; 
@@ -408,6 +426,8 @@ export function MetaAnalysis() {
         part.wilson = wilson(part.wins, total);
       });
     });
+    
+    console.log('✅ META ANALYSIS: Stats computation complete');
   };
 
   const wilson = (wins: number, total: number, z: number = 1.96): number => {

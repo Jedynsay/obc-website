@@ -29,6 +29,60 @@ interface InventoryItem {
 
 export function DeckBuilder() {
   const { user } = useAuth();
+  
+  // Early return for guest users - don't load anything
+  if (!user || user.id.startsWith('guest-')) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Deck Builder</h1>
+          <p className="text-gray-600">Create and save Beyblade deck presets</p>
+        </div>
+        
+        <div className="text-center py-12">
+          <Layers size={64} className="mx-auto text-gray-400 mb-6" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Advanced Deck Builder</h2>
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+            Create powerful Beyblade combinations from your inventory. Build multiple deck presets, 
+            analyze stats, and save your favorite combinations for quick tournament registration.
+          </p>
+          
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-8 max-w-md mx-auto mb-8">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                🏗️
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-purple-900 mb-3">Login to Start Building</h3>
+            <p className="text-purple-800 text-sm mb-6">
+              Create a free account to access the advanced deck builder and save your custom combinations!
+            </p>
+            <div className="space-y-2 text-sm text-purple-700">
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Build from your inventory
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Save unlimited deck presets
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Analyze combined stats
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 rounded-lg p-6 max-w-lg mx-auto">
+            <p className="text-gray-600 text-sm">
+              <strong>Ready to build?</strong> Click the "Login" button in the top right corner to create your account and start building powerful deck combinations.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   const [presets, setPresets] = useState<DeckPreset[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,15 +98,11 @@ export function DeckBuilder() {
   ]);
 
   useEffect(() => {
-    if (user && !user.id.startsWith('guest-')) {
-      fetchPresets();
-      fetchInventory();
-    }
+    fetchPresets();
+    fetchInventory();
   }, [user]);
 
   const fetchPresets = async () => {
-    if (!user || user.id.startsWith('guest-')) return;
-
     try {
       const { data, error } = await supabase
         .from('deck_presets')
@@ -70,8 +120,6 @@ export function DeckBuilder() {
   };
 
   const fetchInventory = async () => {
-    if (!user || user.id.startsWith('guest-')) return;
-
     try {
       const { data, error } = await supabase
         .from('user_inventory')
@@ -232,11 +280,6 @@ export function DeckBuilder() {
   };
 
   const savePreset = async () => {
-    if (!user || user.id.startsWith('guest-')) {
-      alert('Please log in to save deck presets.');
-      return;
-    }
-
     if (!deckName.trim()) {
       alert('Please enter a deck name.');
       return;
@@ -333,58 +376,6 @@ export function DeckBuilder() {
       default: return 'bg-gray-500';
     }
   };
-
-  if (user?.id.startsWith('guest-')) {
-    return (
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Deck Builder</h1>
-          <p className="text-gray-600">Create and save Beyblade deck presets</p>
-        </div>
-        
-        <div className="text-center py-12">
-          <Layers size={64} className="mx-auto text-gray-400 mb-6" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Advanced Deck Builder</h2>
-          <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-            Create powerful Beyblade combinations from your inventory. Build multiple deck presets, 
-            analyze stats, and save your favorite combinations for quick tournament registration.
-          </p>
-          
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-8 max-w-md mx-auto mb-8">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                🏗️
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-purple-900 mb-3">Login to Start Building</h3>
-            <p className="text-purple-800 text-sm mb-6">
-              Create a free account to access the advanced deck builder and save your custom combinations!
-            </p>
-            <div className="space-y-2 text-sm text-purple-700">
-              <div className="flex items-center justify-center">
-                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                Build from your inventory
-              </div>
-              <div className="flex items-center justify-center">
-                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                Save unlimited deck presets
-              </div>
-              <div className="flex items-center justify-center">
-                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                Analyze combined stats
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-gray-50 rounded-lg p-6 max-w-lg mx-auto">
-            <p className="text-gray-600 text-sm">
-              <strong>Ready to build?</strong> Click the "Login" button in the top right corner to create your account and start building powerful deck combinations.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
