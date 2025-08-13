@@ -466,11 +466,19 @@ export function DeckBuilder() {
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">Select {partType}</option>
-                        {getAvailableParts(partType).map((item) => (
-                          <option key={item.id} value={JSON.stringify(item.part_data)}>
-                            {item.part_name} (Qty: {item.quantity})
-                          </option>
-                        ))}
+                        {getAvailableParts(partType)
+                          .filter((item) => {
+                            // Filter blades by blade line
+                            if ((partType === 'Blade' || partType === 'Main Blade') && item.part_data?.Line) {
+                              return item.part_data.Line === beyblade.blade_line;
+                            }
+                            return true;
+                          })
+                          .map((item) => (
+                            <option key={item.id} value={JSON.stringify(item.part_data)}>
+                              {item.part_name} (Qty: {item.quantity})
+                            </option>
+                          ))}
                       </select>
                     </div>
                   ))}
@@ -490,19 +498,11 @@ export function DeckBuilder() {
                             {getStatIcon(stat)}
                           </div>
                           <div className="text-xs font-medium text-gray-600 capitalize">
-                      {getAvailableParts(partType)
-                        .filter((item) => {
-                          // Filter blades by blade line
-                          if ((partType === 'Blade' || partType === 'Main Blade') && item.part_data?.Line) {
-                            return item.part_data.Line === beyblade.blade_line;
-                          }
-                          return true;
-                        })
-                        .map((item) => (
-                          <option key={item.id} value={JSON.stringify(item.part_data)}>
-                            {item.part_name} (Qty: {item.quantity})
-                          </option>
-                        ))}
+                            {stat === 'burstRes' ? 'Burst Res' : stat}
+                          </div>
+                          <div className="text-lg font-bold text-gray-900">{value}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
