@@ -63,8 +63,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-orange-600 flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
+      <div className="w-full bg-white rounded-lg shadow-xl p-8">
           <div className="text-center">
             <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-white text-2xl">✓</span>
@@ -81,13 +80,11 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
             </button>
           </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-orange-600 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
+    <div className="w-full bg-white rounded-lg shadow-xl p-8">
         <div className="flex items-center mb-6">
           <button
             onClick={onBackToLogin}
@@ -184,6 +181,5 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
           </p>
         </div>
       </div>
-    </div>
   );
 }
