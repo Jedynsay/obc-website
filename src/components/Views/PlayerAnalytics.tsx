@@ -250,8 +250,12 @@ export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
   const getRadarData = (winFinishes: { [key: string]: number }) => ({
     labels: FINISH_TYPES,
     datasets: [{
-      label: 'Finish Bias',
-      data: FINISH_TYPES.map(finish => winFinishes[finish] || 0),
+      label: 'Point Contribution',
+      data: FINISH_TYPES.map(finish => {
+        const finishCount = winFinishes[finish] || 0;
+        const pointsPerFinish = FINISH_POINTS[finish as keyof typeof FINISH_POINTS] || 0;
+        return finishCount * pointsPerFinish;
+      }),
       backgroundColor: 'rgba(33, 150, 243, 0.2)',
       borderColor: '#2196f3',
       pointBackgroundColor: '#2196f3',
@@ -264,8 +268,30 @@ export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
   const radarOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    scales: { r: { suggestedMin: 0, ticks: { stepSize: 1 } } },
-    plugins: { legend: { display: false } }
+    scales: { 
+      r: { 
+        suggestedMin: 0, 
+        ticks: { stepSize: 2 },
+        title: {
+          display: true,
+          text: 'Points'
+        }
+      } 
+    },
+    plugins: { 
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            const finishType = context.label;
+            const points = context.raw;
+            const finishCount = winFinishes[finishType] || 0;
+            const pointsPerFinish = FINISH_POINTS[finishType as keyof typeof FINISH_POINTS] || 0;
+            return `${finishType}: ${points} pts (${finishCount} × ${pointsPerFinish})`;
+          }
+        }
+      }
+    }
   };
 
   const renderPlayerCard = () => {
