@@ -23,6 +23,8 @@ interface MatchResult {
   player2_name: string;
   player1_beyblade: string;
   player2_beyblade: string;
+  player1_blade_line?: string;
+  player2_blade_line?: string;
   winner_name: string;
   outcome: string;
   points_awarded: number;
@@ -181,7 +183,7 @@ export function MetaAnalysis() {
       // Fetch match results
       const { data: matches, error: matchError } = await supabase
         .from('match_results')
-        .select('player1_name, player2_name, player1_beyblade, player2_beyblade, winner_name, outcome, points_awarded')
+        .select('player1_name, player2_name, player1_beyblade, player2_beyblade, player1_blade_line, player2_blade_line, winner_name, outcome, points_awarded')
         .eq('tournament_id', selectedTournament);
 
       if (matchError) throw matchError;
@@ -206,8 +208,6 @@ export function MetaAnalysis() {
       // Process matches and parse Beyblade names
       const processed: ProcessedMatch[] = [];
       const stats = {
-        const bl1 = match.player1_blade_line;
-        const bl2 = match.player2_blade_line;
         blade: {} as { [name: string]: PartStats },
         ratchet: {} as { [name: string]: PartStats },
         bit: {} as { [name: string]: PartStats },
