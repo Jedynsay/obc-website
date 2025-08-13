@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Target, Users, ChevronDown, ChevronUp, Trophy } from 'lucide-react';
+import { BarChart3, TrendingUp, Target, Users, ChevronDown, ChevronUp, Trophy, ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -459,7 +459,16 @@ export function MetaAnalysis() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Meta Analysis</h1>
+        <div className="flex items-center space-x-4 mb-2">
+          <button
+            onClick={() => window.history.back()}
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+            title="Go Back"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">Meta Analysis</h1>
+        </div>
         <p className="text-gray-600">Analyze Beyblade part usage and performance statistics</p>
       </div>
 

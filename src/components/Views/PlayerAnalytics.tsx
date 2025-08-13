@@ -506,7 +506,16 @@ export function PlayerAnalytics() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Player Performance Analysis</h1>
+        <div className="flex items-center space-x-4 mb-2">
+          <button
+            onClick={() => window.history.back()}
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+            title="Go Back"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">Player Performance Analysis</h1>
+        </div>
         <p className="text-gray-600">Analyze individual player statistics and performance</p>
       </div>
 
