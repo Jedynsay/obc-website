@@ -178,6 +178,8 @@ export function MetaAnalysis() {
     try {
       console.log(`🔄 META ANALYSIS: Processing data for tournament ${selectedTournament}`);
       
+          player1_blade_line,
+          player2_blade_line,
       // Fetch match results
       const { data: matches, error: matchError } = await supabase
         .from('match_results')
@@ -206,6 +208,8 @@ export function MetaAnalysis() {
       // Process matches and parse Beyblade names
       const processed: ProcessedMatch[] = [];
       const stats = {
+        const bl1 = match.player1_blade_line;
+        const bl2 = match.player2_blade_line;
         blade: {} as { [name: string]: PartStats },
         ratchet: {} as { [name: string]: PartStats },
         bit: {} as { [name: string]: PartStats },
@@ -234,8 +238,8 @@ export function MetaAnalysis() {
         
         // Parse both Beyblades - we need to get blade line info from registrations
         // For now, we'll try to infer from the name structure, but ideally we'd get this from registration data
-        const p1Parts = parseBeybladeName(match.player1_beyblade, inferBladeLine(match.player1_beyblade), partsData);
-        const p2Parts = parseBeybladeName(match.player2_beyblade, inferBladeLine(match.player2_beyblade), partsData);
+        const p1Parts = parseBeybladeName(match.player1_beyblade, match.player1_blade_line || 'Basic', partsData);
+        const p2Parts = parseBeybladeName(match.player2_beyblade, match.player2_blade_line || 'Basic', partsData);
         
         // Create processed match entries
         const p1Match: ProcessedMatch = {
@@ -253,6 +257,8 @@ export function MetaAnalysis() {
           opponent: match.player1_name,
           beyblade: match.player2_beyblade,
           opponentBeyblade: match.player1_beyblade,
+        const winBladeLine = winner === p1 ? bl1 : bl2;
+        const loseBladeLine = winner === p1 ? bl2 : bl1;
           isWin: match.winner_name === match.player2_name,
           outcome: match.outcome || 'Unknown',
           parsedParts: p2Parts

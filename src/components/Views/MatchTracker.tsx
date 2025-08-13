@@ -15,6 +15,15 @@ interface PlayerData {
   [playerName: string]: string[];
 }
 
+interface BeybladeInfo {
+  name: string;
+  blade_line: string;
+}
+
+interface PlayerBeybladeData {
+  [playerName: string]: BeybladeInfo[];
+}
+
 interface Match {
   outcome: string | null;
   winner: string | null;
@@ -36,6 +45,7 @@ export function MatchTracker() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<string>('');
   const [playerData, setPlayerData] = useState<PlayerData>({});
+  const [playerBeybladeData, setPlayerBeybladeData] = useState<PlayerBeybladeData>({});
   const [loading, setLoading] = useState(true);
   const [loadingPlayers, setLoadingPlayers] = useState(false);
   
@@ -99,7 +109,8 @@ export function MatchTracker() {
         .select(`
           player_name,
           tournament_beyblades(
-            beyblade_name
+            beyblade_name,
+            blade_line
           )
         `)
         .eq('tournament_id', tournamentId)
@@ -110,15 +121,22 @@ export function MatchTracker() {
 
       // Transform to expected format
       const playerDataMap: PlayerData = {};
+      const playerBeybladeDataMap: PlayerBeybladeData = {};
       data?.forEach(registration => {
         const playerName = registration.player_name;
         const beyblades = registration.tournament_beyblades.map((b: any) => b.beyblade_name);
+        const beybladeInfo = registration.tournament_beyblades.map((b: any) => ({
+          name: b.beyblade_name,
+          blade_line: b.blade_line
+        }));
         if (beyblades.length > 0) {
           playerDataMap[playerName] = beyblades;
+          playerBeybladeDataMap[playerName] = beybladeInfo;
         }
       });
 
       setPlayerData(playerDataMap);
+      setPlayerBeybladeData(playerBeybladeDataMap);
       
       // Reset match tracker state when tournament changes
       resetMatchTracker();
@@ -141,6 +159,7 @@ export function MatchTracker() {
     setPhaseCounter(2);
     setPendingPhase(false);
     setDeckOrders({});
+    setPlayerBeybladeData({});
     setSubmitStatus('');
   };
 
@@ -185,6 +204,27 @@ export function MatchTracker() {
 
     // Fallback to original order
     return playerData[player]?.[slot] || '';
+  };
+
+  const getBeyBladeLine = (player: string, matchIndex: number): string => {
+    const beybladeCount = selectedTournamentData?.beyblades_per_player || 3;
+    const phase = Math.floor(matchIndex / beybladeCount) + 1;
+    const slot = matchIndex % beybladeCount;
+
+    if (phase === 1) {
+      return playerBeybladeData[player]?.[slot]?.blade_line || '';
+    }
+
+    // For phases 2+, find the blade line by matching the beyblade name
+    const phaseOrder = deckOrders[phase]?.[player];
+    if (phaseOrder) {
+      const beybladeName = phaseOrder[slot];
+      const beybladeInfo = playerBeybladeData[player]?.find(b => b.name === beybladeName);
+      return beybladeInfo?.blade_line || '';
+    }
+
+    // Fallback to original order
+    return playerBeybladeData[player]?.[slot]?.blade_line || '';
   };
 
   const addMatch = () => {
@@ -364,6 +404,8 @@ export function MatchTracker() {
           player2_name: player2,
           player1_beyblade: getBey(player1, matchIndex),
           player2_beyblade: getBey(player2, matchIndex),
+          player1_blade_line: getBeyBladeLine(player1, matchIndex),
+          player2_blade_line: getBeyBladeLine(player2, matchIndex),
           outcome: match.outcome,
           winner_name: match.winner,
           points_awarded: match.points,
