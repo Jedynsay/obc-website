@@ -17,63 +17,84 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 AUTH STATE CHANGE:', event, 'Session exists:', !!session);
-      
-      if (session?.user) {
-        try {
-          const { data: profile, error } = await supabase
+    const initAuth = async () => {
+      try {
+        console.log('🔍 Checking initial session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Session error:', error);
+          setLoading(false);
+          return;
+        }
+        
+        if (session?.user) {
+          console.log('✅ Found session for user:', session.user.id);
+          
+          // Try to get profile
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .maybeSingle();
-
-          if (mounted) {
-            if (profile && !error) {
-              console.log('✅ Profile loaded:', profile.username, profile.role);
-              setUser({
-                id: profile.id,
-                username: profile.username,
-                email: profile.email || session.user.email || '',
-                role: profile.role || 'user',
-                joinedDate: profile.created_at
-              });
-            } else {
-              console.log('❌ No profile found for user:', session.user.id);
-              setUser(null);
-            }
-          }
-        } catch (error) {
-          console.error('Error loading profile:', error);
-          if (mounted) {
+          
+          if (profile && !profileError) {
+            console.log('✅ Profile loaded:', profile.username);
+            setUser({
+              id: profile.id,
+              username: profile.username,
+              email: profile.email || session.user.email || '',
+              role: profile.role || 'user',
+              joinedDate: profile.created_at
+            });
+          } else {
+            console.log('❌ No profile found, clearing user');
             setUser(null);
           }
-        }
-      } else {
-        console.log('🚪 No session - user logged out');
-        if (mounted) {
+        } else {
+          console.log('🚪 No session found');
           setUser(null);
         }
+      } catch (error) {
+        console.error('❌ Auth initialization error:', error);
+        setUser(null);
+      } finally {
+        console.log('✅ Auth initialization complete, setting loading to false');
+        setLoading(false);
+      }
+    };
+    
+    initAuth();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state changed:', event);
+      
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        return;
       }
       
-      if (mounted) {
-        setLoading(false);
+      if (event === 'SIGNED_IN' && session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        
+        if (profile) {
+          setUser({
+            id: profile.id,
+            username: profile.username,
+            email: profile.email || session.user.email || '',
+            role: profile.role || 'user',
+            joinedDate: profile.created_at
+          });
+        }
       }
     });
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log('🔍 Initial session check:', !!session, error ? `Error: ${error.message}` : 'No error');
-      if (!session && mounted) {
-        setLoading(false);
-      }
-      // If there is a session, the onAuthStateChange will handle it
-    });
-
+    
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
