@@ -142,7 +142,7 @@ export function Dashboard() {
                 <p className="text-slate-300 font-rajdhani font-medium">Uptime</p>
               </div>
               <div className="bg-slate-800/60 rounded-xl p-4 backdrop-blur-sm border border-slate-600/30">
-                <p className="text-blue-400 font-orbitron font-bold text-2xl"><50ms</p>
+                <p className="text-blue-400 font-orbitron font-bold text-2xl">&lt;50ms</p>
                 <p className="text-slate-300 font-rajdhani font-medium">Response</p>
               </div>
             </div>
