@@ -129,6 +129,14 @@ export function Analytics() {
     );
   }
 
+  if (currentView === 'meta') {
+    return <MetaAnalysis onBack={() => setCurrentView('overview')} />;
+  }
+
+  if (currentView === 'player') {
+    return <PlayerAnalytics onBack={() => setCurrentView('overview')} />;
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
