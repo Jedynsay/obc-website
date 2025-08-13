@@ -81,8 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         options: {
           data: {
-            username,
-            role
+            username
           }
         }
       });
