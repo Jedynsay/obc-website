@@ -178,8 +178,6 @@ export function MetaAnalysis() {
     try {
       console.log(`🔄 META ANALYSIS: Processing data for tournament ${selectedTournament}`);
       
-          player1_blade_line,
-          player2_blade_line,
       // Fetch match results
       const { data: matches, error: matchError } = await supabase
         .from('match_results')
