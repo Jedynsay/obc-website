@@ -28,12 +28,22 @@ export function UserManagement() {
 
   const fetchUsers = async () => {
     try {
+      console.log('🔍 USER MANAGEMENT: Fetching users...');
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ USER MANAGEMENT: Error fetching users:', error);
+        throw error;
+      }
+      
+      console.log('📊 USER MANAGEMENT: Raw users data:', {
+        count: data?.length || 0,
+        sample: data?.slice(0, 3) || [],
+        allUsers: data || []
+      });
       
       const formattedUsers = (data || []).map(user => ({
         id: user.id,
@@ -45,7 +55,15 @@ export function UserManagement() {
         lastLogin: user.last_login
       }));
       
+      console.log('🔄 USER MANAGEMENT: Formatted users:', {
+        count: formattedUsers.length,
+        sample: formattedUsers.slice(0, 3),
+        roles: formattedUsers.map(u => u.role),
+        statuses: formattedUsers.map(u => u.status)
+      });
+      
       setUsers(formattedUsers);
+      console.log('✅ USER MANAGEMENT: Users loaded successfully');
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {

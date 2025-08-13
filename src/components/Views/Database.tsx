@@ -52,12 +52,20 @@ export function DatabaseView() {
 
   const fetchTableCounts = async () => {
     try {
+      console.log('🔍 DATABASE: Fetching table counts...');
       const [usersRes, tournamentsRes, matchesRes, registrationsRes] = await Promise.all([
         supabase.from('users').select('*', { count: 'exact', head: true }),
         supabase.from('tournaments').select('*', { count: 'exact', head: true }),
         supabase.from('matches').select('*', { count: 'exact', head: true }),
         supabase.from('tournament_registrations').select('*', { count: 'exact', head: true })
       ]);
+
+      console.log('📊 DATABASE: Table counts fetched:', {
+        users: { count: usersRes.count, error: usersRes.error },
+        tournaments: { count: tournamentsRes.count, error: tournamentsRes.error },
+        matches: { count: matchesRes.count, error: matchesRes.error },
+        registrations: { count: registrationsRes.count, error: registrationsRes.error }
+      });
 
       setTables([
         { name: 'users', records: usersRes.count || 0, icon: <Users size={16} />, description: 'User accounts and profiles' },
@@ -72,7 +80,13 @@ export function DatabaseView() {
         .select('id, name')
         .order('name');
       
+      console.log('🏆 DATABASE: Tournaments for registration view:', {
+        count: tournamentData?.length || 0,
+        tournaments: tournamentData || []
+      });
+      
       setTournaments(tournamentData || []);
+      console.log('✅ DATABASE: Table counts loaded successfully');
     } catch (error) {
       console.error('Error fetching table counts:', error);
     }
@@ -81,6 +95,7 @@ export function DatabaseView() {
   const fetchTableData = async (tableName: string, tournamentId?: string) => {
     setLoading(true);
     setError(null);
+    console.log('🔍 DATABASE: Fetching table data for:', { tableName, tournamentId });
     
     try {
       let data: any[] = [];
@@ -143,7 +158,17 @@ export function DatabaseView() {
             { ascending: false }
           );
 
-        if (error) throw error;
+        if (error) {
+          console.error(`❌ DATABASE: Error fetching ${tableName}:`, error);
+          throw error;
+        }
+        
+        console.log(`📊 DATABASE: Fetched ${tableName} data:`, {
+          count: fetchedData?.length || 0,
+          sample: fetchedData?.slice(0, 3) || [],
+          tableName: supabaseTableName
+        });
+        
         data = fetchedData || [];
       }
 
@@ -157,6 +182,10 @@ export function DatabaseView() {
       }
 
       setTableData(data);
+      console.log(`✅ DATABASE: Table data loaded for ${tableName}:`, {
+        finalCount: data.length,
+        hasData: data.length > 0
+      });
     } catch (error) {
       console.error('Error fetching table data:', error);
       setError(`Failed to load ${tableName} data. Please try again.`);

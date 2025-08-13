@@ -76,18 +76,36 @@ export function MetaAnalysis() {
 
   const fetchTournaments = async () => {
     try {
+      console.log('🔍 META ANALYSIS: Fetching tournaments...');
       const { data, error } = await supabase
         .from('tournaments')
         .select('id, name, status, tournament_date')
         .order('tournament_date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ META ANALYSIS: Error fetching tournaments:', error);
+        throw error;
+      }
+      
+      console.log('📊 META ANALYSIS: Tournaments fetched:', {
+        total: data?.length || 0,
+        tournaments: data?.map(t => ({ id: t.id, name: t.name, status: t.status })) || []
+      });
+      
       setTournaments(data || []);
       
       // Auto-select first completed tournament
       const completedTournament = data?.find(t => t.status === 'completed');
+      const firstTournament = data?.[0];
+      
       if (completedTournament) {
+        console.log('✅ META ANALYSIS: Auto-selecting completed tournament:', completedTournament.name);
         setSelectedTournament(completedTournament.id);
+      } else if (firstTournament) {
+        console.log('⚠️ META ANALYSIS: No completed tournaments found, selecting first available:', firstTournament.name);
+        setSelectedTournament(firstTournament.id);
+      } else {
+        console.log('❌ META ANALYSIS: No tournaments found at all');
       }
     } catch (error) {
       console.error('Error fetching tournaments:', error);
@@ -98,6 +116,8 @@ export function MetaAnalysis() {
 
   const fetchTournamentData = async () => {
     try {
+      console.log('🔍 META ANALYSIS: Fetching tournament data for:', selectedTournament);
+      
       // Fetch Beyblade parts data from all tables
       const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes, matchesRes] = await Promise.all([
         supabase.from('beypart_blade').select('*'),
@@ -108,12 +128,39 @@ export function MetaAnalysis() {
         supabase.from('match_results').select('*').eq('tournament_id', selectedTournament)
       ]);
 
-      if (bladesRes.error) throw bladesRes.error;
-      if (ratchetsRes.error) throw ratchetsRes.error;
-      if (bitsRes.error) throw bitsRes.error;
-      if (lockchipsRes.error) throw lockchipsRes.error;
-      if (assistBladesRes.error) throw assistBladesRes.error;
-      if (matchesRes.error) throw matchesRes.error;
+      console.log('📊 META ANALYSIS: Raw data fetched:', {
+        blades: { count: bladesRes.data?.length || 0, error: bladesRes.error },
+        ratchets: { count: ratchetsRes.data?.length || 0, error: ratchetsRes.error },
+        bits: { count: bitsRes.data?.length || 0, error: bitsRes.error },
+        lockchips: { count: lockchipsRes.data?.length || 0, error: lockchipsRes.error },
+        assistBlades: { count: assistBladesRes.data?.length || 0, error: assistBladesRes.error },
+        matches: { count: matchesRes.data?.length || 0, error: matchesRes.error }
+      });
+
+      if (bladesRes.error) {
+        console.error('❌ META ANALYSIS: Blades error:', bladesRes.error);
+        throw bladesRes.error;
+      }
+      if (ratchetsRes.error) {
+        console.error('❌ META ANALYSIS: Ratchets error:', ratchetsRes.error);
+        throw ratchetsRes.error;
+      }
+      if (bitsRes.error) {
+        console.error('❌ META ANALYSIS: Bits error:', bitsRes.error);
+        throw bitsRes.error;
+      }
+      if (lockchipsRes.error) {
+        console.error('❌ META ANALYSIS: Lockchips error:', lockchipsRes.error);
+        throw lockchipsRes.error;
+      }
+      if (assistBladesRes.error) {
+        console.error('❌ META ANALYSIS: Assist blades error:', assistBladesRes.error);
+        throw assistBladesRes.error;
+      }
+      if (matchesRes.error) {
+        console.error('❌ META ANALYSIS: Matches error:', matchesRes.error);
+        throw matchesRes.error;
+      }
 
       // Initialize parts data
       const newPartsData = { 
@@ -233,11 +280,29 @@ export function MetaAnalysis() {
         finish: match.outcome ? match.outcome.split(' (')[0].trim() : 'Unknown'
       }));
 
+      console.log('🔄 META ANALYSIS: Transformed matches:', {
+        total: transformedMatches.length,
+        sample: transformedMatches.slice(0, 3),
+        uniquePlayers: [...new Set([...transformedMatches.map(m => m.p1), ...transformedMatches.map(m => m.p2)])].filter(Boolean)
+      });
+
       setMatchData(transformedMatches);
 
       // Compute stats
       computeStats(newPartsData, transformedMatches);
+      
+      console.log('📈 META ANALYSIS: Final parts data:', {
+        blade: Object.keys(newPartsData.blade).length,
+        ratchet: Object.keys(newPartsData.ratchet).length,
+        bit: Object.keys(newPartsData.bit).length,
+        lockchip: Object.keys(newPartsData.lockchip).length,
+        mainBlade: Object.keys(newPartsData.mainBlade).length,
+        assistBlade: Object.keys(newPartsData.assistBlade).length
+      });
+      
       setPartsData(newPartsData);
+      
+      console.log('✅ META ANALYSIS: Data processing completed successfully');
 
     } catch (error) {
       console.error('Error fetching tournament data:', error);
