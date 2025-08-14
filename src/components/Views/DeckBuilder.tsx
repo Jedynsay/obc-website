@@ -92,6 +92,15 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [useInventory, setUseInventory] = useState(true);
   
+  // Parts data state for free build mode
+  const [partsData, setPartsData] = useState({
+    blades: [],
+    ratchets: [],
+    bits: [],
+    lockchips: [],
+    assistBlades: []
+  });
+  
   // Form state
   const [deckName, setDeckName] = useState('');
   const [deckDescription, setDeckDescription] = useState('');
