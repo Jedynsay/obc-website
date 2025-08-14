@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Users, Calendar, TrendingUp, Zap, Target, Layers, Newspaper, ChevronRight, Play, Star, Crown, Flame, ArrowRight, ExternalLink, Menu, X } from 'lucide-react';
+import { Trophy, Users, Calendar, TrendingUp, Zap, Target, Layers, Newspaper, ChevronRight, Play, Star, Crown, Flame, ArrowRight, ExternalLink, Menu, X, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 
@@ -34,7 +34,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: DashboardProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalTournaments: 0,
@@ -251,9 +251,7 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
               onClick={() => setShowUserMenu(false)}
             />
           )}
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-6 py-20">
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
@@ -283,44 +281,6 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
                 </button>
                 <button 
                   onClick={() => onViewChange?.('deck-builder')}
-                  className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer"
-                >
-                  <Layers size={24} />
-                  <span>Deck Builder</span>
-                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2 text-yellow-400">
-                  <Flame size={24} />
-                  <span className="text-sm font-semibold uppercase tracking-wider">Battle Ready</span>
-                </div>
-                <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
-                  Welcome back,{' '}
-                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    {user?.username || 'Blader'}
-                  </span>!
-                </h1>
-                <p className="text-xl text-blue-200 leading-relaxed">
-                  Gear up and join the next battle. The arena awaits your ultimate Beyblade combination.
-                </p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button 
-                  onClick={() => {/* Navigate to tournaments */}}
-                  className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-2 cursor-pointer"
-                >
-                  <Trophy size={24} />
-                  <span>Join Next Tournament</span>
-                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button 
-                  onClick={() => {/* Navigate to deck builder */}}
                   className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Layers size={24} />
@@ -406,13 +366,7 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
           </button>
 
           {/* Latest News */}
-          <button 
-            onClick={() => {
-              // For now, just show an alert since there's no news page
-              alert('Tournament Rules Update: New regulations for X-Over parts have been implemented. Check the official tournament guidelines for details.');
-            }}
-            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
-          >
+          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-green-600 rounded-xl">
                 <Newspaper size={24} className="text-white" />
@@ -422,17 +376,14 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
             <h3 className="text-white font-bold text-lg mb-2">Latest News</h3>
             <p className="text-green-300 text-sm mb-2">Tournament Rules Update</p>
             <p className="text-slate-400 text-xs mb-4">New regulations for X-Over parts</p>
-            <span className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+            <button className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
               <span>Read More</span>
               <ArrowRight size={14} />
-            </span>
-          </button>
+            </button>
+          </div>
 
           {/* Deck Presets */}
-          <button 
-            onClick={() => onViewChange?.('deck-builder')}
-            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
-          >
+          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-orange-600 rounded-xl">
                 <Layers size={24} className="text-white" />
@@ -444,11 +395,11 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
             <h3 className="text-white font-bold text-lg mb-2">Your Decks</h3>
             <p className="text-orange-300 text-sm mb-2">Saved combinations</p>
             <p className="text-slate-400 text-xs mb-4">{deckPresets.length} presets ready</p>
-            <span className="text-orange-400 hover:text-orange-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+            <button className="text-orange-400 hover:text-orange-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
               <span>Manage</span>
               <ArrowRight size={14} />
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
       </section>
 
