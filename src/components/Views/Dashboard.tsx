@@ -195,55 +195,55 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
         
         <div className="relative max-w-7xl mx-auto px-6 py-20">
           {/* User Profile in top right */}
-          {user && (
+          {user && !user.id.startsWith('guest-') && (
             <div className="absolute top-4 right-4">
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-3 bg-slate-800/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg hover:bg-slate-700/90 transition-all duration-200 cursor-pointer"
-              >
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                  {user.username.charAt(0).toUpperCase()}
-                </div>
-                <div className="text-white">
-                  <p className="font-semibold text-sm">{user.username}</p>
-                  <p className="text-xs text-blue-200 capitalize">{user.role}</p>
-                </div>
-              </button>
-
-              {/* User Dropdown Menu */}
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
-                  <div className="py-1">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="font-semibold text-gray-900">{user.username}</p>
-                      <p className="text-sm text-gray-600 capitalize">{user.role}</p>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        // Add settings navigation here if needed
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors"
-                    >
-                      <Settings size={16} />
-                      <span>Settings</span>
-                    </button>
-                    <button
-                      onClick={async () => {
-                        setShowUserMenu(false);
-                        await logout();
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
-                    >
-                      <LogOut size={16} />
-                      <span>Logout</span>
-                    </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center space-x-3 bg-slate-800/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg hover:bg-slate-700/90 transition-all duration-200 cursor-pointer"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {user.username.charAt(0).toUpperCase()}
                   </div>
-                </div>
-              )}
+                  <div className="text-white">
+                    <p className="font-semibold text-sm">{user.username}</p>
+                    <p className="text-xs text-blue-200 capitalize">{user.role}</p>
+                  </div>
+                </button>
+
+                {/* User Dropdown Menu */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                    <div className="py-1">
+                      <div className="px-4 py-3 border-b border-gray-200">
+                        <p className="font-semibold text-gray-900">{user.username}</p>
+                        <p className="text-sm text-gray-600 capitalize">{user.role}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          // Add settings navigation here if needed
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors"
+                      >
+                        <Settings size={16} />
+                        <span>Settings</span>
+                      </button>
+                      <button
+                        onClick={async () => {
+                          setShowUserMenu(false);
+                          await logout();
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
+                      >
+                        <LogOut size={16} />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           )}
 
           {/* Click outside to close user menu */}
