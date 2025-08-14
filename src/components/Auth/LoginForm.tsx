@@ -37,7 +37,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
   }
 
   return (
-    <div className="w-full max-w-md p-8">
+    <div className="w-full max-w-md p-8 mx-auto">
       <div className="text-center mb-8">
         <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
           <span className="text-white text-2xl font-bold font-space-grotesk">B</span>
@@ -56,7 +56,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="input-field"
+            className="input-field w-full"
             required
           />
         </div>
@@ -70,19 +70,19 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="input-field"
+            className="input-field w-full"
             required
           />
         </div>
 
         {error && (
-          <div className="text-red-600 text-sm font-inter">{error}</div>
+          <div className="text-red-600 text-sm font-inter text-center">{error}</div>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          className="primary-button w-full disabled:opacity-50"
+          className="primary-button w-full disabled:opacity-50 text-center"
         >
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
@@ -101,18 +101,18 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         <div className="mt-6">
           <button
             onClick={() => setCurrentView('signup')}
-            className="secondary-button w-full"
+            className="secondary-button w-full text-center"
           >
             Create New Account
           </button>
         </div>
       </div>
 
-      <div className="mt-6 text-center">
+      <div className="mt-6 text-center px-4">
         <p className="text-xs text-gray-500 font-inter">
           Create an account to participate in tournaments and access all features.
         </p>
-            </div>
+      </div>
 
     </div>
   );

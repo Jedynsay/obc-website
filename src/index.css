@@ -165,16 +165,21 @@
     @apply text-gray-900 bg-gray-100;
   }
   
+  .sidebar-item span,
+  .sidebar-item-active span {
+    @apply text-left;
+  }
+  
   .header {
     @apply bg-white border-b border-gray-200;
   }
   
   .main-content {
-    @apply lg:ml-64 min-h-screen;
+    @apply lg:ml-64 min-h-screen relative z-10;
   }
   
   .modal-overlay {
-    @apply fixed inset-0 bg-black/20 backdrop-blur-sm z-50;
+    @apply fixed inset-0 bg-black/20 backdrop-blur-sm;
   }
   
   .modal-content {

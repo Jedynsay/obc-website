@@ -39,7 +39,7 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
   );
 
   return (
-    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
       <div className="h-full px-4 py-6 overflow-y-auto">
         <div className="mb-8">
           <div className="flex items-center space-x-3 px-2">
@@ -74,13 +74,13 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
         <div className="mt-8 px-2">
           <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="w-6 h-6 bg-gray-900 rounded flex items-center justify-center">
-                <span className="text-xs text-white">⚡</span>
+              <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+                <span className="text-xs text-white">J</span>
               </div>
-              <h3 className="font-space-grotesk font-semibold text-sm text-gray-900">Tournament Ready</h3>
+              <h3 className="font-space-grotesk font-semibold text-sm text-gray-900">Created by Jedynsay</h3>
             </div>
-            <p className="text-xs text-gray-600 font-inter">
-              Advanced tournament management and analytics platform
+            <p className="text-xs text-gray-600 font-inter mb-2">
+              Powered by Supabase
             </p>
           </div>
         </div>

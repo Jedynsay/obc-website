@@ -719,14 +719,14 @@ export function DatabaseView() {
                         <div className="flex justify-between items-center mb-3">
                           <h4 className="font-semibold text-gray-900">{beyblade.beyblade_name}</h4>
                           <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                            {beyblade.blade_line} Line
+                  <div key={registration.registration_id} className="border border-gray-300 rounded-lg p-6 bg-white shadow-sm">
                           </span>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                          {beyblade.parts.map((part: any, index: number) => (
+                        <p className="text-sm text-gray-600 mt-1">{registration.tournament_name}</p>
                             <div key={index} className="bg-gray-50 p-2 rounded border">
                               <div className="font-medium text-gray-700 text-sm">{part.part_type}</div>
-                              <div className="text-gray-600 text-xs">{part.part_name}</div>
+                    <div className="text-sm text-gray-600 pt-3 border-t border-gray-200">
                             </div>
                           ))}
                         </div>

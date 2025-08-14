@@ -119,20 +119,19 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
             {/* Modal Backdrop */}
             <div 
               className="modal-overlay"
-              style={{ zIndex: 999999 }}
+              style={{ zIndex: 50 }}
               onClick={() => setShowLoginModal(false)}
             />
             
             {/* Modal Content */}
             <div 
-              className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
-              style={{ zIndex: 1000000 }}
+              className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50"
             >
-              <div className="relative pointer-events-auto modal-content">
+              <div className="relative pointer-events-auto bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
                 <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
                 <button
                   onClick={() => setShowLoginModal(false)}
-                  className="absolute -top-3 -right-3 w-8 h-8 bg-gray-900 hover:bg-gray-800 rounded-full flex items-center justify-center text-white shadow-lg transition-colors z-10"
+                  className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
                 >
                   <X size={16} />
                 </button>
