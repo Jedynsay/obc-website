@@ -291,7 +291,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Layers size={24} />
-                  <span>Deck Builder</span>
+                  <span>Deck Builder and Inventory Tracker
+                  </span>
                   <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
