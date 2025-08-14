@@ -80,6 +80,7 @@ export function Inventory() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'Blade' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'Blade' | 'Blade (Custom)' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
   
   // Form state
   const [formData, setFormData] = useState({
