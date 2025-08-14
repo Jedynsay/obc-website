@@ -32,6 +32,7 @@ export function TournamentManager() {
   const [matches, setMatches] = useState<any[]>([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
+    has_participant_limit: true,
   const [editMatchData, setEditMatchData] = useState<any>({});
   const [viewingAllRegistrations, setViewingAllRegistrations] = useState(false);
   const [allRegistrations, setAllRegistrations] = useState<TournamentRegistration[]>([]);
@@ -140,7 +141,24 @@ export function TournamentManager() {
         .order('tournament_date', { ascending: false });
 
       if (error) throw error;
-      setTournaments(data || []);
+      
+      // Fetch current participant counts for each tournament
+      const tournamentsWithCounts = await Promise.all(
+        (data || []).map(async (tournament) => {
+          const { count } = await supabase
+            .from('tournament_registrations')
+            .select('*', { count: 'exact', head: true })
+            .eq('tournament_id', tournament.id)
+            .eq('status', 'confirmed');
+          
+          return {
+            ...tournament,
+            current_participants: count || 0
+          };
+        })
+      );
+      
+      setTournaments(tournamentsWithCounts);
     } catch (error) {
       console.error('Error fetching tournaments:', error);
     } finally {
@@ -156,6 +174,7 @@ export function TournamentManager() {
       tournament_date: '',
       location: '',
       max_participants: 16,
+      has_participant_limit: true,
       status: 'upcoming',
       registration_deadline: '',
       prize_pool: '',
@@ -173,8 +192,9 @@ export function TournamentManager() {
   };
 
   const saveChanges = async () => {
-    try {
+        max_participants: formData.has_participant_limit ? formData.max_participants : 999999,
       if (isCreating) {
+      has_participant_limit: tournament.max_participants > 0,
         const { error } = await supabase
           .from('tournaments')
           .insert([formData]);
@@ -237,6 +257,7 @@ export function TournamentManager() {
       }
 
       // Group registrations by registration_id
+      // Refresh both registrations and tournaments to update participant counts
       const groupedRegistrations: { [key: string]: TournamentRegistration } = {};
       
       data?.forEach((row: any) => {
@@ -445,6 +466,7 @@ export function TournamentManager() {
             tournament_name: tournaments.find(t => t.id === row.tournament_id)?.name || 'Unknown Tournament',
             tournament_id: row.tournament_id,
             payment_status: row.payment_status || 'confirmed',
+      await fetchTournaments();
             beyblades: []
           };
         }
@@ -475,6 +497,7 @@ export function TournamentManager() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      has_participant_limit: true,
       case 'upcoming': return 'bg-blue-100 text-blue-800';
       case 'active': return 'bg-green-100 text-green-800';
       case 'completed': return 'bg-gray-100 text-gray-800';
@@ -600,16 +623,41 @@ export function TournamentManager() {
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                               {beyblade.blade_line} Line
                             </span>
-                          </div>
-                          
-                          {beyblade.parts.length > 0 ? (
-                            <div className="space-y-2">
-                              <h6 className="text-xs font-medium text-gray-600 uppercase tracking-wide">Parts</h6>
-                              <div className="space-y-1">
-                                {getPartOrder(beyblade.parts, beyblade.blade_line).map((part: any, partIndex: number) => (
-                                  <div key={partIndex} className="flex justify-between items-center text-xs">
-                                    <span className="font-medium text-gray-700">{part.part_type}:</span>
-                                    <span className="text-gray-600">{part.part_name}</span>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Participant Limit</label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      checked={formData.has_participant_limit}
+                      onChange={() => setFormData({...formData, has_participant_limit: true})}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Set participant limit</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      checked={!formData.has_participant_limit}
+                      onChange={() => setFormData({...formData, has_participant_limit: false})}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">No limit</span>
+                  </label>
+                </div>
+                {formData.has_participant_limit && (
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.max_participants}
+                    onChange={(e) => setFormData({...formData, max_participants: parseInt(e.target.value) || 1})}
+                    placeholder="Maximum participants"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                )}
+              </div>
+            </div>
                                   </div>
                                 ))}
                               </div>
@@ -948,7 +996,7 @@ export function TournamentManager() {
                 )}
                 <button
                   onClick={() => handleViewRegistrations(tournament.id)}
-                  className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                  {tournament.current_participants}/{tournament.max_participants === 999999 ? '∞' : tournament.max_participants} participants
                   title="View Registrations"
                 >
                   <Eye size={16} />
