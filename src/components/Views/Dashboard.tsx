@@ -512,57 +512,9 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
         )}
 
-        {/* Recent Matches Ticker */}
-        {recentMatches.length > 0 && (
-          <div className="mt-12 bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
-                <h3 className="text-white font-bold text-lg flex items-center space-x-2">
-                  <Play size={20} className="text-green-400" />
-                  <span>Live Results</span>
-                </h3>
-                <div className="flex items-center space-x-2">
-                  <select
-                    value={selectedLiveTournament}
-                    onChange={(e) => setSelectedLiveTournament(e.target.value)}
-                    className="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">All Tournaments</option>
-                    {availableTournaments.map(tournament => (
-                      <option key={tournament.id} value={tournament.id}>
-                        {tournament.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <span className="text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold animate-pulse">
-                LIVE
-              </span>
-            </div>
-            <div className="space-y-3 max-h-48 overflow-y-auto">
-              {recentMatches.slice(0, 5).map((match, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-white font-semibold">{match.winner_name}</span>
-                    <span className="text-slate-400">defeated</span>
-                    <span className="text-slate-300">
-                      {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
-                    </span>
-                  </div>
-                  <div className="text-slate-500 text-xs">
-                    {match.outcome?.split(' (')[0] || 'Victory'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </section>
 
-      {/* System Status Footer */}
-      {/* Recent Matches Ticker */}
+      {/* Live Results Section */}
       {recentMatches.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 py-16">
           <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
@@ -612,6 +564,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         </section>
       )}
 
+      {/* System Status Footer */}
       {/* System Status Footer */}
       <footer className="border-t border-slate-800 bg-slate-900/50">
         <div className="max-w-7xl mx-auto px-6 py-8">
