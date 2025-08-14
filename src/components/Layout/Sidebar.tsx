@@ -1,11 +1,12 @@
 import React from 'react';
-import { Home, Trophy, Users, BarChart3, Settings, Database, Calendar, Newspaper, Package, Layers } from 'lucide-react';
+import { Home, Trophy, Users, BarChart3, Settings, Database, Calendar, Newspaper, Package, Layers, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
   currentView: string;
   onViewChange: (view: string) => void;
+  onToggle: () => void;
 }
 
 interface MenuItem {
@@ -28,7 +29,7 @@ const menuItems: MenuItem[] = [
   { id: 'database', label: 'Database', icon: <Database size={20} />, roles: ['developer'] },
 ];
 
-export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
+export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
   const { user } = useAuth();
 
   const filteredMenuItems = menuItems.filter(item => 
@@ -39,22 +40,41 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
   );
 
   return (
-    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
-      <div className="h-full px-4 py-6 overflow-y-auto">
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 px-2">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
+        {/* Sidebar Header with Toggle */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
               B
             </div>
-            <div>
-              <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
-                OBC Portal
-              </h2>
-              <p className="text-xs text-gray-500 font-inter">Community</p>
-            </div>
+            {isOpen && (
+              <div>
+                <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
+                  OBC Portal
+                </h2>
+                <p className="text-xs text-gray-500 font-inter">Community</p>
+              </div>
+            )}
           </div>
+          <button
+            onClick={onToggle}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
-        
+
+      <div className="h-full px-4 py-6 overflow-y-auto">
         <ul className="space-y-2">
           {filteredMenuItems.map((item) => (
             <li key={item.id}>
@@ -65,13 +85,16 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
                 <div className="transition-colors">
                   {item.icon}
                 </div>
-                <span className="ml-3 font-inter">{item.label}</span>
+                {isOpen && (
+                  <span className="ml-3 font-inter">{item.label}</span>
+                )}
               </button>
             </li>
           ))}
         </ul>
         
-        <div className="mt-8 px-2">
+        {isOpen && (
+          <div className="mt-8 px-2">
           <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-2 mb-2">
               <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
@@ -84,7 +107,9 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
             </p>
           </div>
         </div>
+          )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
