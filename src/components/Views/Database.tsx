@@ -419,14 +419,12 @@ export function DatabaseView() {
           </div>
           
           {(tableData as RegistrationWithBeyblades[]).map((registration) => (
-            <div key={registration.registration_id} className="bg-white border-2 border-gray-300 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+            <div key={registration.registration_id} className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900 mb-1">{registration.player_name}</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded px-2 py-1 inline-block mb-2">
-                    <p className="text-sm text-blue-800 font-medium">{registration.tournament_name}</p>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <h3 className="font-bold text-lg text-gray-900">{registration.player_name}</h3>
+                  <p className="text-sm text-gray-600">{registration.tournament_name}</p>
+                  <p className="text-sm text-gray-600">
                     Registered: {new Date(registration.registered_at).toLocaleString()}
                   </p>
                   <p className="text-sm text-gray-600">
@@ -468,7 +466,7 @@ export function DatabaseView() {
                   )}
                 </div>
               </div>
-              <div className="text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded p-3 mt-3">
+              <div className="text-sm text-gray-600">
                 <strong>Beyblades:</strong> {registration.beyblades.length > 0 
                   ? registration.beyblades.map(b => b.beyblade_name).join(', ')
                   : 'No Beyblades registered'

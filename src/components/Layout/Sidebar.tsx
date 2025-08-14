@@ -39,9 +39,7 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
   );
 
   return (
-    <aside className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-40 transition-all duration-300 ${
-      isOpen ? 'w-64' : 'w-0 overflow-hidden'
-    }`}>
+    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
       <div className="h-full px-4 py-6 overflow-y-auto">
         <div className="mb-8">
           <div className="flex items-center space-x-3 px-2">
@@ -50,11 +48,9 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
             </div>
             <div>
               <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
-                {isOpen ? 'OBC Portal' : 'OBC'}
+                OBC Portal
               </h2>
-              <p className="text-xs text-gray-500 font-inter">
-                {isOpen ? 'Ormoc Beyblade Community' : 'Portal'}
-              </p>
+              <p className="text-xs text-gray-500 font-inter">Community</p>
             </div>
           </div>
         </div>

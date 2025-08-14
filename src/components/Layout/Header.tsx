@@ -40,11 +40,9 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
                 </div>
                 <div>
                   <h1 className="text-xl font-space-grotesk font-bold text-gray-900">
-                    {isMenuOpen ? 'OBC Portal' : 'OBC'}
+                    OBC Portal
                   </h1>
-                  <p className="text-xs text-gray-500 font-inter">
-                    {isMenuOpen ? 'Ormoc Beyblade Community' : 'Portal'}
-                  </p>
+                  <p className="text-xs text-gray-500 font-inter">Beyblade Community</p>
                 </div>
               </div>
             </div>
@@ -127,7 +125,7 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
             
             {/* Modal Content */}
             <div 
-              className="p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
+              className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50"
             >
               <div className="relative pointer-events-auto bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
                 <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
