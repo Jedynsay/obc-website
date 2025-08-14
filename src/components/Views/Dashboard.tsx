@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Users, Calendar, TrendingUp, Zap, Target, Layers, Newspaper, ChevronRight, Play, Star, Crown, Flame, ArrowRight, ExternalLink, Menu, X, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { LoginForm } from '../Auth/LoginForm';
 
 interface Tournament {
   id: string;
@@ -550,6 +551,33 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <>
+          {/* Modal Backdrop */}
+          <div 
+            className="modal-overlay"
+            style={{ zIndex: 50 }}
+            onClick={() => setShowLoginModal(false)}
+          />
+          
+          {/* Modal Content */}
+          <div 
+            className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50"
+          >
+            <div className="relative pointer-events-auto bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
+              <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
