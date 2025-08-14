@@ -563,22 +563,15 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               <div className="flex items-center justify-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 font-semibold">99.9% Uptime</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                  <span className="text-blue-400 font-semibold">&lt;50ms Response</span>
+                  <span className="text-green-400 font-semibold">System Online</span>
                 </div>
               </div>
             </div>
             
-            <div className="flex justify-end space-x-4">
-              <button className="text-slate-400 hover:text-white transition-colors">
-                <ExternalLink size={20} />
-              </button>
-              <button className="text-slate-400 hover:text-white transition-colors">
-                <Users size={20} />
-              </button>
+            <div className="flex justify-end">
+              <div className="text-slate-400 text-sm">
+                OBC Portal v1.0
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Save, X, Users, Eye, Swords, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Users, Eye, Swords, Calendar, CreditCard, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import type { Tournament } from '../../types';
@@ -33,6 +33,9 @@ export function TournamentManager() {
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
   const [editMatchData, setEditMatchData] = useState<any>({});
+  const [viewingAllRegistrations, setViewingAllRegistrations] = useState(false);
+  const [allRegistrations, setAllRegistrations] = useState<TournamentRegistration[]>([]);
+  const [loadingAllRegistrations, setLoadingAllRegistrations] = useState(false);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'developer';
 
@@ -68,7 +71,10 @@ export function TournamentManager() {
       registration_deadline: '',
       prize_pool: '',
       beyblades_per_player: 3,
-      players_per_team: 1
+      players_per_team: 1,
+      is_free: true,
+      entry_fee: 0,
+      tournament_type: 'casual'
     });
   };
 
@@ -293,6 +299,84 @@ export function TournamentManager() {
     }
   };
 
+  const viewAllRegistrations = async () => {
+    setLoadingAllRegistrations(true);
+    setViewingAllRegistrations(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('tournament_registration_details')
+        .select('*')
+        .order('registered_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      // Group registrations by registration_id
+      const groupedRegistrations: { [key: string]: TournamentRegistration } = {};
+      
+      data?.forEach((row: any) => {
+        if (!groupedRegistrations[row.registration_id]) {
+          groupedRegistrations[row.registration_id] = {
+            registration_id: row.registration_id,
+            player_name: row.player_name,
+            payment_mode: row.payment_mode,
+            registered_at: row.registered_at,
+            status: row.status,
+            tournament_name: tournaments.find(t => t.id === row.tournament_id)?.name || 'Unknown Tournament',
+            tournament_id: row.tournament_id,
+            payment_status: row.payment_status || 'confirmed',
+            beyblades: []
+          };
+        }
+
+        if (row.beyblade_id) {
+          const existingBeyblade = groupedRegistrations[row.registration_id].beyblades
+            .find(b => b.beyblade_id === row.beyblade_id);
+          
+          if (!existingBeyblade) {
+            groupedRegistrations[row.registration_id].beyblades.push({
+              beyblade_id: row.beyblade_id,
+              beyblade_name: row.beyblade_name,
+              blade_line: row.blade_line,
+              parts: row.beyblade_parts || []
+            });
+          }
+        }
+      });
+
+      setAllRegistrations(Object.values(groupedRegistrations));
+    } catch (error) {
+      console.error('Error fetching all registrations:', error);
+      alert('Failed to load registrations. Please try again.');
+    } finally {
+      setLoadingAllRegistrations(false);
+    }
+  };
+
+  const updatePaymentStatus = async (registrationId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('tournament_registrations')
+        .update({ payment_status: newStatus })
+        .eq('id', registrationId);
+
+      if (error) {
+        console.error('Payment status update error:', error);
+        alert(`Failed to update payment status: ${error.message}`);
+        return;
+      }
+
+      // Refresh the registrations
+      await viewAllRegistrations();
+      alert('Payment status updated successfully!');
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      alert('Failed to update payment status. Please try again.');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'upcoming': return 'bg-blue-100 text-blue-800';
@@ -320,15 +404,24 @@ export function TournamentManager() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Tournament Manager</h1>
           <p className="text-gray-600">Create and manage tournaments</p>
         </div>
-        {isAdmin && (
+        <div className="flex space-x-3">
           <button
-            onClick={startCreate}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            onClick={viewAllRegistrations}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center space-x-2"
           >
-            <Plus size={20} />
-            <span>Create Tournament</span>
+            <Users size={20} />
+            <span>All Registrations</span>
           </button>
-        )}
+          {isAdmin && (
+            <button
+              onClick={startCreate}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <Plus size={20} />
+              <span>Create Tournament</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Create/Edit Form */}
@@ -401,6 +494,52 @@ export function TournamentManager() {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tournament Type</label>
+              <select
+                value={formData.tournament_type || 'casual'}
+                onChange={(e) => setFormData({...formData, tournament_type: e.target.value})}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="casual">Casual</option>
+                <option value="ranked">Ranked</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Entry Type</label>
+              <select
+                value={formData.is_free ? 'free' : 'paid'}
+                onChange={(e) => {
+                  const isFree = e.target.value === 'free';
+                  setFormData({
+                    ...formData, 
+                    is_free: isFree,
+                    entry_fee: isFree ? 0 : formData.entry_fee || 50
+                  });
+                }}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="free">Free Entry</option>
+                <option value="paid">Paid Entry</option>
+              </select>
+            </div>
+
+            {!formData.is_free && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.entry_fee || ''}
+                  onChange={(e) => setFormData({...formData, entry_fee: parseFloat(e.target.value) || 0})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+              </div>
+            )}
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Beyblades per Player</label>
               <input
                 type="number"
@@ -435,18 +574,66 @@ export function TournamentManager() {
             </div>
 
             {!isCreating && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  value={formData.status || ''}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="upcoming">Upcoming</option>
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    value={formData.status || ''}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="upcoming">Upcoming</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tournament Type</label>
+                  <select
+                    value={formData.tournament_type || 'casual'}
+                    onChange={(e) => setFormData({...formData, tournament_type: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="casual">Casual</option>
+                    <option value="ranked">Ranked</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Entry Type</label>
+                  <select
+                    value={formData.is_free ? 'free' : 'paid'}
+                    onChange={(e) => {
+                      const isFree = e.target.value === 'free';
+                      setFormData({
+                        ...formData, 
+                        is_free: isFree,
+                        entry_fee: isFree ? 0 : formData.entry_fee || 50
+                      });
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="free">Free Entry</option>
+                    <option value="paid">Paid Entry</option>
+                  </select>
+                </div>
+
+                {!formData.is_free && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee (₱)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.entry_fee || ''}
+                      onChange={(e) => setFormData({...formData, entry_fee: parseFloat(e.target.value) || 0})}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="50.00"
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -494,6 +681,18 @@ export function TournamentManager() {
                   </div>
                   <div>
                     <span className="font-medium">Prize Pool:</span> {tournament.prize_pool}
+                  </div>
+                  <div>
+                    <span className="font-medium">Type:</span> 
+                    <span className={`ml-1 capitalize ${tournament.tournament_type === 'ranked' ? 'text-orange-600 font-semibold' : 'text-gray-600'}`}>
+                      {tournament.tournament_type}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Entry:</span> 
+                    <span className={`ml-1 ${tournament.is_free ? 'text-green-600' : 'text-blue-600'} font-semibold`}>
+                      {tournament.is_free ? 'Free' : `₱${tournament.entry_fee}`}
+                    </span>
                   </div>
                   <div>
                     <span className="font-medium">Beyblades/Player:</span> {tournament.beyblades_per_player}
@@ -623,6 +822,138 @@ export function TournamentManager() {
                             </div>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* All Registrations Modal */}
+      {viewingAllRegistrations && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">All Tournament Registrations</h2>
+                <p className="text-gray-600">Manage payment status and registration details</p>
+              </div>
+              <button
+                onClick={() => setViewingAllRegistrations(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {loadingAllRegistrations ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading all registrations...</p>
+                </div>
+              ) : allRegistrations.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users size={48} className="mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">No registrations found across all tournaments</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {allRegistrations.map((registration) => (
+                    <div key={registration.registration_id} className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-xl font-bold text-gray-900">{registration.player_name}</h3>
+                            <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                              {registration.tournament_name}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                            <div>
+                              <span className="font-medium">Registered:</span>
+                              <p>{new Date(registration.registered_at).toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium">Payment Mode:</span>
+                              <p className="capitalize">{registration.payment_mode.replace('_', ' ')}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium">Status:</span>
+                              <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${
+                                registration.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                registration.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {registration.status}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-medium">Payment:</span>
+                              <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${
+                                registration.payment_status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                registration.payment_status === 'paid' ? 'bg-blue-100 text-blue-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {registration.payment_status}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {isAdmin && (
+                          <div className="flex space-x-2">
+                            {registration.payment_status === 'unpaid' && (
+                              <button
+                                onClick={() => updatePaymentStatus(registration.registration_id, 'paid')}
+                                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors flex items-center space-x-1"
+                              >
+                                <CreditCard size={14} />
+                                <span>Mark Paid</span>
+                              </button>
+                            )}
+                            {registration.payment_status === 'paid' && (
+                              <button
+                                onClick={() => updatePaymentStatus(registration.registration_id, 'confirmed')}
+                                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors flex items-center space-x-1"
+                              >
+                                <CheckCircle size={14} />
+                                <span>Confirm</span>
+                              </button>
+                            )}
+                            {registration.payment_status !== 'unpaid' && (
+                              <button
+                                onClick={() => updatePaymentStatus(registration.registration_id, 'unpaid')}
+                                className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
+                              >
+                                Mark Unpaid
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-700">Beyblades:</span>
+                          <span className="text-sm text-gray-600">
+                            {registration.beyblades.length} registered
+                          </span>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {registration.beyblades.length > 0 ? (
+                            registration.beyblades.map((beyblade, index) => (
+                              <span key={index} className="inline-block bg-white px-3 py-1 rounded-full text-xs font-medium text-gray-700 border">
+                                {beyblade.beyblade_name}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-sm text-gray-500 italic">No Beyblades registered</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

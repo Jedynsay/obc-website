@@ -299,13 +299,22 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
     
     try {
       // Save registration to Supabase
+      const tournamentData = await supabase
+        .from('tournaments')
+        .select('is_free')
+        .eq('id', tournament.id)
+        .single();
+
+      const paymentStatus = tournamentData.data?.is_free ? 'confirmed' : 'unpaid';
+
       const { data: registration, error: registrationError } = await supabase
         .from('tournament_registrations')
         .insert({
           tournament_id: tournament.id,
           player_name: playerName.trim(),
           payment_mode: paymentMode,
-          status: 'confirmed'
+          status: 'confirmed',
+          payment_status: paymentStatus
         })
         .select()
         .single();
@@ -351,7 +360,11 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
       }
 
       // Success message
-      alert(`Successfully registered ${playerName} for ${tournament.name}! Registration ID: ${registration.id}`);
+      const statusMessage = tournamentData.data?.is_free 
+        ? `Successfully registered ${playerName} for ${tournament.name}! You're confirmed and ready to compete.`
+        : `Successfully registered ${playerName} for ${tournament.name}! Please complete payment to confirm your spot. Registration ID: ${registration.id}`;
+      
+      alert(statusMessage);
 
       onSubmit(playerName, beyblades);
     } catch (error) {

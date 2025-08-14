@@ -115,6 +115,7 @@ export function MatchTracker() {
         `)
         .eq('tournament_id', tournamentId)
         .eq('status', 'confirmed')
+        .in('payment_status', ['paid', 'confirmed'])
         .order('player_name', { ascending: true });
 
       if (error) throw error;
