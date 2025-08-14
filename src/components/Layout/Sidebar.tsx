@@ -122,7 +122,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           </div>
           
           {isOpen && (
-            <div className="mt-4 px-2">
+            <div className="mt-8 px-2">
               <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
                 <div className="flex items-center space-x-2 mb-2">
                   <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
