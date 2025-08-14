@@ -97,20 +97,28 @@ export function TournamentManager() {
 
   const updatePaymentStatus = async (registrationId: string, newStatus: string) => {
     try {
+      console.log('Updating payment status:', { registrationId, newStatus });
+      
       const { error } = await supabase
         .from('tournament_registrations')
         .update({ payment_status: newStatus })
         .eq('id', registrationId);
 
-      if (error) throw error;
-
-      // Refresh registrations
-      if (viewingRegistrations) {
-        await fetchTournamentRegistrations(viewingRegistrations);
+      if (error) {
+        console.error('Payment status update error:', error);
+        throw error;
       }
+
+      console.log('Payment status updated successfully');
+      await fetchTournaments();
     } catch (error) {
       console.error('Error updating payment status:', error);
-      alert('Failed to update payment status');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('RLS') || errorMessage.includes('permission')) {
+        alert('Permission denied. You need admin or developer role to update payment status.');
+      } else {
+        alert(`Failed to update payment status: ${errorMessage}. Please try again.`);
+      }
     }
   };
 
@@ -543,7 +551,7 @@ export function TournamentManager() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-gray-500">Payment Mode:</span>
-                        <p className="font-medium capitalize">{registration.payment_mode?.replace('_', ' ') || 'N/A'}</p>
+                        <p className="font-medium capitalize">{registration.payment_mode === 'free' ? 'Free' : registration.payment_mode.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'N/A'}</p>
                       </div>
                       <div>
                         <span className="text-gray-500">Status:</span>
@@ -557,7 +565,7 @@ export function TournamentManager() {
                       <select
                         value={registration.payment_status || 'unpaid'}
                         onChange={(e) => updatePaymentStatus(registration.registration_id, e.target.value)}
-                        className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                       >
                         <option value="unpaid">Unpaid</option>
                         <option value="paid">Paid</option>

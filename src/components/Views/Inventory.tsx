@@ -394,6 +394,7 @@ export function Inventory() {
             >
               <option value="all">All Parts</option>
               <option value="Blade">Blades</option>
+              <option value="Blade (Custom)">Blades (Custom)</option>
               <option value="Ratchet">Ratchets</option>
               <option value="Bit">Bits</option>
               <option value="Lockchip">Lockchips</option>
