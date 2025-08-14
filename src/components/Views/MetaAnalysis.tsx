@@ -466,248 +466,248 @@ export function MetaAnalysis({ onBack }: MetaAnalysisProps) {
           <p className="text-gray-600">Analyze Beyblade part usage and performance statistics</p>
         </div>
 
-      {/* Tournament Selection */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Tournament Selection</h2>
-        <div className="max-w-md">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Tournament
-          </label>
-          <select
-            value={selectedTournament}
-            onChange={(e) => setSelectedTournament(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">-- Select Tournament --</option>
-            {tournaments.map(tournament => (
-              <option key={tournament.id} value={tournament.id}>
-                {tournament.name} ({tournament.status})
-              </option>
-            ))}
-          </select>
+        {/* Tournament Selection */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Tournament Selection</h2>
+          <div className="max-w-md">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Tournament
+            </label>
+            <select
+              value={selectedTournament}
+              onChange={(e) => setSelectedTournament(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Select Tournament --</option>
+              {tournaments.map(tournament => (
+                <option key={tournament.id} value={tournament.id}>
+                  {tournament.name} ({tournament.status})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
 
-      {selectedTournament && (
-        <>
-          {/* Processing Indicator */}
-          {processingData && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-              <div className="flex items-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
-                <div>
-                  <h3 className="text-blue-800 font-medium">Processing Tournament Data</h3>
-                  <p className="text-blue-700 text-sm mt-1">
-                    Parsing Beyblade names and calculating statistics...
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* No Data Message */}
-          {!processingData && processedMatches.length === 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
-              <div className="flex items-center">
-                <div className="text-yellow-600 mr-3">⚠️</div>
-                <div>
-                  <h3 className="text-yellow-800 font-medium">No Match Data Available</h3>
-                  <p className="text-yellow-700 text-sm mt-1">
-                    This tournament has no completed matches yet. Meta analysis requires match results to generate statistics.
-                    {tournaments.find(t => t.id === selectedTournament)?.status === 'upcoming' && 
-                      ' Try selecting a completed tournament instead.'
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Builds by Part */}
-          {!processingData && processedMatches.length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <Target className="mr-2" size={24} />
-                Builds by Part
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Part Type</label>
-                  <select
-                    value={selectedPartType}
-                    onChange={(e) => {
-                      setSelectedPartType(e.target.value);
-                      setSelectedPartName('');
-                      setBuildsData([]);
-                      setSelectedBuild(null);
-                      setBuildMatches([]);
-                    }}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Part Type</option>
-                    <option value="blade">Blade</option>
-                    <option value="ratchet">Ratchet</option>
-                    <option value="bit">Bit</option>
-                    <option value="lockchip">Lockchip</option>
-                    <option value="mainBlade">Main Blade</option>
-                    <option value="assistBlade">Assist Blade</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Part Name</label>
-                  <select
-                    value={selectedPartName}
-                    onChange={(e) => setSelectedPartName(e.target.value)}
-                    disabled={!selectedPartType}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  >
-                    <option value="">Select Part Name</option>
-                    {selectedPartType && Object.values(partStats[selectedPartType] || {})
-                      .filter(part => part.usage > 0)
-                      .sort((a, b) => b.wilson - a.wilson)
-                      .map(part => (
-                        <option key={part.name} value={part.name}>{part.name}</option>
-                      ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Builds Table */}
-              {buildsData.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Builds using {selectedPartName} ({getPartTypeLabel(selectedPartType)})
-                  </h3>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Build</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Losses</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wilson Score</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {buildsData.map((build, index) => (
-                          <tr 
-                            key={index} 
-                            className="hover:bg-gray-50 cursor-pointer"
-                            onClick={() => handleBuildClick(build.build, build.player)}
-                          >
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
-                              {build.build}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.player}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wins}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.losses}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.winRate.toFixed(1)}%</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wilson.toFixed(3)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+        {selectedTournament && (
+          <>
+            {/* Processing Indicator */}
+            {processingData && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                  <div>
+                    <h3 className="text-blue-800 font-medium">Processing Tournament Data</h3>
+                    <p className="text-blue-700 text-sm mt-1">
+                      Parsing Beyblade names and calculating statistics...
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Build Matches */}
-              {selectedBuild && buildMatches.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                    Matches for <strong>{selectedBuild.build}</strong> by <strong>{selectedBuild.player}</strong>
-                  </h4>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent's Bey</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {buildMatches.map((match, index) => (
-                          <tr key={index} className={match.isWin ? 'bg-green-50' : 'bg-red-50'}>
-                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                              match.isWin ? 'text-green-800' : 'text-red-800'
-                            }`}>
-                              {match.isWin ? 'Win' : 'Loss'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponent}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponentBeyblade}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+            {/* No Data Message */}
+            {!processingData && processedMatches.length === 0 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+                <div className="flex items-center">
+                  <div className="text-yellow-600 mr-3">⚠️</div>
+                  <div>
+                    <h3 className="text-yellow-800 font-medium">No Match Data Available</h3>
+                    <p className="text-yellow-700 text-sm mt-1">
+                      This tournament has no completed matches yet. Meta analysis requires match results to generate statistics.
+                      {tournaments.find(t => t.id === selectedTournament)?.status === 'upcoming' && 
+                        ' Try selecting a completed tournament instead.'
+                      }
+                    </p>
                   </div>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
 
-          {/* Part Statistics Tables */}
-          {!processingData && processedMatches.length > 0 && (
-            <div className="space-y-8">
-              {(['blade', 'ratchet', 'bit', 'lockchip', 'mainBlade', 'assistBlade'] as const).map(partType => (
-                <div key={partType} className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 capitalize flex items-center">
-                    <BarChart3 className="mr-2" size={24} />
-                    {getPartTypeLabel(partType)}
-                  </h2>
-                  
-                  {Object.keys(partStats[partType] || {}).length === 0 ? (
-                    <div className="text-center py-8">
-                      <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
-                      <p className="text-gray-500">No {getPartTypeLabel(partType).toLowerCase()} data available</p>
-                      <p className="text-sm text-gray-400 mt-1">No matches used {getPartTypeLabel(partType).toLowerCase()} from this category</p>
-                    </div>
-                  ) : (
+            {/* Builds by Part */}
+            {!processingData && processedMatches.length > 0 && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <Target className="mr-2" size={24} />
+                  Builds by Part
+                </h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Part Type</label>
+                    <select
+                      value={selectedPartType}
+                      onChange={(e) => {
+                        setSelectedPartType(e.target.value);
+                        setSelectedPartName('');
+                        setBuildsData([]);
+                        setSelectedBuild(null);
+                        setBuildMatches([]);
+                      }}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select Part Type</option>
+                      <option value="blade">Blade</option>
+                      <option value="ratchet">Ratchet</option>
+                      <option value="bit">Bit</option>
+                      <option value="lockchip">Lockchip</option>
+                      <option value="mainBlade">Main Blade</option>
+                      <option value="assistBlade">Assist Blade</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Part Name</label>
+                    <select
+                      value={selectedPartName}
+                      onChange={(e) => setSelectedPartName(e.target.value)}
+                      disabled={!selectedPartType}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                    >
+                      <option value="">Select Part Name</option>
+                      {selectedPartType && Object.values(partStats[selectedPartType] || {})
+                        .filter(part => part.usage > 0)
+                        .sort((a, b) => b.wilson - a.wilson)
+                        .map(part => (
+                          <option key={part.name} value={part.name}>{part.name}</option>
+                        ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Builds Table */}
+                {buildsData.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Builds using {selectedPartName} ({getPartTypeLabel(selectedPartType)})
+                    </h3>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <SortableHeader sortKey="name">Name</SortableHeader>
-                            <SortableHeader sortKey="usage">Usage</SortableHeader>
-                            <SortableHeader sortKey="wins">Wins</SortableHeader>
-                            <SortableHeader sortKey="losses">Losses</SortableHeader>
-                            <SortableHeader sortKey="winRate">Win Rate</SortableHeader>
-                            <SortableHeader sortKey="wilson">Wilson Score</SortableHeader>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Build</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Losses</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wilson Score</th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {sortedPartsData(partType).map((part, index) => (
-                            <tr key={index} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {part.name}
+                          {buildsData.map((build, index) => (
+                            <tr 
+                              key={index} 
+                              className="hover:bg-gray-50 cursor-pointer"
+                              onClick={() => handleBuildClick(build.build, build.player)}
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
+                                {build.build}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.usage}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.wins}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.losses}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {part.winRate.toFixed(1)}%
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {part.wilson.toFixed(3)}
-                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.player}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wins}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.losses}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.winRate.toFixed(1)}%</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{build.wilson.toFixed(3)}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
+                  </div>
+                )}
+
+                {/* Build Matches */}
+                {selectedBuild && buildMatches.length > 0 && (
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                      Matches for <strong>{selectedBuild.build}</strong> by <strong>{selectedBuild.player}</strong>
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent's Bey</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {buildMatches.map((match, index) => (
+                            <tr key={index} className={match.isWin ? 'bg-green-50' : 'bg-red-50'}>
+                              <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                                match.isWin ? 'text-green-800' : 'text-red-800'
+                              }`}>
+                                {match.isWin ? 'Win' : 'Loss'}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponent}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.opponentBeyblade}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Part Statistics Tables */}
+            {!processingData && processedMatches.length > 0 && (
+              <div className="space-y-8">
+                {(['blade', 'ratchet', 'bit', 'lockchip', 'mainBlade', 'assistBlade'] as const).map(partType => (
+                  <div key={partType} className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 capitalize flex items-center">
+                      <BarChart3 className="mr-2" size={24} />
+                      {getPartTypeLabel(partType)}
+                    </h2>
+                    
+                    {Object.keys(partStats[partType] || {}).length === 0 ? (
+                      <div className="text-center py-8">
+                        <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
+                        <p className="text-gray-500">No {getPartTypeLabel(partType).toLowerCase()} data available</p>
+                        <p className="text-sm text-gray-400 mt-1">No matches used {getPartTypeLabel(partType).toLowerCase()} from this category</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <SortableHeader sortKey="name">Name</SortableHeader>
+                              <SortableHeader sortKey="usage">Usage</SortableHeader>
+                              <SortableHeader sortKey="wins">Wins</SortableHeader>
+                              <SortableHeader sortKey="losses">Losses</SortableHeader>
+                              <SortableHeader sortKey="winRate">Win Rate</SortableHeader>
+                              <SortableHeader sortKey="wilson">Wilson Score</SortableHeader>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {sortedPartsData(partType).map((part, index) => (
+                              <tr key={index} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                  {part.name}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.usage}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.wins}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{part.losses}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {part.winRate.toFixed(1)}%
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                  {part.wilson.toFixed(3)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
