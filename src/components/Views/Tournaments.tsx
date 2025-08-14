@@ -53,76 +53,74 @@ export function Tournaments() {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Tournaments</h1>
-        <p className="page-subtitle">Join the ultimate Beyblade battles!</p>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="mb-10">
-        <nav className="flex space-x-2 bg-slate-800/60 rounded-2xl p-2 backdrop-blur-md border border-slate-600/30">
-          {['all', 'upcoming', 'active', 'completed'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab as any)}
-              className={`px-6 py-3 rounded-xl font-rajdhani font-bold capitalize transition-all duration-300 ${
-                filter === tab
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-glow scale-105'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Tournament Grid */}
-      {loading ? (
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-300 font-rajdhani text-lg">Loading tournaments...</p>
+      <div className="content-wrapper">
+        <div className="page-header">
+          <h1 className="page-title">Tournaments</h1>
+          <p className="page-subtitle">Join the ultimate Beyblade battles</p>
         </div>
-      ) : filteredTournaments.length === 0 ? (
-        <div className="text-center py-20">
-          <Trophy size={64} className="mx-auto text-slate-400 mb-6" />
-          <p className="text-slate-300 font-orbitron font-bold text-xl">No tournaments found</p>
-          <p className="text-slate-400 font-rajdhani text-lg mt-3">Check back later for upcoming events</p>
+
+        {/* Filter Tabs */}
+        <div className="mb-8">
+          <div className="filter-tabs">
+            {['all', 'upcoming', 'active', 'completed'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab as any)}
+                className={`filter-tab capitalize ${
+                  filter === tab ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTournaments.map((tournament) => (
-            <div key={tournament.id} className="beyblade-card hover:scale-105 transition-all duration-500">
-              <div className="p-8">
+
+        {/* Tournament Grid */}
+        {loading ? (
+          <div className="empty-state">
+            <div className="loading-spinner h-12 w-12 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading tournaments...</p>
+          </div>
+        ) : filteredTournaments.length === 0 ? (
+          <div className="empty-state">
+            <Trophy className="empty-icon" />
+            <h3 className="empty-title">No tournaments found</h3>
+            <p className="empty-description">Check back later for upcoming events</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTournaments.map((tournament) => (
+              <div key={tournament.id} className="card p-6 hover:shadow-lg transition-all duration-200">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-orbitron font-bold text-white">{tournament.name}</h3>
-                  <span className={`px-3 py-2 rounded-full text-sm font-bold capitalize ${getStatusColor(tournament.status)}`}>
+                  <h3 className="text-xl font-space-grotesk font-bold text-gray-900">{tournament.name}</h3>
+                  <span className={`badge capitalize ${getStatusColor(tournament.status)}`}>
                     {tournament.status}
                   </span>
                 </div>
                 
-                <p className="text-slate-300 mb-6 font-rajdhani text-lg">{tournament.description}</p>
+                <p className="text-gray-600 mb-6 font-inter">{tournament.description}</p>
                 
                 <div className="space-y-3 mb-6">
-                  <div className="flex items-center text-slate-300 font-rajdhani font-medium">
+                  <div className="flex items-center text-gray-600 font-inter">
                     <Calendar size={16} className="mr-2" />
                     {new Date(tournament.tournament_date).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center text-slate-300 font-rajdhani font-medium">
+                  <div className="flex items-center text-gray-600 font-inter">
                     <MapPin size={16} className="mr-2" />
                     {tournament.location}
                   </div>
-                  <div className="flex items-center text-slate-300 font-rajdhani font-medium">
+                  <div className="flex items-center text-gray-600 font-inter">
                     <Users size={16} className="mr-2" />
                     {tournament.current_participants}/{tournament.max_participants} participants
                   </div>
                   {tournament.prize_pool && (
-                    <div className="flex items-center text-slate-300 font-rajdhani font-medium">
+                    <div className="flex items-center text-gray-600 font-inter">
                       <Trophy size={16} className="mr-2" />
                       Prize Pool: {tournament.prize_pool}
                     </div>
                   )}
-                  <div className="flex items-center text-slate-300 font-rajdhani font-medium">
+                  <div className="flex items-center text-gray-600 font-inter">
                     <Clock size={16} className="mr-2" />
                     Registration ends: {new Date(tournament.registration_deadline).toLocaleDateString()}
                   </div>
@@ -130,13 +128,13 @@ export function Tournaments() {
 
                 {/* Progress Bar */}
                 <div className="mb-6">
-                  <div className="flex justify-between text-slate-300 font-rajdhani font-medium mb-2">
+                  <div className="flex justify-between text-gray-600 font-inter mb-2">
                     <span>Registration Progress</span>
                     <span>{Math.round((tournament.current_participants / tournament.max_participants) * 100)}%</span>
                   </div>
-                  <div className="w-full bg-slate-700/50 rounded-full h-3">
+                  <div className="progress-bar">
                     <div 
-                      className="bg-gradient-to-r from-blue-500 to-indigo-500 h-3 rounded-full transition-all duration-500 shadow-glow"
+                      className="progress-fill"
                       style={{ width: `${(tournament.current_participants / tournament.max_participants) * 100}%` }}
                     ></div>
                   </div>
@@ -146,7 +144,7 @@ export function Tournaments() {
                   <button
                     onClick={() => setSelectedTournament(tournament.id)}
                     disabled={tournament.current_participants >= tournament.max_participants}
-                    className="w-full beyblade-button disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
+                    className="primary-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {tournament.current_participants >= tournament.max_participants 
                       ? 'Tournament Full' 
@@ -154,19 +152,19 @@ export function Tournaments() {
                   </button>
                 )}
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {/* Tournament Registration Modal */}
-      {selectedTournament && (
-        <TournamentRegistration
-          tournament={filteredTournaments.find(t => t.id === selectedTournament)!}
-          onClose={() => setSelectedTournament(null)}
-          onSubmit={handleTournamentRegistration}
-        />
-      )}
+        {/* Tournament Registration Modal */}
+        {selectedTournament && (
+          <TournamentRegistration
+            tournament={filteredTournaments.find(t => t.id === selectedTournament)!}
+            onClose={() => setSelectedTournament(null)}
+            onSubmit={handleTournamentRegistration}
+          />
+        )}
+      </div>
     </div>
   );
 }
