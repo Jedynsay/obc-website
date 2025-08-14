@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Users, Edit, Trash2, Shield, Mail, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 
 interface User {
   id: string;
@@ -15,6 +16,7 @@ interface User {
 
 export function UserManagement() {
   const { user: currentUser } = useAuth();
+  const { confirm, alert } = useConfirmation();
   const [users, setUsers] = useState<User[]>([]);
   const [filter, setFilter] = useState<'all' | 'active' | 'suspended' | 'pending'>('all');
   const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'technical_officer' | 'admin' | 'developer'>('all');
@@ -88,19 +90,24 @@ export function UserManagement() {
         const message = error.code === '42501' || error.message.includes('RLS')
           ? 'Permission denied. You need admin or developer role to update users.'
           : `Failed to update user: ${error.message}`;
-        alert(message);
+        await alert('Update Failed', message);
         return;
       }
 
       await fetchUsers();
     } catch (error) {
       console.error('Error updating user:', error);
-      alert(`Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      await alert('Update Failed', `Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const deleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user? This will also delete all their registrations and data. This action cannot be undone.')) {
+    const confirmed = await confirm(
+      'Delete User',
+      'Are you sure you want to delete this user? This will also delete all their registrations and data. This action cannot be undone.'
+    );
+    
+    if (!confirmed) {
       return;
     }
 
@@ -113,20 +120,20 @@ export function UserManagement() {
       if (error) {
         console.error('Delete error:', error);
         if (error.code === '42501' || error.message.includes('RLS')) {
-          alert('Permission denied. You need admin or developer role to delete users.');
+          await alert('Permission Denied', 'You need admin or developer role to delete users.');
         } else if (error.message.includes('cannot delete themselves')) {
-          alert('You cannot delete your own account.');
+          await alert('Cannot Delete', 'You cannot delete your own account.');
         } else {
-          alert(`Failed to delete user: ${error.message}`);
+          await alert('Delete Failed', `Failed to delete user: ${error.message}`);
         }
         return;
       }
       
-      alert('User deleted successfully!');
+      await alert('Success', 'User deleted successfully!');
       await fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      await alert('Delete Failed', `Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 

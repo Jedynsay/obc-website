@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { ConfirmationProvider } from './context/ConfirmationContext';
 import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Views/Dashboard';
 import { Tournaments } from './components/Views/Tournaments';
@@ -70,7 +71,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ConfirmationProvider>
+        <AppContent />
+      </ConfirmationProvider>
     </AuthProvider>
   );
 }

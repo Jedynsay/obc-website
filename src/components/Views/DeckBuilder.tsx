@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Save, Trash2, Edit, X, Layers, Zap, Shield, Clock, Activity, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 
 interface DeckPreset {
   id: string;
@@ -29,6 +30,7 @@ interface InventoryItem {
 
 export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
   const { user } = useAuth();
+  const { confirm, alert } = useConfirmation();
   
   // Early return for guest users - don't load anything
   if (!user || user.id.startsWith('guest-')) {
@@ -281,7 +283,7 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
 
   const savePreset = async () => {
     if (!deckName.trim()) {
-      alert('Please enter a deck name.');
+      await alert('Missing Information', 'Please enter a deck name.');
       return;
     }
 
@@ -291,7 +293,7 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
     });
 
     if (validBeyblades.length === 0) {
-      alert('Please configure at least one complete Beyblade.');
+      await alert('Missing Information', 'Please configure at least one complete Beyblade.');
       return;
     }
 
@@ -320,15 +322,20 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
 
       await fetchPresets();
       cancelEdit();
-      alert('Deck preset saved successfully!');
+      await alert('Success', 'Deck preset saved successfully!');
     } catch (error) {
       console.error('Error saving preset:', error);
-      alert('Failed to save deck preset. Please try again.');
+      await alert('Error', 'Failed to save deck preset. Please try again.');
     }
   };
 
   const deletePreset = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this deck preset?')) {
+    const confirmed = await confirm(
+      'Delete Deck Preset',
+      'Are you sure you want to delete this deck preset?'
+    );
+    
+    if (!confirmed) {
       return;
     }
 
@@ -342,7 +349,7 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
       await fetchPresets();
     } catch (error) {
       console.error('Error deleting preset:', error);
-      alert('Failed to delete deck preset. Please try again.');
+      await alert('Error', 'Failed to delete deck preset. Please try again.');
     }
   };
 

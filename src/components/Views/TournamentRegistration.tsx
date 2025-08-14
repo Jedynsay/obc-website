@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Plus, Trash2, Save, Zap, Shield, Clock, Activity, ShieldCheck, User, Layers } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 import type { Tournament, BladePart, RatchetPart, BitPart, LockchipPart, AssistBladePart, BeybladeStats } from '../../types';
 
 interface TournamentRegistrationProps {
@@ -20,6 +21,7 @@ interface BeybladeForm {
 
 export function TournamentRegistration({ tournament, onClose, onSubmit }: TournamentRegistrationProps) {
   const { user } = useAuth();
+  const { confirm, alert } = useConfirmation();
   const [playerName, setPlayerName] = useState('');
   const [paymentMode, setPaymentMode] = useState<'free' | 'cash' | 'gcash' | 'bank_transfer'>('free');
   const [beyblades, setBeyblades] = useState<BeybladeForm[]>([
@@ -253,7 +255,7 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
         { id: Date.now().toString(), bladeLine: '', parts: {} }
       ]);
     } else {
-      alert(`Maximum ${tournament.beyblades_per_player} Beyblades allowed for this tournament.`);
+      alert('Maximum Reached', `Maximum ${tournament.beyblades_per_player} Beyblades allowed for this tournament.`);
     }
   };
 
@@ -299,7 +301,7 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
 
   const handleSubmit = async () => {
     if (!isFormValid()) {
-      alert('Please fill in all required fields to register for the tournament.');
+      await alert('Missing Information', 'Please fill in all required fields to register for the tournament.');
       return;
     }
 
@@ -372,12 +374,12 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
         ? `Successfully registered ${playerName} for ${tournament.name}! You're confirmed and ready to compete.`
         : `Successfully registered ${playerName} for ${tournament.name}! Please complete payment to confirm your spot. Registration ID: ${registration.id}`;
       
-      alert(statusMessage);
+      await alert('Registration Successful', statusMessage);
 
       onSubmit(playerName, beyblades);
     } catch (error) {
       console.error('Registration error:', error);
-      alert(`Failed to register for tournament: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      await alert('Registration Failed', `Failed to register for tournament: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }

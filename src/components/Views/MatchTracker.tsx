@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, CheckCircle, Clock, Trophy, Users, Plus, Trash2, RotateCcw, Send, X, GripVertical } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useConfirmation } from '../../context/ConfirmationContext';
 
 interface Tournament {
   id: string;
@@ -42,6 +43,7 @@ const pointMap = {
 };
 
 export function MatchTracker() {
+  const { confirm, alert } = useConfirmation();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<string>('');
   const [playerData, setPlayerData] = useState<PlayerData>({});
@@ -229,12 +231,12 @@ export function MatchTracker() {
 
   const addMatch = () => {
     if (pendingPhase) {
-      alert(`Click Shuffle before adding the next match (after every ${selectedTournamentData?.beyblades_per_player || 3} matches).`);
+      alert('Phase Required', `Click Shuffle before adding the next match (after every ${selectedTournamentData?.beyblades_per_player || 3} matches).`);
       return;
     }
 
     if (!player1 || !player2) {
-      alert("Please select both players first.");
+      alert('Missing Players', 'Please select both players first.');
       return;
     }
 

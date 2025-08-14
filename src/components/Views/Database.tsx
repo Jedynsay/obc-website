@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Database, Table, Users, Trophy, Calendar, BarChart3, Download, RefreshCw, Edit, Trash2, Eye, Search, Filter, ChevronRight, ArrowLeft, X, Save } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 
 interface TableInfo {
   name: string;
@@ -29,6 +30,7 @@ interface RegistrationWithBeyblades {
 
 export function DatabaseView() {
   const { user } = useAuth();
+  const { confirm, alert } = useConfirmation();
   const [selectedTable, setSelectedTable] = useState<string>('tournaments');
   const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -260,9 +262,9 @@ export function DatabaseView() {
       if (error) {
         console.error('Update error:', error);
         if (error.code === '42501' || error.message.includes('RLS')) {
-          alert('Permission denied. You need admin or developer role to edit records.');
+          await alert('Permission Denied', 'You need admin or developer role to edit records.');
         } else {
-          alert(`Failed to update record: ${error.message}`);
+          await alert('Update Failed', `Failed to update record: ${error.message}`);
         }
         return;
       }
@@ -272,12 +274,17 @@ export function DatabaseView() {
       await fetchTableData(selectedTable);
     } catch (error) {
       console.error('Error updating row:', error);
-      alert(`Failed to update record: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      await alert('Update Failed', `Failed to update record: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+    const confirmed = await confirm(
+      'Delete Record',
+      'Are you sure you want to delete this record? This action cannot be undone.'
+    );
+    
+    if (!confirmed) {
       return;
     }
 
@@ -312,7 +319,7 @@ export function DatabaseView() {
       ]);
     } catch (error) {
       console.error('Error deleting row:', error);
-      alert(`Failed to delete record: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      await alert('Delete Failed', `Failed to delete record: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 

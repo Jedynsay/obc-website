@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Calendar, MapPin, Users, Trophy, Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
 import { TournamentRegistration } from './TournamentRegistration';
 
 export function Tournaments() {
   const { user } = useAuth();
+  const { alert } = useConfirmation();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'active' | 'completed'>('all');
   const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
   const [tournaments, setTournaments] = useState([]);
@@ -38,7 +40,7 @@ export function Tournaments() {
 
   const handleTournamentRegistration = (playerName: string, beyblades: any[]) => {
     console.log('Tournament registration:', { playerName, beyblades });
-    alert(`Successfully registered ${playerName} with ${beyblades.length} Beyblades for the tournament!`);
+    alert('Registration Complete', `Successfully registered ${playerName} with ${beyblades.length} Beyblades for the tournament!`);
     setSelectedTournament(null);
   };
 
