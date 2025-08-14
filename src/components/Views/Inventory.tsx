@@ -79,7 +79,6 @@ export function Inventory() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'Blade' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
   const [filterType, setFilterType] = useState<'all' | 'Blade' | 'Blade (Custom)' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
   
   // Form state
@@ -427,6 +426,7 @@ export function Inventory() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Blade">Blade</option>
+                <option value="Blade (Custom)">Blade (Custom)</option>
                 <option value="Ratchet">Ratchet</option>
                 <option value="Bit">Bit</option>
                 <option value="Lockchip">Lockchip</option>
