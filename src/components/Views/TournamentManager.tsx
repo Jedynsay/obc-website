@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Save, X, Users, Eye, Swords, Calendar, CreditCard, CheckCircle, ArrowLeft, Trophy } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Users, Eye, Swords, Calendar } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import type { Tournament } from '../../types';
@@ -33,104 +33,12 @@ export function TournamentManager() {
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
   const [editMatchData, setEditMatchData] = useState<any>({});
-  const [viewingAllRegistrations, setViewingAllRegistrations] = useState(false);
-  const [allRegistrations, setAllRegistrations] = useState<TournamentRegistration[]>([]);
-  const [loadingAllRegistrations, setLoadingAllRegistrations] = useState(false);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'developer';
 
   React.useEffect(() => {
     fetchTournaments();
   }, []);
-
-  const fetchTournamentRegistrations = async (tournamentId: string) => {
-    setLoadingRegistrations(true);
-    try {
-      const { data, error } = await supabase
-        .from('tournament_registration_details')
-        .select('*')
-        .eq('tournament_id', tournamentId)
-        .order('registered_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Group by registration_id
-      const groupedData: { [key: string]: any } = {};
-      
-      data?.forEach((row: any) => {
-        if (!groupedData[row.registration_id]) {
-          groupedData[row.registration_id] = {
-            registration_id: row.registration_id,
-            tournament_id: row.tournament_id,
-            player_name: row.player_name,
-            payment_mode: row.payment_mode,
-            registered_at: row.registered_at,
-            status: row.status,
-            payment_status: row.payment_status,
-            beyblades: []
-          };
-        }
-
-        if (row.beyblade_id) {
-          const existingBeyblade = groupedData[row.registration_id].beyblades
-            .find((b: any) => b.beyblade_id === row.beyblade_id);
-          
-          if (!existingBeyblade) {
-            groupedData[row.registration_id].beyblades.push({
-              beyblade_id: row.beyblade_id,
-              beyblade_name: row.beyblade_name,
-              blade_line: row.blade_line,
-              parts: row.beyblade_parts || []
-            });
-          }
-        }
-      });
-
-      setRegistrations(Object.values(groupedData));
-    } catch (error) {
-      console.error('Error fetching registrations:', error);
-      setRegistrations([]);
-    } finally {
-      setLoadingRegistrations(false);
-    }
-  };
-
-  const updatePaymentStatus = async (registrationId: string, newStatus: string) => {
-    try {
-      console.log('Updating payment status:', { registrationId, newStatus });
-      
-      const { error } = await supabase
-        .from('tournament_registrations')
-        .update({ payment_status: newStatus })
-        .eq('id', registrationId);
-
-      if (error) {
-        console.error('Payment status update error:', error);
-        if (error.code === '42501' || error.message.includes('RLS')) {
-          alert('Permission denied. You need admin or developer role to update payment status.');
-        } else {
-          alert(`Failed to update payment status: ${error.message}`);
-        }
-        throw error;
-      }
-
-      console.log('Payment status updated successfully');
-      await fetchTournaments();
-      alert('Payment status updated successfully!');
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-    }
-  };
-
-  const getPartOrder = (parts: any[], bladeLine: string) => {
-    if (bladeLine === 'Custom') {
-      const order = ['Lockchip', 'Main Blade', 'Assist Blade', 'Ratchet', 'Bit'];
-      return order.map(partType => parts.find(p => p.part_type === partType)).filter(Boolean);
-    } else {
-      const order = ['Blade', 'Ratchet', 'Bit'];
-      return order.map(partType => parts.find(p => p.part_type === partType)).filter(Boolean);
-    }
-  };
 
   const fetchTournaments = async () => {
     try {
@@ -160,10 +68,7 @@ export function TournamentManager() {
       registration_deadline: '',
       prize_pool: '',
       beyblades_per_player: 3,
-      players_per_team: 1,
-      is_free: true,
-      entry_fee: 0,
-      tournament_type: 'casual'
+      players_per_team: 1
     });
   };
 
@@ -276,14 +181,15 @@ export function TournamentManager() {
   };
 
   const deleteTournament = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this tournament? This will permanently delete ALL related data including registrations, beyblades, parts, matches, and sessions. This action cannot be undone.')) {
+    if (!confirm('Are you sure you want to delete this tournament? This will also delete all associated registrations and matches. This action cannot be undone.')) {
       return;
     }
 
     try {
-      const { data, error } = await supabase.rpc('delete_tournament_completely', {
-        tournament_id_to_delete: id
-      });
+      const { error } = await supabase
+        .from('tournaments')
+        .delete()
+        .eq('id', id);
 
       if (error) {
         console.error('Delete error:', error);
@@ -295,37 +201,7 @@ export function TournamentManager() {
         return;
       }
       
-      if (data && data.success) {
-        const counts = data.deleted_counts;
-        const summary = [
-          `Tournament "${data.tournament_name}" deleted successfully!`,
-          '',
-          'Deleted data:',
-          `• ${counts.registrations} registrations`,
-          `• ${counts.beyblades} beyblades`,
-          `• ${counts.beyblade_parts} beyblade parts`,
-          `• ${counts.match_results} match results`,
-          `• ${counts.match_sessions} match sessions`
-        ].join('\n');
-        
-        alert(summary);
-      } else {
-        alert('Tournament deleted successfully!');
-      }
-      
-      if (data) {
-        const summary = `Tournament "${data.tournament_name}" deleted successfully!\n\n` +
-          `Deleted data:\n` +
-          `• ${data.registrations_deleted} registrations\n` +
-          `• ${data.beyblades_deleted} beyblades\n` +
-          `• ${data.parts_deleted} beyblade parts\n` +
-          `• ${data.matches_deleted} match results\n` +
-          `• ${data.sessions_deleted} match sessions`;
-        alert(summary);
-      } else {
-        alert('Tournament deleted successfully!');
-      }
-      
+      alert('Tournament deleted successfully!');
       await fetchTournaments();
     } catch (error) {
       console.error('Error deleting tournament:', error);
@@ -417,62 +293,6 @@ export function TournamentManager() {
     }
   };
 
-  const viewAllRegistrations = async () => {
-    setLoadingAllRegistrations(true);
-    setViewingAllRegistrations(true);
-    
-    try {
-      const { data, error } = await supabase
-        .from('tournament_registration_details')
-        .select('*')
-        .order('registered_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      // Group registrations by registration_id
-      const groupedRegistrations: { [key: string]: TournamentRegistration } = {};
-      
-      data?.forEach((row: any) => {
-        if (!groupedRegistrations[row.registration_id]) {
-          groupedRegistrations[row.registration_id] = {
-            registration_id: row.registration_id,
-            player_name: row.player_name,
-            payment_mode: row.payment_mode,
-            registered_at: row.registered_at,
-            status: row.status,
-            tournament_name: tournaments.find(t => t.id === row.tournament_id)?.name || 'Unknown Tournament',
-            tournament_id: row.tournament_id,
-            payment_status: row.payment_status || 'confirmed',
-            beyblades: []
-          };
-        }
-
-        if (row.beyblade_id) {
-          const existingBeyblade = groupedRegistrations[row.registration_id].beyblades
-            .find(b => b.beyblade_id === row.beyblade_id);
-          
-          if (!existingBeyblade) {
-            groupedRegistrations[row.registration_id].beyblades.push({
-              beyblade_id: row.beyblade_id,
-              beyblade_name: row.beyblade_name,
-              blade_line: row.blade_line,
-              parts: row.beyblade_parts || []
-            });
-          }
-        }
-      });
-
-      setAllRegistrations(Object.values(groupedRegistrations));
-    } catch (error) {
-      console.error('Error fetching all registrations:', error);
-      alert('Failed to load registrations. Please try again.');
-    } finally {
-      setLoadingAllRegistrations(false);
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'upcoming': return 'bg-blue-100 text-blue-800';
@@ -480,16 +300,6 @@ export function TournamentManager() {
       case 'completed': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const handleViewRegistrations = (tournamentId: string) => {
-    setViewingRegistrations(tournamentId);
-    fetchTournamentRegistrations(tournamentId);
-  };
-
-  const handleBackToTournaments = () => {
-    setViewingRegistrations(null);
-    setRegistrations([]);
   };
 
   if (loading) {
@@ -503,139 +313,6 @@ export function TournamentManager() {
     );
   }
 
-  // Registrations View
-  if (viewingRegistrations) {
-    const tournament = tournaments.find(t => t.id === viewingRegistrations);
-    
-    return (
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <button
-            onClick={handleBackToTournaments}
-            className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors mb-4"
-          >
-            <ArrowLeft size={20} />
-            <span>Back to Tournament Manager</span>
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {tournament?.name} - Registrations
-          </h1>
-          <p className="text-gray-600">Manage tournament registrations and payment status</p>
-        </div>
-
-        {loadingRegistrations ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading registrations...</p>
-          </div>
-        ) : registrations.length === 0 ? (
-          <div className="text-center py-12">
-            <Users size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-500">No registrations found for this tournament</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {registrations.map((registration) => (
-              <div key={registration.registration_id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                        {registration.player_name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900">{registration.player_name}</h3>
-                        <p className="text-sm text-gray-600">Registered: {new Date(registration.registered_at).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-500">Payment Mode:</span>
-                        <p className="font-medium capitalize">{registration.payment_mode === 'free' ? 'Free' : registration.payment_mode.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Status:</span>
-                        <p className="font-medium capitalize">{registration.status}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Payment Status</label>
-                      <p className="font-medium capitalize">
-                        {registration.payment_mode === 'free' ? 'Free' : 
-                         registration.payment_mode === 'cash' ? 'Cash' :
-                         registration.payment_mode === 'gcash' ? 'GCash' :
-                         registration.payment_mode === 'bank_transfer' ? 'Bank Transfer' :
-                         registration.payment_mode || 'N/A'}
-                      </p>
-                        value={registration.payment_status || 'unpaid'}
-                        onChange={(e) => updatePaymentStatus(registration.registration_id, e.target.value)}
-                        className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                      >
-                        <option value="unpaid">Unpaid</option>
-                        <option value="paid">Paid</option>
-                        <option value="confirmed">Confirmed</option>
-                      </select>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      registration.payment_status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                      registration.payment_status === 'paid' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {registration.payment_status || 'unpaid'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Beyblades */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-gray-900 flex items-center">
-                    <Trophy size={16} className="mr-2 text-yellow-500" />
-                    Registered Beyblades ({registration.beyblades.length})
-                  </h4>
-                  
-                  {registration.beyblades.length === 0 ? (
-                    <p className="text-gray-500 text-sm italic">No Beyblades registered</p>
-                  ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {registration.beyblades.map((beyblade: any, index: number) => (
-                        <div key={beyblade.beyblade_id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                          <div className="flex justify-between items-center mb-3">
-                            <h5 className="font-semibold text-gray-900">{beyblade.beyblade_name}</h5>
-                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                              {beyblade.blade_line} Line
-                            </span>
-                          </div>
-                          
-                          {beyblade.parts.length > 0 ? (
-                            <div className="space-y-2">
-                              <h6 className="text-xs font-medium text-gray-600 uppercase tracking-wide">Parts</h6>
-                              <div className="space-y-1">
-                                {getPartOrder(beyblade.parts, beyblade.blade_line).map((part: any, partIndex: number) => (
-                                  <div key={partIndex} className="flex justify-between items-center text-xs">
-                                    <span className="font-medium text-gray-700">{part.part_type}:</span>
-                                    <span className="text-gray-600">{part.part_name}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="text-gray-500 text-xs">No parts configured</p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
@@ -643,24 +320,15 @@ export function TournamentManager() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Tournament Manager</h1>
           <p className="text-gray-600">Create and manage tournaments</p>
         </div>
-        <div className="flex space-x-3">
+        {isAdmin && (
           <button
-            onClick={viewAllRegistrations}
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center space-x-2"
+            onClick={startCreate}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
           >
-            <Users size={20} />
-            <span>All Registrations</span>
+            <Plus size={20} />
+            <span>Create Tournament</span>
           </button>
-          {isAdmin && (
-            <button
-              onClick={startCreate}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
-            >
-              <Plus size={20} />
-              <span>Create Tournament</span>
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Create/Edit Form */}
@@ -733,52 +401,6 @@ export function TournamentManager() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tournament Type</label>
-              <select
-                value={formData.tournament_type || 'casual'}
-                onChange={(e) => setFormData({...formData, tournament_type: e.target.value})}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="casual">Casual</option>
-                <option value="ranked">Ranked</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Entry Type</label>
-              <select
-                value={formData.is_free ? 'free' : 'paid'}
-                onChange={(e) => {
-                  const isFree = e.target.value === 'free';
-                  setFormData({
-                    ...formData, 
-                    is_free: isFree,
-                    entry_fee: isFree ? 0 : formData.entry_fee || 50
-                  });
-                }}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="free">Free Entry</option>
-                <option value="paid">Paid Entry</option>
-              </select>
-            </div>
-
-            {!formData.is_free && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.entry_fee || ''}
-                  onChange={(e) => setFormData({...formData, entry_fee: parseFloat(e.target.value) || 0})}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
-            )}
-
-            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Beyblades per Player</label>
               <input
                 type="number"
@@ -813,70 +435,29 @@ export function TournamentManager() {
             </div>
 
             {!isCreating && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select
-                    value={formData.status || ''}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="upcoming">Upcoming</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tournament Type</label>
-                  <select
-                    value={formData.tournament_type || 'casual'}
-                    onChange={(e) => setFormData({...formData, tournament_type: e.target.value})}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="casual">Casual</option>
-                    <option value="ranked">Ranked</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Entry Type</label>
-                  <select
-                    value={formData.is_free ? 'free' : 'paid'}
-                    onChange={(e) => {
-                      const isFree = e.target.value === 'free';
-                      setFormData({
-                        ...formData, 
-                        is_free: isFree,
-                        entry_fee: isFree ? 0 : formData.entry_fee || 50
-                      });
-                    }}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="free">Free Entry</option>
-                    <option value="paid">Paid Entry</option>
-                  </select>
-                </div>
-
-                {!formData.is_free && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee (₱)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.entry_fee || ''}
-                      onChange={(e) => setFormData({...formData, entry_fee: parseFloat(e.target.value) || 0})}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="50.00"
-                    />
-                  </div>
-                )}
-              </>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  value={formData.status || ''}
+                  onChange={(e) => setFormData({...formData, status: e.target.value})}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="upcoming">Upcoming</option>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
             )}
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={cancelEdit}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            >
+              <X size={16} />
+              <span>Cancel</span>
+            </button>
             <button
               onClick={saveChanges}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
@@ -915,18 +496,6 @@ export function TournamentManager() {
                     <span className="font-medium">Prize Pool:</span> {tournament.prize_pool}
                   </div>
                   <div>
-                    <span className="font-medium">Type:</span> 
-                    <span className={`ml-1 capitalize ${tournament.tournament_type === 'ranked' ? 'text-orange-600 font-semibold' : 'text-gray-600'}`}>
-                      {tournament.tournament_type}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="font-medium">Entry:</span> 
-                    <span className={`ml-1 ${tournament.is_free ? 'text-green-600' : 'text-blue-600'} font-semibold`}>
-                      {tournament.is_free ? 'Free' : `₱${tournament.entry_fee}`}
-                    </span>
-                  </div>
-                  <div>
                     <span className="font-medium">Beyblades/Player:</span> {tournament.beyblades_per_player}
                   </div>
                   <div>
@@ -946,7 +515,7 @@ export function TournamentManager() {
                   </button>
                 )}
                 <button
-                  onClick={() => handleViewRegistrations(tournament.id)}
+                  onClick={() => viewRegistrations(tournament.id)}
                   className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
                   title="View Registrations"
                 >
