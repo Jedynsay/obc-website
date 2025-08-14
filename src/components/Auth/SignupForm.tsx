@@ -9,7 +9,6 @@ interface SignupFormProps {
 
 export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) {
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -48,7 +47,10 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
       setLoading(false);
       return;
     }
-    const success = await signup(username.trim(), email.trim(), password, 'user');
+    
+    // Auto-generate email based on username
+    const generatedEmail = `${username.trim().toLowerCase()}@obcportal.local`;
+    const success = await signup(username.trim(), generatedEmail, password, 'user');
     if (success) {
       setSuccess(true);
       // Auto-close modal after a short delay to show success message
@@ -113,22 +115,11 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
               minLength={3}
               placeholder="Choose a unique username"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Email will be auto-generated: {username.trim() ? `${username.trim().toLowerCase()}@obcportal.local` : 'username@obcportal.local'}
+            </p>
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-              placeholder="your.email@example.com"
-            />
-          </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
