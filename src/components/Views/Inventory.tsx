@@ -169,6 +169,7 @@ export function Inventory() {
   const getPartDisplayName = (part: any, partType: string): string => {
     switch (partType) {
       case 'Blade':
+      case 'Blade (Custom)':
         return part.Blades;
       case 'Ratchet':
         return part.Ratchet;
