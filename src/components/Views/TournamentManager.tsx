@@ -870,14 +870,7 @@ export function TournamentManager() {
             )}
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
-            <button
-              onClick={cancelEdit}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors flex items-center space-x-2"
-            >
-              <X size={16} />
-              <span>Cancel</span>
-            </button>
+          <div className="flex space-x-3">
             <button
               onClick={saveChanges}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
