@@ -42,7 +42,7 @@ const pointMap = {
   "Extreme Finish (3 pts)": 3
 };
 
-export function MatchTracker() {
+const MatchTracker = () => {
   const { confirm, alert } = useConfirmation();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<string>('');
@@ -889,4 +889,6 @@ export function MatchTracker() {
       )}
     </div>
   );
-}
+};
+
+export { MatchTracker };
