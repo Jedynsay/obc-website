@@ -287,7 +287,7 @@ export function Inventory() {
     setIsAdding(false);
     setEditingId(null);
     setFormData({
-      part_type: 'Blade',
+      part_type: 'Blade (Basic)',
       part_name: '',
       part_data: null,
       quantity: 1,
@@ -461,6 +461,14 @@ export function Inventory() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Blade">Blade</option>
+                <option value="Ratchet">Ratchet</option>
+                <option value="Bit">Bit</option>
+                <option value="Lockchip">Lockchip</option>
+                <option value="Assist Blade">Assist Blade</option>
+                <option value="Blade (Basic)">Blade (Basic)</option>
+                <option value="Blade (Unique)">Blade (Unique)</option>
+                <option value="Blade (X-Over)">Blade (X-Over)</option>
+                <option value="Blade (Custom)">Blade (Custom)</option>
                 <option value="Ratchet">Ratchet</option>
                 <option value="Bit">Bit</option>
                 <option value="Lockchip">Lockchip</option>
