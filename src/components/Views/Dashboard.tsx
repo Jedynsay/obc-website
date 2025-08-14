@@ -504,7 +504,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         )}
 
         {/* Recent Matches Ticker */}
-        {recentMatches.length > 0 && (
+        {selectedTournamentFilter !== 'all' || recentMatches.length > 0 ? (
           <div className="mt-12 bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-lg flex items-center space-x-2">
@@ -529,25 +529,38 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                 </span>
               </div>
             </div>
-            <div className="space-y-3 max-h-48 overflow-y-auto">
-              {recentMatches.slice(0, 5).map((match, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-white font-semibold">{match.winner_name}</span>
-                    <span className="text-slate-400">defeated</span>
-                    <span className="text-slate-300">
-                      {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
-                    </span>
+            {recentMatches.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-slate-400 text-4xl mb-4">📊</div>
+                <p className="text-slate-400 font-medium">No matches found</p>
+                <p className="text-slate-500 text-sm mt-1">
+                  {selectedTournamentFilter === 'all' 
+                    ? 'No recent matches across all tournaments'
+                    : `No matches found for ${allTournaments.find(t => t.id === selectedTournamentFilter)?.name || 'this tournament'}`
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-48 overflow-y-auto">
+                {recentMatches.slice(0, 5).map((match, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-white font-semibold">{match.winner_name}</span>
+                      <span className="text-slate-400">defeated</span>
+                      <span className="text-slate-300">
+                        {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
+                      </span>
+                    </div>
+                    <div className="text-slate-500 text-xs">
+                      {match.outcome?.split(' (')[0] || 'Victory'}
+                    </div>
                   </div>
-                  <div className="text-slate-500 text-xs">
-                    {match.outcome?.split(' (')[0] || 'Victory'}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        ) : null}
       </section>
 
       {/* System Status Footer */}
