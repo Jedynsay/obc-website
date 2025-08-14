@@ -151,7 +151,7 @@
   }
   
   .sidebar-closed {
-    @apply -translate-x-full lg:translate-x-0 lg:w-16 w-64;
+    @apply -translate-x-full w-64;
   }
   
   .sidebar-item {

@@ -15,7 +15,7 @@ import { Settings } from './components/Views/Settings';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default collapsed
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -41,12 +41,7 @@ function AppContent() {
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
       />
       
-      <div className={`${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-16'} flex flex-col min-h-screen transition-all duration-300`}>
-        <Header 
-          onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-          isMenuOpen={isSidebarOpen}
-        />
-        
+      <div className={`${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'} flex flex-col min-h-screen transition-all duration-300`}>
         <main className="flex-1">
           {renderCurrentView()}
         </main>
