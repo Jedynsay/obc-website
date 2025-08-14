@@ -39,21 +39,18 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
   );
 
   return (
-    <aside className={`
-      fixed lg:static inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-slate-900/95 to-slate-800/95 backdrop-blur-md border-r border-slate-700/50 text-white transform transition-transform duration-300 ease-in-out
-      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-    `}>
+    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <div className="h-full px-4 py-6 overflow-y-auto">
         <div className="mb-8">
           <div className="flex items-center space-x-3 px-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-energy-400 to-battle-500 rounded-full flex items-center justify-center font-orbitron font-bold text-sm shadow-energy animate-spin-slow">
-              ⚡
+            <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
+              B
             </div>
             <div>
-              <h2 className="font-orbitron font-bold text-sm bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                BEYBLADE
+              <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
+                OBC Portal
               </h2>
-              <p className="text-xs text-slate-400 font-rajdhani">PORTAL</p>
+              <p className="text-xs text-gray-500 font-inter">Community</p>
             </div>
           </div>
         </div>
@@ -63,36 +60,27 @@ export function Sidebar({ isOpen, currentView, onViewChange }: SidebarProps) {
             <li key={item.id}>
               <button
                 onClick={() => onViewChange(item.id)}
-                className={`
-                  w-full flex items-center p-3 rounded-lg transition-all duration-300 group font-rajdhani font-medium
-                  ${currentView === item.id 
-                    ? 'bg-gradient-to-r from-blue-600/80 to-indigo-600/80 text-white shadow-glow border border-blue-500/30' 
-                    : 'text-slate-300 hover:bg-slate-800/50 hover:text-white hover:shadow-glow'
-                  }
-                `}
+                className={currentView === item.id ? 'sidebar-item-active' : 'sidebar-item'}
               >
-                <div className={`${currentView === item.id ? 'text-white' : 'text-slate-400 group-hover:text-blue-400'} transition-colors`}>
+                <div className="transition-colors">
                   {item.icon}
                 </div>
-                <span className="ml-3 font-rajdhani">{item.label}</span>
-                {currentView === item.id && (
-                  <div className="ml-auto w-2 h-2 bg-blue-400 rounded-full animate-pulse-glow"></div>
-                )}
+                <span className="ml-3 font-inter">{item.label}</span>
               </button>
             </li>
           ))}
         </ul>
         
         <div className="mt-8 px-2">
-          <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 rounded-lg p-4 border border-slate-600/30">
+          <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-energy-400 to-energy-600 rounded-full flex items-center justify-center">
-                <span className="text-xs">⚡</span>
+              <div className="w-6 h-6 bg-gray-900 rounded flex items-center justify-center">
+                <span className="text-xs text-white">⚡</span>
               </div>
-              <h3 className="font-orbitron font-semibold text-sm text-white">BATTLE READY</h3>
+              <h3 className="font-space-grotesk font-semibold text-sm text-gray-900">Tournament Ready</h3>
             </div>
-            <p className="text-xs text-slate-400 font-rajdhani">
-              Tournament management system powered by advanced Beyblade analytics
+            <p className="text-xs text-gray-600 font-inter">
+              Advanced tournament management and analytics platform
             </p>
           </div>
         </div>
