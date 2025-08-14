@@ -563,12 +563,6 @@ export function TournamentManager() {
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Payment Status</label>
                       <select
-                        {registration.payment_mode === 'free' ? 'Free' : 
-                         registration.payment_mode === 'cash' ? 'Cash' :
-                         registration.payment_mode === 'gcash' ? 'GCash' :
-                         registration.payment_mode === 'bank_transfer' ? 'Bank Transfer' :
-                         registration.payment_mode || 'N/A'}
-                      </p>
                         value={registration.payment_status || 'unpaid'}
                         onChange={(e) => updatePaymentStatus(registration.registration_id, e.target.value)}
                         className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
@@ -577,6 +571,7 @@ export function TournamentManager() {
                         <option value="paid">Paid</option>
                         <option value="confirmed">Confirmed</option>
                       </select>
+                    </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       registration.payment_status === 'confirmed' ? 'bg-green-100 text-green-800' :
                       registration.payment_status === 'paid' ? 'bg-blue-100 text-blue-800' :
@@ -875,13 +870,20 @@ export function TournamentManager() {
             )}
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex space-x-3 mt-6">
             <button
               onClick={saveChanges}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Save size={16} />
               <span>Save</span>
+            </button>
+            <button
+              onClick={cancelEdit}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center space-x-2"
+            >
+              <X size={16} />
+              <span>Cancel</span>
             </button>
           </div>
         </div>
