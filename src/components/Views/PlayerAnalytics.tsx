@@ -534,11 +534,37 @@ export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
   }
 
   return (
-    <div className="pt-20">
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Player Performance Analysis</h1>
-          <p className="text-gray-600">Analyze individual player statistics and performance</p>
+    <div className="page-container">
+      <div className="content-wrapper">
+        <div className="page-header">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="page-title">Tournament Analytics</h1>
+              <p className="page-subtitle">Comprehensive tournament and player statistics</p>
+            </div>
+            <div className="filter-tabs">
+              <button
+                onClick={() => onBack?.()}
+                className="filter-tab filter-tab-inactive"
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => {
+                  // Navigate to meta analysis - we'll need to handle this in the parent
+                  window.location.hash = 'meta-analysis';
+                }}
+                className="filter-tab filter-tab-inactive"
+              >
+                Meta Analysis
+              </button>
+              <button
+                className="filter-tab filter-tab-active"
+              >
+                Player Analytics
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Tournament Selection */}
