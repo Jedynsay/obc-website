@@ -627,13 +627,7 @@ export function TournamentManager() {
           <p className="text-gray-600">Create and manage tournaments</p>
         </div>
         <div className="flex space-x-3">
-          <button
-            onClick={viewAllRegistrations}
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center space-x-2"
-          >
-            <Users size={20} />
-            <span>All Registrations</span>
-          </button>
+
           {isAdmin && (
             <button
               onClick={startCreate}
