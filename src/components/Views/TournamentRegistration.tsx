@@ -137,22 +137,26 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   const validateBeybladeConfiguration = () => {
     const duplicateParts: string[] = [];
     
+    // Track all parts used across ALL beyblades
+    const allUsedParts = new Map<string, { beybladeIndex: number; partType: string }>();
+    
     beyblades.forEach((beyblade, beybladeIndex) => {
       if (!beyblade.bladeLine) return;
       
       const requiredParts = getRequiredParts(beyblade.bladeLine);
-      const usedParts = new Set<string>();
       
       requiredParts.forEach(partType => {
         const part = beyblade.parts[partType];
         if (!part) return;
         
-        const partKey = `${partType}:${getPartDisplayName(part, partType)}`;
+        const partName = getPartDisplayName(part, partType);
+        const partKey = `${partType}:${partName}`;
         
-        if (usedParts.has(partKey)) {
-          duplicateParts.push(`Beyblade ${beybladeIndex + 1}: Duplicate ${partType} - ${getPartDisplayName(part, partType)}`);
+        if (allUsedParts.has(partKey)) {
+          const firstUse = allUsedParts.get(partKey)!;
+          duplicateParts.push(`${partName} (${partType}) is used in both Beyblade ${firstUse.beybladeIndex + 1} and Beyblade ${beybladeIndex + 1}`);
         } else {
-          usedParts.add(partKey);
+          allUsedParts.set(partKey, { beybladeIndex, partType });
         }
       });
     });
@@ -479,7 +483,8 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
       
       await alert('Registration Successful', statusMessage);
 
-      onSubmit(playerName, beyblades);
+      // Close the modal after successful registration
+      onClose();
     } catch (error) {
       console.error('Registration error:', error);
       await alert('Registration Failed', `Failed to register for tournament: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
