@@ -53,26 +53,18 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
       <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
         {/* Sidebar Header with Toggle */}
         <div className="flex items-center p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-3 flex-1">
+          <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
               B
             </div>
-            {isOpen && (
-              <div>
-                <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
-                  OBC Portal
-                </h2>
-                <p className="text-xs text-gray-500 font-inter">Community</p>
-              </div>
-            )}
           </div>
           {isOpen && (
-            <button
-              onClick={onToggle}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors ml-2"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex-1 text-right">
+              <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
+                OBC Portal
+              </h2>
+              <p className="text-xs text-gray-500 font-inter">Community</p>
+            </div>
           )}
         </div>
 
