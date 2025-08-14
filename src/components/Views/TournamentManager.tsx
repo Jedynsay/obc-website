@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Save, X, Users, Eye, Swords, Calendar, CreditCard, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Users, Eye, Swords, Calendar, CreditCard, CheckCircle, ArrowLeft, Trophy } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import type { Tournament } from '../../types';
@@ -29,9 +29,6 @@ export function TournamentManager() {
   const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const [loading, setLoading] = useState(true);
   const [viewingMatches, setViewingMatches] = useState<string | null>(null);
-  const [viewingRegistrations, setViewingRegistrations] = useState<string | null>(null);
-  const [registrations, setRegistrations] = useState<any[]>([]);
-  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const [matches, setMatches] = useState<any[]>([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
@@ -436,28 +433,6 @@ export function TournamentManager() {
       alert('Failed to load registrations. Please try again.');
     } finally {
       setLoadingAllRegistrations(false);
-    }
-  };
-
-  const updatePaymentStatus = async (registrationId: string, newStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from('tournament_registrations')
-        .update({ payment_status: newStatus })
-        .eq('id', registrationId);
-
-      if (error) {
-        console.error('Payment status update error:', error);
-        alert(`Failed to update payment status: ${error.message}`);
-        return;
-      }
-
-      // Refresh the registrations
-      await viewAllRegistrations();
-      alert('Payment status updated successfully!');
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Failed to update payment status. Please try again.');
     }
   };
 
@@ -935,7 +910,7 @@ export function TournamentManager() {
                   </button>
                 )}
                 <button
-                  onClick={() => viewRegistrations(tournament.id)}
+                  onClick={() => handleViewRegistrations(tournament.id)}
                   className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
                   title="View Registrations"
                 >
