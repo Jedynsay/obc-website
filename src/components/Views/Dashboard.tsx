@@ -34,6 +34,7 @@ interface DashboardProps {
 export function Dashboard({ onViewChange }: DashboardProps) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalTournaments: 0,
     activePlayers: 0,
