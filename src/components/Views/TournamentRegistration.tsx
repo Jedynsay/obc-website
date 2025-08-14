@@ -706,14 +706,24 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
                   <h3 className="text-lg font-semibold text-gray-900">
                     Beyblade #{index + 1}
                   </h3>
-                  {beyblades.length > 1 && (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => randomizeParts(beyblade.id)}
+                      disabled={!beyblade.bladeLine}
+                      className="px-3 py-1 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      🎲 Randomize
+                    </button>
+                    {beyblades.length > 1 && (
                     <button
                       onClick={() => removeBeyblade(beyblade.id)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
                     >
                       <Trash2 size={16} />
                     </button>
-                  )}
+                    )}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
