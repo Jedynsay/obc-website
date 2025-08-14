@@ -79,6 +79,7 @@ export function Inventory() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'Blade' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
   const [filterType, setFilterType] = useState<'all' | 'Blade' | 'Blade (Custom)' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
   
   // Form state
@@ -279,7 +280,20 @@ export function Inventory() {
   const filteredInventory = inventory.filter(item => {
     const matchesSearch = item.part_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (item.notes && item.notes.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesFilter = filterType === 'all' || item.part_type === filterType;
+    let matchesFilter = false;
+    
+    if (filterType === 'all') {
+      matchesFilter = true;
+    } else if (filterType === 'Blade') {
+      // Show regular blades (non-Custom)
+      matchesFilter = item.part_type === 'Blade' && item.part_data?.Line !== 'Custom';
+    } else if (filterType === 'Blade (Custom)') {
+      // Show only Custom blades
+      matchesFilter = item.part_type === 'Blade' && item.part_data?.Line === 'Custom';
+    } else {
+      matchesFilter = item.part_type === filterType;
+    }
+    
     return matchesSearch && matchesFilter;
   });
 
@@ -426,7 +440,6 @@ export function Inventory() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Blade">Blade</option>
-                <option value="Blade (Custom)">Blade (Custom)</option>
                 <option value="Ratchet">Ratchet</option>
                 <option value="Bit">Bit</option>
                 <option value="Lockchip">Lockchip</option>
