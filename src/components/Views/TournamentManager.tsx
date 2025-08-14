@@ -583,7 +583,7 @@ export function TournamentManager() {
               ) : (
                 <div className="space-y-6">
                   {registrations.map((registration) => (
-                    <div key={registration.registration_id} className="border border-gray-200 rounded-lg p-6">
+                    <div key={registration.registration_id} className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm">
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <h3 className="text-xl font-bold text-gray-900">{registration.player_name}</h3>
@@ -606,7 +606,7 @@ export function TournamentManager() {
                       <div className="space-y-4">
                         <h4 className="font-semibold text-gray-900">Registered Beyblades:</h4>
                         {registration.beyblades.map((beyblade) => (
-                          <div key={beyblade.beyblade_id} className="bg-gray-50 rounded-lg p-4">
+                          <div key={beyblade.beyblade_id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                             <div className="flex justify-between items-center mb-2">
                               <h5 className="font-medium text-gray-900">{beyblade.beyblade_name}</h5>
                               <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded">
@@ -615,7 +615,7 @@ export function TournamentManager() {
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 text-sm">
                               {beyblade.parts.map((part: any, index: number) => (
-                                <div key={index} className="bg-white p-2 rounded border">
+                                <div key={index} className="bg-white border border-gray-300 p-2 rounded">
                                   <div className="font-medium text-gray-700">{part.part_type}</div>
                                   <div className="text-gray-600">{part.part_name}</div>
                                 </div>

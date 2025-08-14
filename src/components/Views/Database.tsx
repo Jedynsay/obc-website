@@ -387,7 +387,7 @@ export function DatabaseView() {
               <button
                 key={tournament.id}
                 onClick={() => handleTournamentSelect(tournament.id)}
-                className="text-left p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                className="text-left p-4 bg-white border border-gray-300 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors shadow-sm"
               >
                 <h4 className="font-semibold text-gray-900 mb-1">{tournament.name}</h4>
                 <p className="text-sm text-gray-600">{tournament.location}</p>
@@ -419,7 +419,7 @@ export function DatabaseView() {
           </div>
           
           {(tableData as RegistrationWithBeyblades[]).map((registration) => (
-            <div key={registration.registration_id} className="border border-gray-200 rounded-lg p-4">
+            <div key={registration.registration_id} className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <h3 className="font-bold text-lg text-gray-900">{registration.player_name}</h3>
