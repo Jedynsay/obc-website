@@ -299,14 +299,15 @@ export function TournamentManager() {
       return;
     }
 
-    try {
-      const { data, error } = await supabase.rpc('delete_tournament_completely', {
-        tournament_id_to_delete: id
-      });
+      // Delete tournament directly - cascading deletes will handle related data
+      const { error } = await supabase
+        .from('tournaments')
+        .delete()
+        .eq('id', tournamentId);
 
       if (error) {
         console.error('Delete error:', error);
-        if (error.code === '42501' || error.message.includes('RLS')) {
+        if (error.code === '42501' || error.message.includes('RLS') || error.message.includes('permission')) {
           alert('Permission denied. You need admin or developer role to delete tournaments.');
         } else {
           alert(`Failed to delete tournament: ${error.message}`);
