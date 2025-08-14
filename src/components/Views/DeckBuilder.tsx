@@ -241,11 +241,19 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
       }
     }
     
-    // Inventory mode - return user's inventory
-    const mappedType = partType === 'Main Blade' ? 'Blade' : partType;
-    const parts = inventory.filter(item => item.part_type === mappedType);
-    
-    return parts;
+    // Inventory mode - return user's inventory with proper blade line filtering
+    if (partType === 'Blade' || partType === 'Main Blade') {
+      // For blades, we need to filter by the specific blade line type
+      const parts = inventory.filter(item => {
+        // Check if it's a blade type that matches the current blade line
+        return item.part_type.startsWith('Blade (') && item.part_type === `Blade (${partType === 'Main Blade' ? 'Custom' : 'Basic'})`;
+      });
+      return parts;
+    } else {
+      // For other parts, use direct matching
+      const parts = inventory.filter(item => item.part_type === partType);
+      return parts;
+    }
   };
 
   const getPartDisplayName = (part: any, partType: string): string => {
@@ -659,9 +667,13 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
                         <option value="">Select {partType}</option>
                         {getAvailableParts(partType)
                           .filter((item) => {
-                            // Filter blades by blade line
-                            if ((partType === 'Blade' || partType === 'Main Blade') && item.part_data?.Line) {
-                              return item.part_data.Line === beyblade.blade_line;
+                            // Filter blades by blade line in free build mode
+                            if (!useInventory && (partType === 'Blade' || partType === 'Main Blade') && item.part_data?.Line) {
+                              return item.part_data.Line === (partType === 'Main Blade' ? 'Custom' : beyblade.blade_line);
+                            }
+                            // In inventory mode, filtering is already done in getAvailableParts
+                            if (useInventory && (partType === 'Blade' || partType === 'Main Blade')) {
+                              return true; // Already filtered by blade line in getAvailableParts
                             }
                             return true;
                           })
