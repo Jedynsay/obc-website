@@ -134,25 +134,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user_metadata: data.user?.user_metadata
       });
       
-      // Create profile entry if user was created successfully
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            username,
-            email,
-            role
-          });
-
-        if (profileError) {
-          console.error('❌ PROFILE CREATION ERROR:', profileError.message);
-          // Don't return false here as the user was created successfully
-        } else {
-          console.log('✅ PROFILE CREATED SUCCESSFULLY');
-        }
-      }
-      
       return true;
     } catch (error) {
       console.error('Signup error:', error);
