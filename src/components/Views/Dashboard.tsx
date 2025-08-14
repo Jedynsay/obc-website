@@ -545,11 +545,23 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   <div key={index} className="flex items-center justify-between text-sm">
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-white font-semibold">{match.winner_name}</span>
-                      <span className="text-slate-400">defeated</span>
-                      <span className="text-slate-300">
-                        {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
-                      </span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-white font-semibold">{match.winner_name}</span>
+                          <span className="text-slate-400">defeated</span>
+                          <span className="text-slate-300">
+                            {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
+                          </span>
+                        </div>
+                        {(match.player1_beyblade || match.player2_beyblade) && (
+                          <div className="text-xs text-slate-500 font-mono mt-1">
+                            {match.winner_name === match.player1_name 
+                              ? `${match.player1_beyblade || 'Unknown'} vs ${match.player2_beyblade || 'Unknown'}`
+                              : `${match.player2_beyblade || 'Unknown'} vs ${match.player1_beyblade || 'Unknown'}`
+                            }
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="text-slate-500 text-xs">
                       {match.outcome?.split(' (')[0] || 'Victory'}
