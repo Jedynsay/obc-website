@@ -39,51 +39,6 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     item.roles.includes(user.role || 'user')
   );
 
-  return (
-    <>
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={onToggle}
-        />
-      )}
-      
-      {/* Sidebar */}
-      <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
-              B
-            </div>
-            <div>
-              <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
-                OBC Portal
-              </h2>
-              <p className="text-xs text-gray-500 font-inter">Community</p>
-            </div>
-          </div>
-          
-          {isOpen && (
-            <button
-              onClick={onToggle}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
-            >
-              <X size={20} />
-            </button>
-          )}
-        </div>
-              <div>
-                <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
-                  OBC Portal
-                </h2>
-                <p className="text-xs text-gray-500 font-inter">Community</p>
-              </div>
-            )}
-          </div>
-        </div>
-
         <div className="h-full px-4 py-6 overflow-y-auto">
           <ul className="space-y-2">
             {filteredMenuItems.map((item) => (
