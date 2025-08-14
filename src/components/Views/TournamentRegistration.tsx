@@ -48,6 +48,16 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   const [usePreset, setUsePreset] = useState(false);
   const [duplicateError, setDuplicateError] = useState<string>('');
 
+  // Validation state
+  const [existingPlayerNames, setExistingPlayerNames] = useState<string[]>([]);
+  const [validationErrors, setValidationErrors] = useState<{
+    duplicateParts: string[];
+    duplicatePlayerName: boolean;
+  }>({
+    duplicateParts: [],
+    duplicatePlayerName: false
+  });
+
   // Fetch parts data from Supabase
   const fetchPartsData = async () => {
     setIsLoadingParts(true);
@@ -87,10 +97,90 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   // Fetch parts data when component mounts
   React.useEffect(() => {
     fetchPartsData();
+    fetchExistingPlayerNames();
     if (user && !user.id.startsWith('guest-')) {
       fetchDeckPresets();
     }
   }, []);
+
+  const fetchExistingPlayerNames = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tournament_registrations')
+        .select('player_name')
+        .eq('tournament_id', tournament.id)
+        .eq('status', 'confirmed');
+
+      if (error) throw error;
+      
+      const names = (data || []).map(reg => reg.player_name.toLowerCase().trim());
+      setExistingPlayerNames(names);
+    } catch (error) {
+      console.error('Error fetching existing player names:', error);
+      setExistingPlayerNames([]);
+    }
+  };
+
+  // Validation functions
+  const validatePlayerName = (name: string) => {
+    const normalizedName = name.toLowerCase().trim();
+    const isDuplicate = existingPlayerNames.includes(normalizedName);
+    
+    setValidationErrors(prev => ({
+      ...prev,
+      duplicatePlayerName: isDuplicate
+    }));
+    
+    return !isDuplicate;
+  };
+
+  const validateBeybladeConfiguration = () => {
+    const duplicateParts: string[] = [];
+    
+    beyblades.forEach((beyblade, beybladeIndex) => {
+      if (!beyblade.bladeLine) return;
+      
+      const requiredParts = getRequiredParts(beyblade.bladeLine);
+      const usedParts = new Set<string>();
+      
+      requiredParts.forEach(partType => {
+        const part = beyblade.parts[partType];
+        if (!part) return;
+        
+        const partKey = `${partType}:${getPartDisplayName(part, partType)}`;
+        
+        if (usedParts.has(partKey)) {
+          duplicateParts.push(`Beyblade ${beybladeIndex + 1}: Duplicate ${partType} - ${getPartDisplayName(part, partType)}`);
+        } else {
+          usedParts.add(partKey);
+        }
+      });
+    });
+    
+    setValidationErrors(prev => ({
+      ...prev,
+      duplicateParts
+    }));
+    
+    return duplicateParts.length === 0;
+  };
+
+  // Real-time validation when player name changes
+  React.useEffect(() => {
+    if (playerName.trim()) {
+      validatePlayerName(playerName);
+    } else {
+      setValidationErrors(prev => ({
+        ...prev,
+        duplicatePlayerName: false
+      }));
+    }
+  }, [playerName, existingPlayerNames]);
+
+  // Real-time validation when beyblade configuration changes
+  React.useEffect(() => {
+    validateBeybladeConfiguration();
+  }, [beyblades]);
 
   const fetchDeckPresets = async () => {
     if (!user || user.id.startsWith('guest-')) return;
@@ -292,6 +382,8 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   const isFormValid = () => {
     if (!playerName.trim()) return false;
     if (!paymentMode) return false;
+    if (validationErrors.duplicatePlayerName) return false;
+    if (validationErrors.duplicateParts.length > 0) return false;
     return beyblades.every(beyblade => {
       if (!beyblade.bladeLine) return false;
       const requiredParts = getRequiredParts(beyblade.bladeLine);
@@ -302,6 +394,17 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   const handleSubmit = async () => {
     if (!isFormValid()) {
       await alert('Missing Information', 'Please fill in all required fields to register for the tournament.');
+      return;
+    }
+
+    // Final validation before submission
+    if (!validatePlayerName(playerName)) {
+      await alert('Duplicate Player Name', `The player name "${playerName}" is already registered for this tournament. Please choose a different name.`);
+      return;
+    }
+
+    if (!validateBeybladeConfiguration()) {
+      await alert('Invalid Beyblade Configuration', 'One or more of your Beyblades have duplicate parts. Each Beyblade must use unique parts.');
       return;
     }
 
@@ -503,6 +606,42 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
           </button>
         </div>
 
+        {/* Validation Errors Display */}
+        {(validationErrors.duplicateParts.length > 0 || validationErrors.duplicatePlayerName) && (
+          <div className="mb-8 bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center mr-2">
+                <span className="text-white text-sm font-bold">!</span>
+              </div>
+              <h3 className="text-lg font-semibold text-red-900">Registration Issues</h3>
+            </div>
+            
+            {validationErrors.duplicatePlayerName && (
+              <div className="mb-4 p-3 bg-white rounded-lg border border-red-200">
+                <h4 className="font-semibold text-red-800 mb-2">Duplicate Player Name</h4>
+                <p className="text-red-700 text-sm">
+                  The player name "{playerName}" is already registered for this tournament. 
+                  Please choose a different name to continue.
+                </p>
+              </div>
+            )}
+            
+            {validationErrors.duplicateParts.length > 0 && (
+              <div className="p-3 bg-white rounded-lg border border-red-200">
+                <h4 className="font-semibold text-red-800 mb-2">Duplicate Parts Detected</h4>
+                <p className="text-red-700 text-sm mb-3">
+                  The following Beyblades have duplicate parts. Each part can only be used once per Beyblade:
+                </p>
+                <ul className="list-disc list-inside space-y-1">
+                  {validationErrors.duplicateParts.map((error, index) => (
+                    <li key={index} className="text-red-600 text-sm">{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="p-6">
           {/* Error Message */}
           {partsError && (
@@ -549,6 +688,12 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
+                {validationErrors.duplicatePlayerName && (
+                  <div className="mt-1 text-sm text-red-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    This player name is already registered for this tournament
+                  </div>
+                )}
                 <p className="text-xs text-gray-500 mt-1">
                   This is your blader name that will appear in tournament brackets and match results.
                 </p>
