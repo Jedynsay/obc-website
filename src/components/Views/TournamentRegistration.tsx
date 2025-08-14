@@ -606,41 +606,6 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
           </button>
         </div>
 
-        {/* Validation Errors Display */}
-        {(validationErrors.duplicateParts.length > 0 || validationErrors.duplicatePlayerName) && (
-          <div className="mb-8 bg-red-50 border border-red-200 rounded-lg p-6">
-            <div className="flex items-center mb-4">
-              <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center mr-2">
-                <span className="text-white text-sm font-bold">!</span>
-              </div>
-              <h3 className="text-lg font-semibold text-red-900">Registration Issues</h3>
-            </div>
-            
-            {validationErrors.duplicatePlayerName && (
-              <div className="mb-4 p-3 bg-white rounded-lg border border-red-200">
-                <h4 className="font-semibold text-red-800 mb-2">Duplicate Player Name</h4>
-                <p className="text-red-700 text-sm">
-                  The player name "{playerName}" is already registered for this tournament. 
-                  Please choose a different name to continue.
-                </p>
-              </div>
-            )}
-            
-            {validationErrors.duplicateParts.length > 0 && (
-              <div className="p-3 bg-white rounded-lg border border-red-200">
-                <h4 className="font-semibold text-red-800 mb-2">Duplicate Parts Detected</h4>
-                <p className="text-red-700 text-sm mb-3">
-                  The following Beyblades have duplicate parts. Each part can only be used once per Beyblade:
-                </p>
-                <ul className="list-disc list-inside space-y-1">
-                  {validationErrors.duplicateParts.map((error, index) => (
-                    <li key={index} className="text-red-600 text-sm">{error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
 
         <div className="p-6">
           {/* Error Message */}
