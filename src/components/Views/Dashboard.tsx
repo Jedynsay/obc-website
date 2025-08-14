@@ -141,7 +141,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     try {
       let query = supabase
         .from('match_results')
-        .select('player1_name, player2_name, winner_name, outcome, submitted_at, tournament_id')
+        .select('player1_name, player2_name, player1_beyblade, player2_beyblade, winner_name, outcome, submitted_at, tournament_id')
         .order('submitted_at', { ascending: false })
         .limit(10);
 
@@ -215,11 +215,24 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                     <p className="font-semibold text-sm">{user.username}</p>
                     <p className="text-xs text-blue-200 capitalize">{user.role}</p>
                   </div>
-                </button>
-
-                {/* User Dropdown Menu */}
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                          <div className="flex flex-col">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-white font-semibold">{match.winner_name}</span>
+                              <span className="text-slate-400">defeated</span>
+                              <span className="text-slate-300">
+                                {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-xs text-slate-400 mt-1">
+                              <span className="font-mono">
+                                {match.winner_name === match.player1_name ? match.player1_beyblade : match.player2_beyblade}
+                              </span>
+                              <span>vs</span>
+                              <span className="font-mono">
+                                {match.winner_name === match.player1_name ? match.player2_beyblade : match.player1_beyblade}
+                              </span>
+                            </div>
+                          </div>
                     <div className="py-1">
                       <div className="px-4 py-3 border-b border-gray-200">
                         <p className="font-semibold text-gray-900">{user.username}</p>
