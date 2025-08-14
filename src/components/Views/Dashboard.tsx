@@ -62,88 +62,88 @@ export function Dashboard() {
   }
 
   return (
-    <div className="page-container relative">
-      <div className="page-header">
-        <h1 className="page-title">
-          Welcome{user ? ` back, ${user.username}` : ' to OBC Portal'}!
-        </h1>
-        <p className="page-subtitle">
-          {user 
-            ? 'Check out upcoming tournaments and manage your Beyblade collection!' 
-            : 'Explore tournaments and Beyblade data. Login to access personal features like inventory and deck building.'
-          }
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statsDisplay.map((stat, index) => (
-          <div key={index} className="stat-card group relative">
-            <div className="flex items-center">
-              <div className={`p-4 rounded-xl bg-gradient-to-br ${
-                index === 0 ? 'from-blue-500/20 to-indigo-500/20' :
-                index === 1 ? 'from-green-500/20 to-emerald-500/20' :
-                index === 2 ? 'from-orange-500/20 to-yellow-500/20' : 'from-purple-500/20 to-pink-500/20'
-              } ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
-                <stat.icon size={24} />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-rajdhani font-medium text-slate-400">{stat.label}</p>
-                <p className="text-3xl font-orbitron font-bold text-white">{stat.value}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="beyblade-card p-6 relative">
-          <h2 className="section-title">
-            <div className="section-icon">
-              <Trophy size={20} className="text-white" />
-            </div>
-            Upcoming Tournaments
-          </h2>
-          <div className="space-y-4">
-            {upcomingTournaments.map((tournament) => (
-              <div key={tournament.id} className="bg-gradient-to-r from-slate-800/60 to-slate-700/60 rounded-xl p-6 border-l-4 border-blue-500 hover:border-indigo-400 transition-all duration-300 hover:scale-105 backdrop-blur-sm">
-                <h3 className="font-orbitron font-bold text-white mb-2 text-lg">{tournament.name}</h3>
-                <p className="text-slate-300 font-rajdhani mb-3 text-base">{new Date(tournament.tournament_date).toLocaleDateString()} • {tournament.location}</p>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-slate-400 font-rajdhani font-medium">
-                    {tournament.current_participants}/{tournament.max_participants} registered
-                  </span>
-                  <span className="tournament-status-upcoming text-sm px-4 py-2 rounded-full font-rajdhani font-bold">
-                    {tournament.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+    <div className="page-container">
+      <div className="content-wrapper">
+        <div className="page-header">
+          <h1 className="page-title">
+            Welcome{user ? ` back, ${user.username}` : ' to OBC Portal'}
+          </h1>
+          <p className="page-subtitle">
+            {user 
+              ? 'Check out upcoming tournaments and manage your Beyblade collection' 
+              : 'Explore tournaments and Beyblade data. Login to access personal features like inventory and deck building'
+            }
+          </p>
         </div>
 
-        <div className="beyblade-card p-6 relative">
-          <h2 className="section-title">
-            <div className="section-icon bg-gradient-to-br from-green-500 to-emerald-600">
-              <span className="text-white text-2xl">⚡</span>
-            </div>
-            System Status
-          </h2>
-          <div className="text-center py-8 space-y-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-glow animate-pulse-glow">
-              <span className="text-white text-2xl">✓</span>
-            </div>
-            <div>
-              <p className="text-white font-orbitron font-bold text-xl">All Systems Operational</p>
-              <p className="text-slate-300 font-rajdhani mt-3 text-lg">Connected to Supabase database</p>
-            </div>
-            <div className="grid grid-cols-2 gap-6 mt-8">
-              <div className="bg-slate-800/60 rounded-xl p-4 backdrop-blur-sm border border-slate-600/30">
-                <p className="text-green-400 font-orbitron font-bold text-2xl">99.9%</p>
-                <p className="text-slate-300 font-rajdhani font-medium">Uptime</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {statsDisplay.map((stat, index) => (
+            <div key={index} className="metric-card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="metric-label">{stat.label}</p>
+                  <p className="metric-value">{stat.value}</p>
+                </div>
+                <div className={`p-3 rounded-lg ${
+                  index === 0 ? 'bg-blue-50 text-blue-600' :
+                  index === 1 ? 'bg-green-50 text-green-600' :
+                  index === 2 ? 'bg-orange-50 text-orange-600' : 'bg-purple-50 text-purple-600'
+                }`}>
+                  <stat.icon size={24} />
+                </div>
               </div>
-              <div className="bg-slate-800/60 rounded-xl p-4 backdrop-blur-sm border border-slate-600/30">
-                <p className="text-blue-400 font-orbitron font-bold text-2xl">&lt;50ms</p>
-                <p className="text-slate-300 font-rajdhani font-medium">Response</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="section-card">
+            <h2 className="section-title">
+              <Trophy className="section-icon" />
+              Upcoming Tournaments
+            </h2>
+            <div className="space-y-4">
+              {upcomingTournaments.map((tournament) => (
+                <div key={tournament.id} className="card p-6 border-l-4 border-blue-500 hover:shadow-md transition-all duration-200">
+                  <h3 className="font-space-grotesk font-bold text-gray-900 mb-2 text-lg">{tournament.name}</h3>
+                  <p className="text-gray-600 font-inter mb-3">{new Date(tournament.tournament_date).toLocaleDateString()} • {tournament.location}</p>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-gray-500 font-inter font-medium">
+                      {tournament.current_participants}/{tournament.max_participants} registered
+                    </span>
+                    <span className="tournament-status-upcoming">
+                      {tournament.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="section-card">
+            <h2 className="section-title">
+              <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center mr-3">
+                <span className="text-white text-sm">✓</span>
+              </div>
+              System Status
+            </h2>
+            <div className="text-center py-8 space-y-4">
+              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-white text-2xl">✓</span>
+              </div>
+              <div>
+                <p className="text-gray-900 font-space-grotesk font-bold text-xl">All Systems Operational</p>
+                <p className="text-gray-600 font-inter mt-3">Connected to Supabase database</p>
+              </div>
+              <div className="grid grid-cols-2 gap-6 mt-8">
+                <div className="metric-card">
+                  <p className="metric-value text-green-600">99.9%</p>
+                  <p className="metric-label">Uptime</p>
+                </div>
+                <div className="metric-card">
+                  <p className="metric-value text-blue-600">&lt;50ms</p>
+                  <p className="metric-label">Response</p>
+                </div>
               </div>
             </div>
           </div>
