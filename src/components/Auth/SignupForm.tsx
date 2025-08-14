@@ -51,10 +51,6 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
     const success = await signup(username.trim(), email.trim(), password, 'user');
     if (success) {
       setSuccess(true);
-      // Auto-close modal after a short delay to show success message
-      setTimeout(() => {
-        onSignupSuccess?.();
-      }, 2000);
     } else {
       setError('Failed to create account. Username might already be taken or there was a server error. Please try a different username.');
     }
