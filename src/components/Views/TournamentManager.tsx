@@ -627,7 +627,6 @@ export function TournamentManager() {
           <p className="text-gray-600">Create and manage tournaments</p>
         </div>
         <div className="flex space-x-3">
-
           {isAdmin && (
             <button
               onClick={startCreate}
