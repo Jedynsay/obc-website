@@ -32,7 +32,6 @@ export function TournamentManager() {
   const [matches, setMatches] = useState<any[]>([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
-    has_participant_limit: true,
   const [editMatchData, setEditMatchData] = useState<any>({});
   const [viewingAllRegistrations, setViewingAllRegistrations] = useState(false);
   const [allRegistrations, setAllRegistrations] = useState<TournamentRegistration[]>([]);
@@ -192,9 +191,8 @@ export function TournamentManager() {
   };
 
   const saveChanges = async () => {
-        max_participants: formData.has_participant_limit ? formData.max_participants : 999999,
+    try {
       if (isCreating) {
-      has_participant_limit: tournament.max_participants > 0,
         const { error } = await supabase
           .from('tournaments')
           .insert([formData]);
@@ -466,7 +464,6 @@ export function TournamentManager() {
             tournament_name: tournaments.find(t => t.id === row.tournament_id)?.name || 'Unknown Tournament',
             tournament_id: row.tournament_id,
             payment_status: row.payment_status || 'confirmed',
-      await fetchTournaments();
             beyblades: []
           };
         }
@@ -487,6 +484,7 @@ export function TournamentManager() {
       });
 
       setAllRegistrations(Object.values(groupedRegistrations));
+      await fetchTournaments();
     } catch (error) {
       console.error('Error fetching all registrations:', error);
       alert('Failed to load registrations. Please try again.');
@@ -497,7 +495,6 @@ export function TournamentManager() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      has_participant_limit: true,
       case 'upcoming': return 'bg-blue-100 text-blue-800';
       case 'active': return 'bg-green-100 text-green-800';
       case 'completed': return 'bg-gray-100 text-gray-800';
@@ -623,44 +620,15 @@ export function TournamentManager() {
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                               {beyblade.blade_line} Line
                             </span>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Participant Limit</label>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      checked={formData.has_participant_limit}
-                      onChange={() => setFormData({...formData, has_participant_limit: true})}
-                      className="mr-2"
-                    />
-                    <span className="text-sm text-gray-700">Set participant limit</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      checked={!formData.has_participant_limit}
-                      onChange={() => setFormData({...formData, has_participant_limit: false})}
-                      className="mr-2"
-                    />
-                    <span className="text-sm text-gray-700">No limit</span>
-                  </label>
-                </div>
-                {formData.has_participant_limit && (
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.max_participants}
-                    onChange={(e) => setFormData({...formData, max_participants: parseInt(e.target.value) || 1})}
-                    placeholder="Maximum participants"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                )}
-              </div>
-            </div>
-                                  </div>
-                                ))}
-                              </div>
+                          </div>
+                          {beyblade.parts && beyblade.parts.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              {getPartOrder(beyblade.parts, beyblade.blade_line).map((part: any, partIndex: number) => (
+                                <div key={partIndex} className="bg-white border border-gray-300 p-2 rounded text-xs">
+                                  <div className="font-medium text-gray-700">{part.part_type}</div>
+                                  <div className="text-gray-600">{part.part_name}</div>
+                                </div>
+                              ))}
                             </div>
                           ) : (
                             <p className="text-gray-500 text-xs">No parts configured</p>
@@ -754,13 +722,39 @@ export function TournamentManager() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Max Participants</label>
-              <input
-                type="number"
-                value={formData.max_participants || ''}
-                onChange={(e) => setFormData({...formData, max_participants: parseInt(e.target.value)})}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-2">Participant Limit</label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      checked={formData.has_participant_limit}
+                      onChange={() => setFormData({...formData, has_participant_limit: true})}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Set participant limit</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      checked={!formData.has_participant_limit}
+                      onChange={() => setFormData({...formData, has_participant_limit: false})}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">No limit</span>
+                  </label>
+                </div>
+                {formData.has_participant_limit && (
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.max_participants}
+                    onChange={(e) => setFormData({...formData, max_participants: parseInt(e.target.value) || 1})}
+                    placeholder="Maximum participants"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                )}
+              </div>
             </div>
 
             <div>
@@ -958,7 +952,7 @@ export function TournamentManager() {
                     <span className="font-medium">Location:</span> {tournament.location}
                   </div>
                   <div>
-                    <span className="font-medium">Participants:</span> {tournament.current_participants}/{tournament.max_participants}
+                    <span className="font-medium">Participants:</span> {tournament.current_participants}/{tournament.max_participants === 999999 ? '∞' : tournament.max_participants}
                   </div>
                   <div>
                     <span className="font-medium">Prize Pool:</span> {tournament.prize_pool}
@@ -996,7 +990,7 @@ export function TournamentManager() {
                 )}
                 <button
                   onClick={() => handleViewRegistrations(tournament.id)}
-                  {tournament.current_participants}/{tournament.max_participants === 999999 ? '∞' : tournament.max_participants} participants
+                  className="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
                   title="View Registrations"
                 >
                   <Eye size={16} />
