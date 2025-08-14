@@ -15,7 +15,7 @@ import { Settings } from './components/Views/Settings';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -33,14 +33,16 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       <Sidebar 
         isOpen={isSidebarOpen} 
         currentView={currentView} 
         onViewChange={setCurrentView}
       />
       
-      <div className="lg:ml-64 flex flex-col min-h-screen">
+      <div className={`flex flex-col min-h-screen flex-1 transition-all duration-300 ${
+        isSidebarOpen ? 'ml-64' : 'ml-0'
+      }`}>
         <Header 
           onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
           isMenuOpen={isSidebarOpen}
@@ -52,7 +54,7 @@ function AppContent() {
       </div>
 
       {/* Mobile overlay */}
-      {isSidebarOpen && (
+      {isSidebarOpen && window.innerWidth < 1024 && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
