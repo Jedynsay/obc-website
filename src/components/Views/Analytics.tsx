@@ -6,6 +6,21 @@ import { PlayerAnalytics } from './PlayerAnalytics';
 
 export function Analytics() {
   const [currentView, setCurrentView] = React.useState<'overview' | 'meta' | 'player'>('overview');
+  
+  // Listen for navigation events from child components
+  React.useEffect(() => {
+    const handleNavigateToMeta = () => setCurrentView('meta');
+    const handleNavigateToPlayer = () => setCurrentView('player');
+    
+    window.addEventListener('navigateToMetaAnalysis', handleNavigateToMeta);
+    window.addEventListener('navigateToPlayerAnalytics', handleNavigateToPlayer);
+    
+    return () => {
+      window.removeEventListener('navigateToMetaAnalysis', handleNavigateToMeta);
+      window.removeEventListener('navigateToPlayerAnalytics', handleNavigateToPlayer);
+    };
+  }, []);
+  
   const [analytics, setAnalytics] = React.useState({
     totalTournaments: 0,
     activePlayers: 0,

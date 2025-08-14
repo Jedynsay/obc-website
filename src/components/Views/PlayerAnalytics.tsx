@@ -544,16 +544,24 @@ export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
             </div>
             <div className="filter-tabs">
               <button
-                onClick={() => onBack?.()}
+               onClick={() => {
+                 if (onBack) onBack();
+               }}
                 className="filter-tab filter-tab-inactive"
               >
                 Overview
               </button>
               <button
-                onClick={() => {
-                  // Navigate to meta analysis - we'll need to handle this in the parent
-                  window.location.hash = 'meta-analysis';
-                }}
+               onClick={() => {
+                 if (onBack) {
+                   onBack();
+                   // Small delay to ensure parent state updates
+                   setTimeout(() => {
+                     const event = new CustomEvent('navigateToMetaAnalysis');
+                     window.dispatchEvent(event);
+                   }, 50);
+                 }
+               }}
                 className="filter-tab filter-tab-inactive"
               >
                 Meta Analysis

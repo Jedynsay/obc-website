@@ -469,7 +469,9 @@ export function MetaAnalysis({ onBack }: MetaAnalysisProps) {
             </div>
             <div className="filter-tabs">
               <button
-                onClick={() => onBack?.()}
+               onClick={() => {
+                 if (onBack) onBack();
+               }}
                 className="filter-tab filter-tab-inactive"
               >
                 Overview
@@ -480,10 +482,16 @@ export function MetaAnalysis({ onBack }: MetaAnalysisProps) {
                 Meta Analysis
               </button>
               <button
-                onClick={() => {
-                  // Navigate to player analytics - we'll need to handle this in the parent
-                  window.location.hash = 'player-analytics';
-                }}
+               onClick={() => {
+                 if (onBack) {
+                   onBack();
+                   // Small delay to ensure parent state updates
+                   setTimeout(() => {
+                     const event = new CustomEvent('navigateToPlayerAnalytics');
+                     window.dispatchEvent(event);
+                   }, 50);
+                 }
+               }}
                 className="filter-tab filter-tab-inactive"
               >
                 Player Analytics

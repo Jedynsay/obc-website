@@ -272,7 +272,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button 
-                  onClick={() => onViewChange?.('deck-builder')}
+                 onClick={() => onViewChange?.('inventory')}
                   className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Layers size={24} />
