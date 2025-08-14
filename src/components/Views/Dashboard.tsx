@@ -177,12 +177,14 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Hamburger Menu Button */}
-        <button
-          onClick={onToggleSidebar}
-          className="fixed top-4 left-4 z-50 p-3 bg-slate-800/90 hover:bg-slate-700/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105"
-        >
-          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {!isSidebarOpen && (
+          <button
+            onClick={onToggleSidebar}
+            className="fixed top-4 left-4 z-50 p-3 bg-slate-800/90 hover:bg-slate-700/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105"
+          >
+            <Menu size={24} />
+          </button>
+        )}
 
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20">

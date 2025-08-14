@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Trophy, Users, BarChart3, Settings, Database, Calendar, Newspaper, Package, Layers } from 'lucide-react';
+import { Home, Trophy, Users, BarChart3, Settings, Database, Calendar, Newspaper, Package, Layers, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
@@ -52,12 +52,28 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
       {/* Sidebar */}
       <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
         {/* Sidebar Header */}
-        <div className="flex items-center p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
               B
             </div>
-            {isOpen && (
+            <div>
+              <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
+                OBC Portal
+              </h2>
+              <p className="text-xs text-gray-500 font-inter">Community</p>
+            </div>
+          </div>
+          
+          {isOpen && (
+            <button
+              onClick={onToggle}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600 hover:text-gray-900"
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
               <div>
                 <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
                   OBC Portal
