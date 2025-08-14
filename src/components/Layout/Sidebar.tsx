@@ -42,6 +42,31 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
   return (
     <>
       <aside className={`fixed left-0 top-0 z-40 h-screen transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}>
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
+              B
+            </div>
+            {isOpen && (
+              <div>
+                <h1 className="text-xl font-space-grotesk font-bold text-gray-900">
+                  OBC Portal
+                </h1>
+                <p className="text-xs text-gray-500 font-inter">Beyblade Community</p>
+              </div>
+            )}
+          </div>
+          {isOpen && (
+            <button
+              onClick={onToggle}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
+
         <div className="h-full px-4 py-6 overflow-y-auto">
           <ul className="space-y-2">
             {filteredMenuItems.map((item) => (
