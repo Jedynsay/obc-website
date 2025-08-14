@@ -307,6 +307,10 @@
     @apply animate-spin;
     animation-duration: 3s;
   }
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
 }
 
 :root {

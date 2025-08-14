@@ -1,154 +1,455 @@
-import React from 'react';
-import { Trophy, Users, Calendar, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trophy, Users, Calendar, TrendingUp, Zap, Target, Layers, Newspaper, ChevronRight, Play, Star, Crown, Flame, ArrowRight, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 
+interface Tournament {
+  id: string;
+  name: string;
+  tournament_date: string;
+  location: string;
+  current_participants: number;
+  max_participants: number;
+  status: string;
+}
+
+interface DashboardStats {
+  totalTournaments: number;
+  activePlayers: number;
+  upcomingEvents: number;
+  completedMatches: number;
+}
+
+interface TopPlayer {
+  name: string;
+  wins: number;
+  tournaments: number;
+  winRate: number;
+}
+
 export function Dashboard() {
   const { user } = useAuth();
-  const [stats, setStats] = React.useState({
+  const [stats, setStats] = useState<DashboardStats>({
     totalTournaments: 0,
     activePlayers: 0,
     upcomingEvents: 0,
     completedMatches: 0
   });
-  const [upcomingTournaments, setUpcomingTournaments] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [upcomingTournaments, setUpcomingTournaments] = useState<Tournament[]>([]);
+  const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([]);
+  const [deckPresets, setDeckPresets] = useState<any[]>([]);
+  const [recentMatches, setRecentMatches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
 
-  React.useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [tournamentsRes, usersRes, matchesRes] = await Promise.all([
-          supabase.from('tournaments').select('*'),
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('match_results').select('*', { count: 'exact', head: true })
-        ]);
-
-        const tournaments = tournamentsRes.data || [];
-        const upcoming = tournaments.filter(t => t.status === 'upcoming').slice(0, 3);
-        
-        setUpcomingTournaments(upcoming);
-        setStats({
-          totalTournaments: tournaments.length,
-          activePlayers: usersRes.count || 0,
-          upcomingEvents: tournaments.filter(t => t.status === 'upcoming').length,
-          completedMatches: matchesRes.count || 0
-        });
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchDashboardData();
-  }, []);
+    if (user && !user.id.startsWith('guest-')) {
+      fetchDeckPresets();
+    }
+  }, [user]);
 
-  const statsDisplay = [
-    { icon: Trophy, label: 'Total Tournaments', value: stats.totalTournaments, color: 'text-blue-600' },
-    { icon: Users, label: 'Community Players', value: stats.activePlayers, color: 'text-green-600' },
-    { icon: Calendar, label: 'Upcoming Events', value: stats.upcomingEvents, color: 'text-orange-600' },
-    { icon: TrendingUp, label: 'Completed Matches', value: stats.completedMatches, color: 'text-purple-600' },
-  ];
+  // Auto-rotate community highlights every 5 seconds
+  useEffect(() => {
+    if (topPlayers.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentPlayerIndex((prev) => (prev + 1) % topPlayers.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [topPlayers.length]);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [tournamentsRes, usersRes, matchesRes] = await Promise.all([
+        supabase.from('tournaments').select('*'),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('match_results').select('*', { count: 'exact', head: true })
+      ]);
+
+      const tournaments = tournamentsRes.data || [];
+      const upcoming = tournaments.filter(t => t.status === 'upcoming').slice(0, 3);
+      
+      setUpcomingTournaments(upcoming);
+      setStats({
+        totalTournaments: tournaments.length,
+        activePlayers: usersRes.count || 0,
+        upcomingEvents: tournaments.filter(t => t.status === 'upcoming').length,
+        completedMatches: matchesRes.count || 0
+      });
+
+      // Fetch top players from match results
+      await fetchTopPlayers();
+      await fetchRecentMatches();
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTopPlayers = async () => {
+    try {
+      const { data: matches } = await supabase
+        .from('match_results')
+        .select('player1_name, player2_name, winner_name');
+
+      if (!matches) return;
+
+      const playerStats: { [key: string]: { wins: number; matches: number } } = {};
+      
+      matches.forEach(match => {
+        [match.player1_name, match.player2_name].forEach(player => {
+          if (!player) return;
+          if (!playerStats[player]) {
+            playerStats[player] = { wins: 0, matches: 0 };
+          }
+          playerStats[player].matches++;
+          if (match.winner_name === player) {
+            playerStats[player].wins++;
+          }
+        });
+      });
+
+      const topPlayersData = Object.entries(playerStats)
+        .map(([name, stats]) => ({
+          name,
+          wins: stats.wins,
+          tournaments: Math.ceil(stats.matches / 10), // Estimate tournaments
+          winRate: Math.round((stats.wins / stats.matches) * 100)
+        }))
+        .sort((a, b) => b.winRate - a.winRate)
+        .slice(0, 5);
+
+      setTopPlayers(topPlayersData);
+    } catch (error) {
+      console.error('Error fetching top players:', error);
+    }
+  };
+
+  const fetchRecentMatches = async () => {
+    try {
+      const { data: matches } = await supabase
+        .from('match_results')
+        .select('player1_name, player2_name, winner_name, outcome, submitted_at')
+        .order('submitted_at', { ascending: false })
+        .limit(10);
+
+      setRecentMatches(matches || []);
+    } catch (error) {
+      console.error('Error fetching recent matches:', error);
+    }
+  };
+
+  const fetchDeckPresets = async () => {
+    if (!user || user.id.startsWith('guest-')) return;
+
+    try {
+      const { data } = await supabase
+        .from('deck_presets')
+        .select('*')
+        .eq('user_id', user.id);
+
+      setDeckPresets(data || []);
+    } catch (error) {
+      console.error('Error fetching deck presets:', error);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-blue-200 text-lg">Loading battle arena...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <div className="content-wrapper">
-        <div className="page-header">
-          <h1 className="page-title">
-            Welcome{user ? ` back, ${user.username}` : ' to OBC Portal'}
-          </h1>
-          <p className="page-subtitle">
-            {user 
-              ? 'Check out upcoming tournaments and manage your Beyblade collection' 
-              : 'Explore tournaments and Beyblade data. Login to access personal features like inventory and deck building'
-            }
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 text-yellow-400">
+                  <Flame size={24} />
+                  <span className="text-sm font-semibold uppercase tracking-wider">Battle Ready</span>
+                </div>
+                <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                  Welcome back,{' '}
+                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    {user?.username || 'Blader'}
+                  </span>!
+                </h1>
+                <p className="text-xl text-blue-200 leading-relaxed">
+                  Gear up and join the next battle. The arena awaits your ultimate Beyblade combination.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-2">
+                  <Trophy size={24} />
+                  <span>Join Next Tournament</span>
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2">
+                  <Layers size={24} />
+                  <span>Deck Builder</span>
+                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
+            
+            {/* Beyblade Illustration */}
+            <div className="relative">
+              <div className="relative w-80 h-80 mx-auto">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-spin-slow opacity-20"></div>
+                <div className="absolute inset-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
+                <div className="absolute inset-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+                  <Zap size={120} className="text-white animate-pulse" />
+                </div>
+                {/* Spark effects */}
+                <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400 rounded-full animate-ping"></div>
+                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400 rounded-full animate-ping delay-1000"></div>
+                <div className="absolute top-1/2 -left-8 w-4 h-4 bg-purple-400 rounded-full animate-ping delay-500"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Access Cards */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Upcoming Tournament */}
+          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-600 rounded-xl">
+                <Trophy size={24} className="text-white" />
+              </div>
+              <span className="text-xs bg-yellow-500 text-black px-2 py-1 rounded-full font-semibold">
+                {stats.upcomingEvents} LIVE
+              </span>
+            </div>
+            <h3 className="text-white font-bold text-lg mb-2">Next Tournament</h3>
+            {upcomingTournaments.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-blue-300 font-semibold">{upcomingTournaments[0].name}</p>
+                <p className="text-slate-400 text-sm">{new Date(upcomingTournaments[0].tournament_date).toLocaleDateString()}</p>
+                <p className="text-slate-400 text-sm">{upcomingTournaments[0].location}</p>
+                <div className="flex justify-between items-center mt-4">
+                  <span className="text-xs text-slate-500">
+                    {upcomingTournaments[0].current_participants}/{upcomingTournaments[0].max_participants} spots
+                  </span>
+                  <button className="text-blue-400 hover:text-blue-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                    <span>Register</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-400">No upcoming tournaments</p>
+            )}
+          </div>
+
+          {/* Meta Analysis */}
+          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-purple-500 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-600 rounded-xl">
+                <TrendingUp size={24} className="text-white" />
+              </div>
+              <span className="text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold">UPDATED</span>
+            </div>
+            <h3 className="text-white font-bold text-lg mb-2">Meta Analysis</h3>
+            <p className="text-purple-300 text-sm mb-2">Latest tier rankings</p>
+            <p className="text-slate-400 text-xs mb-4">Updated 2 hours ago</p>
+            <button className="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+              <span>View Stats</span>
+              <ArrowRight size={14} />
+            </button>
+          </div>
+
+          {/* Latest News */}
+          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-green-600 rounded-xl">
+                <Newspaper size={24} className="text-white" />
+              </div>
+              <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-semibold">NEW</span>
+            </div>
+            <h3 className="text-white font-bold text-lg mb-2">Latest News</h3>
+            <p className="text-green-300 text-sm mb-2">Tournament Rules Update</p>
+            <p className="text-slate-400 text-xs mb-4">New regulations for X-Over parts</p>
+            <button className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+              <span>Read More</span>
+              <ArrowRight size={14} />
+            </button>
+          </div>
+
+          {/* Deck Presets */}
+          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-orange-600 rounded-xl">
+                <Layers size={24} className="text-white" />
+              </div>
+              <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-semibold">
+                {deckPresets.length}
+              </span>
+            </div>
+            <h3 className="text-white font-bold text-lg mb-2">Your Decks</h3>
+            <p className="text-orange-300 text-sm mb-2">Saved combinations</p>
+            <p className="text-slate-400 text-xs mb-4">{deckPresets.length} presets ready</p>
+            <button className="text-orange-400 hover:text-orange-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+              <span>Manage</span>
+              <ArrowRight size={14} />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Community Highlights */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-white mb-4">Community Champions</h2>
+          <p className="text-blue-200 text-lg">Meet the top bladers dominating the arena</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statsDisplay.map((stat, index) => (
-            <div key={index} className="metric-card">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="metric-label">{stat.label}</p>
-                  <p className="metric-value">{stat.value}</p>
+        {topPlayers.length > 0 && (
+          <div className="relative">
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 rounded-3xl p-8 text-center">
+              <div className="flex items-center justify-center mb-6">
+                <div className="relative">
+                  <div className="w-24 h-24 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-4xl font-bold text-black">
+                    {topPlayers[currentPlayerIndex]?.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-2">
+                    <Crown size={16} className="text-black" />
+                  </div>
                 </div>
-                <div className={`p-3 rounded-lg ${
-                  index === 0 ? 'bg-blue-50 text-blue-600' :
-                  index === 1 ? 'bg-green-50 text-green-600' :
-                  index === 2 ? 'bg-orange-50 text-orange-600' : 'bg-purple-50 text-purple-600'
-                }`}>
-                  <stat.icon size={24} />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-white mb-2">
+                {topPlayers[currentPlayerIndex]?.name}
+              </h3>
+              <div className="flex items-center justify-center space-x-2 mb-4">
+                <Star className="text-yellow-400" size={20} />
+                <span className="text-yellow-400 font-semibold">Top Player</span>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-6 max-w-md mx-auto">
+                <div>
+                  <div className="text-2xl font-bold text-blue-400">
+                    {topPlayers[currentPlayerIndex]?.wins}
+                  </div>
+                  <div className="text-slate-400 text-sm">Wins</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-400">
+                    {topPlayers[currentPlayerIndex]?.tournaments}
+                  </div>
+                  <div className="text-slate-400 text-sm">Tournaments</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-400">
+                    {topPlayers[currentPlayerIndex]?.winRate}%
+                  </div>
+                  <div className="text-slate-400 text-sm">Win Rate</div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="section-card">
-            <h2 className="section-title">
-              <Trophy className="section-icon" />
-              Upcoming Tournaments
-            </h2>
-            <div className="space-y-4">
-              {upcomingTournaments.map((tournament) => (
-                <div key={tournament.id} className="card p-6 border-l-4 border-blue-500 hover:shadow-md transition-all duration-200">
-                  <h3 className="font-space-grotesk font-bold text-gray-900 mb-2 text-lg">{tournament.name}</h3>
-                  <p className="text-gray-600 font-inter mb-3">{new Date(tournament.tournament_date).toLocaleDateString()} • {tournament.location}</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-gray-500 font-inter font-medium">
-                      {tournament.current_participants}/{tournament.max_participants} registered
+            {/* Player Navigation Dots */}
+            <div className="flex justify-center space-x-2 mt-6">
+              {topPlayers.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPlayerIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentPlayerIndex 
+                      ? 'bg-blue-500 scale-125' 
+                      : 'bg-slate-600 hover:bg-slate-500'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recent Matches Ticker */}
+        {recentMatches.length > 0 && (
+          <div className="mt-12 bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-bold text-lg flex items-center space-x-2">
+                <Play size={20} className="text-green-400" />
+                <span>Live Results</span>
+              </h3>
+              <span className="text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold animate-pulse">
+                LIVE
+              </span>
+            </div>
+            <div className="space-y-3 max-h-48 overflow-y-auto">
+              {recentMatches.slice(0, 5).map((match, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-white font-semibold">{match.winner_name}</span>
+                    <span className="text-slate-400">defeated</span>
+                    <span className="text-slate-300">
+                      {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
                     </span>
-                    <span className="tournament-status-upcoming">
-                      {tournament.status}
-                    </span>
+                  </div>
+                  <div className="text-slate-500 text-xs">
+                    {match.outcome?.split(' (')[0] || 'Victory'}
                   </div>
                 </div>
               ))}
             </div>
           </div>
+        )}
+      </section>
 
-          <div className="section-card">
-            <h2 className="section-title">
-              <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center mr-3">
-                <span className="text-white text-sm">✓</span>
-              </div>
-              System Status
-            </h2>
-            <div className="text-center py-8 space-y-4">
-              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-white text-2xl">✓</span>
-              </div>
-              <div>
-                <p className="text-gray-900 font-space-grotesk font-bold text-xl">All Systems Operational</p>
-                <p className="text-gray-600 font-inter mt-3">Connected to Supabase database</p>
-              </div>
-              <div className="grid grid-cols-2 gap-6 mt-8">
-                <div className="metric-card">
-                  <p className="metric-value text-green-600">99.9%</p>
-                  <p className="metric-label">Uptime</p>
+      {/* System Status Footer */}
+      <footer className="border-t border-slate-800 bg-slate-900/50">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div className="text-slate-400 text-sm">
+              <p className="font-semibold text-white mb-1">Created by Jedynsay</p>
+              <p>Powered by Supabase</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="flex items-center justify-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-green-400 font-semibold">99.9% Uptime</span>
                 </div>
-                <div className="metric-card">
-                  <p className="metric-value text-blue-600">&lt;50ms</p>
-                  <p className="metric-label">Response</p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                  <span className="text-blue-400 font-semibold">&lt;50ms Response</span>
                 </div>
               </div>
             </div>
+            
+            <div className="flex justify-end space-x-4">
+              <button className="text-slate-400 hover:text-white transition-colors">
+                <ExternalLink size={20} />
+              </button>
+              <button className="text-slate-400 hover:text-white transition-colors">
+                <Users size={20} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
