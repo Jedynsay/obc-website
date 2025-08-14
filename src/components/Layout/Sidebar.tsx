@@ -52,8 +52,8 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
       {/* Sidebar */}
       <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'} z-40`}>
         {/* Sidebar Header with Toggle */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center p-4 border-b border-gray-200">
+          <div className="flex items-center space-x-3 flex-1">
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
               B
             </div>
@@ -66,12 +66,14 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
               </div>
             )}
           </div>
-          <button
-            onClick={onToggle}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {isOpen && (
+            <button
+              onClick={onToggle}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors ml-2"
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
       <div className="h-full px-4 py-6 overflow-y-auto">
