@@ -541,75 +541,75 @@ export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
           <p className="text-gray-600">Analyze individual player statistics and performance</p>
         </div>
 
-      {/* Tournament Selection */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Tournament Selection</h2>
-        <div className="max-w-md">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Tournament
-          </label>
-          <select
-            value={selectedTournament}
-            onChange={(e) => setSelectedTournament(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">-- Select Tournament --</option>
-            {tournaments.map(tournament => (
-              <option key={tournament.id} value={tournament.id}>
-                {tournament.name} ({tournament.status})
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {selectedTournament && (
-        <>
-          {Object.keys(players).length === 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
-              <p className="text-yellow-800">
-                No player data found for this tournament. Make sure there are completed matches with valid player names and Beyblade information.
-              </p>
-            </div>
-          )}
-          
-          {/* Player Selection */}
-          {Object.keys(players).length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <User className="mr-2" size={24} />
-              Player Selection
-            </h2>
-            <div className="max-w-md">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Player
-              </label>
-              <select
-                value={selectedPlayer}
-                onChange={(e) => {
-                  setSelectedPlayer(e.target.value);
-                  setCurrentView('player');
-                  setShowAdvanced(false);
-                }}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">-- Select Player --</option>
-                {Object.keys(players).sort().map(playerName => (
-                  <option key={playerName} value={playerName}>
-                    {playerName}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* Tournament Selection */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Tournament Selection</h2>
+          <div className="max-w-md">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Tournament
+            </label>
+            <select
+              value={selectedTournament}
+              onChange={(e) => setSelectedTournament(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Select Tournament --</option>
+              {tournaments.map(tournament => (
+                <option key={tournament.id} value={tournament.id}>
+                  {tournament.name} ({tournament.status})
+                </option>
+              ))}
+            </select>
           </div>
-          )}
+        </div>
 
-          {/* Player Analytics */}
-          {selectedPlayer && (
-            currentView === 'player' ? renderPlayerCard() : renderAllMatches()
-          )}
-        </>
-      )}
+        {selectedTournament && (
+          <>
+            {Object.keys(players).length === 0 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+                <p className="text-yellow-800">
+                  No player data found for this tournament. Make sure there are completed matches with valid player names and Beyblade information.
+                </p>
+              </div>
+            )}
+            
+            {/* Player Selection */}
+            {Object.keys(players).length > 0 && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <User className="mr-2" size={24} />
+                  Player Selection
+                </h2>
+                <div className="max-w-md">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Player
+                  </label>
+                  <select
+                    value={selectedPlayer}
+                    onChange={(e) => {
+                      setSelectedPlayer(e.target.value);
+                      setCurrentView('player');
+                      setShowAdvanced(false);
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">-- Select Player --</option>
+                    {Object.keys(players).sort().map(playerName => (
+                      <option key={playerName} value={playerName}>
+                        {playerName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Player Analytics */}
+            {selectedPlayer && (
+              currentView === 'player' ? renderPlayerCard() : renderAllMatches()
+            )}
+          </>
+        )}
       </div>
     </div>
   );
