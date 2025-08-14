@@ -44,6 +44,7 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
   const [deckPresets, setDeckPresets] = useState<any[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [usePreset, setUsePreset] = useState(false);
+  const [duplicateError, setDuplicateError] = useState<string>('');
 
   // Fetch parts data from Supabase
   const fetchPartsData = async () => {
@@ -115,6 +116,13 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
         parts: bey.parts
       }));
       setBeyblades(presetBeyblades);
+      
+      // Update generated names for all beyblades
+      setBeyblades(presetBeyblades.map(beyblade => ({
+        ...beyblade,
+        name: generateBeybladeName(beyblade.bladeLine, beyblade.parts)
+      })));
+      
       setUsePreset(false);
       setSelectedPreset('');
     }
@@ -142,9 +150,9 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
       case 'Blade':
       case 'Main Blade':
         options = partsData.blades.filter(blade => {
-          // For Custom line, Main Blade can use any line, but regular Blade should match
-          if (bladeLine === 'Custom' && partType === 'Main Blade') {
-            return true; // Custom Main Blade can use any blade
+          if (partType === 'Main Blade') {
+            // Main Blade for Custom line should only show Custom blades
+            return blade.Line === 'Custom';
           }
           return blade.Line === bladeLine;
         });
@@ -555,13 +563,13 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
-                  <option value="free">Free Entry</option>
+                  {tournament.is_free && <option value="free">Free Entry</option>}
                   <option value="cash">Cash</option>
                   <option value="gcash">GCash</option>
                   <option value="bank_transfer">Bank Transfer</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  {paymentMode === 'free' 
+                  {tournament.is_free && paymentMode === 'free' 
                     ? 'This tournament has no entry fee.' 
                     : paymentMode === 'cash'
                     ? 'Pay at the venue on tournament day.'
