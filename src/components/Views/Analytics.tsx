@@ -6,11 +6,20 @@ import { PlayerAnalytics } from './PlayerAnalytics';
 
 export function Analytics() {
   const [currentView, setCurrentView] = React.useState<'overview' | 'meta' | 'player'>('overview');
+  const [isTransitioning, setIsTransitioning] = React.useState(false);
   
   // Listen for navigation events from child components
   React.useEffect(() => {
-    const handleNavigateToMeta = () => setCurrentView('meta');
-    const handleNavigateToPlayer = () => setCurrentView('player');
+    const handleNavigateToMeta = () => {
+      setIsTransitioning(true);
+      setCurrentView('meta');
+      setTimeout(() => setIsTransitioning(false), 50);
+    };
+    const handleNavigateToPlayer = () => {
+      setIsTransitioning(true);
+      setCurrentView('player');
+      setTimeout(() => setIsTransitioning(false), 50);
+    };
     
     window.addEventListener('navigateToMetaAnalysis', handleNavigateToMeta);
     window.addEventListener('navigateToPlayerAnalytics', handleNavigateToPlayer);
@@ -145,13 +154,33 @@ export function Analytics() {
   }
 
   if (currentView === 'meta') {
-    return <MetaAnalysis onBack={() => setCurrentView('overview')} />;
+    return <MetaAnalysis onBack={() => {
+      setIsTransitioning(true);
+      setCurrentView('overview');
+      setTimeout(() => setIsTransitioning(false), 50);
+    }} />;
   }
 
   if (currentView === 'player') {
-    return <PlayerAnalytics onBack={() => setCurrentView('overview')} />;
+    return <PlayerAnalytics onBack={() => {
+      setIsTransitioning(true);
+      setCurrentView('overview');
+      setTimeout(() => setIsTransitioning(false), 50);
+    }} />;
   }
 
+  // Don't render overview during transitions
+  if (isTransitioning) {
+    return (
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="page-container">
       <div className="content-wrapper">
