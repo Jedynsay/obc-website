@@ -891,4 +891,4 @@ const MatchTracker = () => {
   );
 };
 
-export { MatchTracker };
+export default MatchTracker;
