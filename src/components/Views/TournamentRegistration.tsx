@@ -897,6 +897,16 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
                             ))}
                           </select>
                           
+                          {/* Duplicate Part Error Message */}
+                          {beyblade.parts[partType] && validationErrors.duplicateParts.some(error => 
+                            error.includes(getPartDisplayName(beyblade.parts[partType], partType))
+                          ) && (
+                            <div className="mt-1 text-sm text-red-600 flex items-center">
+                              <span className="mr-1">⚠️</span>
+                              This part is already used in another Beyblade
+                            </div>
+                          )}
+                          
                           {beyblade.parts[partType] && (
                             <div className="mt-2">
                               <div className="flex flex-wrap gap-2 text-xs">
