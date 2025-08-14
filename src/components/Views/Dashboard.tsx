@@ -512,12 +512,9 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
         )}
 
-      </section>
-
-      {/* Live Results Section */}
-      {recentMatches.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 py-16">
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+        {/* Recent Matches Ticker */}
+        {recentMatches.length > 0 && (
+          <div className="mt-12 bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
                 <h3 className="text-white font-bold text-lg flex items-center space-x-2">
@@ -561,10 +558,9 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               ))}
             </div>
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
-      {/* System Status Footer */}
       {/* System Status Footer */}
       <footer className="border-t border-slate-800 bg-slate-900/50">
         <div className="max-w-7xl mx-auto px-6 py-8">
