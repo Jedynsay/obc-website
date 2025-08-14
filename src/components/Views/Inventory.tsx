@@ -81,6 +81,12 @@ export function Inventory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'Blade (Basic)' | 'Blade (Unique)' | 'Blade (X-Over)' | 'Blade (Custom)' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
   
+  // Confirmation modal state
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmTitle, setConfirmTitle] = useState('');
+
   // Form state
   const [formData, setFormData] = useState({
     part_type: 'Blade (Basic)' as const,
@@ -227,7 +233,10 @@ export function Inventory() {
 
   const saveItem = async () => {
     if (!formData.part_name || !formData.part_data) {
-      alert('Please select a part.');
+      setConfirmTitle('Missing Information');
+      setConfirmMessage('Please select a part before saving.');
+      setConfirmAction(null);
+      setShowConfirmModal(true);
       return;
     }
 
@@ -257,30 +266,33 @@ export function Inventory() {
       }
 
       await fetchInventory();
-      cancelEdit();
     } catch (error) {
       console.error('Error saving inventory item:', error);
-      alert('Failed to save inventory item. Please try again.');
+      setConfirmTitle('Error');
+      setConfirmMessage('Failed to save inventory item. Please try again.');
+      setConfirmAction(null);
+      setShowConfirmModal(true);
     }
   };
 
   const deleteItem = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this inventory item?')) {
-      return;
-    }
+    setConfirmTitle('Delete Inventory Item');
+    setConfirmMessage('Are you sure you want to delete this inventory item? This action cannot be undone.');
+    setConfirmAction(() => async () => {
+      try {
+        const { error } = await supabase
+          .from('user_inventory')
+          .delete()
+          .eq('id', id);
 
-    try {
-      const { error } = await supabase
-        .from('user_inventory')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      await fetchInventory();
-    } catch (error) {
-      console.error('Error deleting inventory item:', error);
-      alert('Failed to delete inventory item. Please try again.');
-    }
+        if (error) throw error;
+        await fetchInventory();
+      } catch (error) {
+        console.error('Error deleting inventory item:', error);
+        alert('Failed to delete inventory item. Please try again.');
+      }
+    });
+    setShowConfirmModal(true);
   };
 
   const cancelEdit = () => {
@@ -618,6 +630,60 @@ export function Inventory() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Custom Confirmation Modal */}
+      {showConfirmModal && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            onClick={() => setShowConfirmModal(false)}
+          />
+          <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 border border-gray-200">
+              <div className="p-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                    <span className="text-blue-600 text-xl">⚠️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{confirmTitle}</h3>
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 mb-6">{confirmMessage}</p>
+                
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={() => setShowConfirmModal(false)}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  {confirmAction && (
+                    <button
+                      onClick={() => {
+                        confirmAction();
+                        setShowConfirmModal(false);
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  )}
+                  {!confirmAction && (
+                    <button
+                      onClick={() => setShowConfirmModal(false)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      OK
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
