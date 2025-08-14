@@ -24,25 +24,25 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-gradient-to-r from-slate-900/95 to-blue-900/95 backdrop-blur-md border-b border-slate-700/50 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="header">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <button
                 onClick={onMenuToggle}
-                className="lg:hidden p-2 rounded-lg hover:bg-slate-800/50 transition-all duration-300 hover:shadow-glow"
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
               >
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
               <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-energy-400 to-battle-500 rounded-full flex items-center justify-center font-orbitron font-bold text-lg shadow-energy animate-spin-slow">
-                  ⚡
+                <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
+                  B
                 </div>
                 <div>
-                  <h1 className="text-xl font-orbitron font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                    BEYBLADE
+                  <h1 className="text-xl font-space-grotesk font-bold text-gray-900">
+                    OBC Portal
                   </h1>
-                  <p className="text-xs text-slate-400 font-rajdhani">COMMUNITY</p>
+                  <p className="text-xs text-gray-500 font-inter">Beyblade Community</p>
                 </div>
               </div>
             </div>
@@ -52,36 +52,36 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
                 <div className="relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all duration-300 hover:shadow-glow beyblade-glow"
+                    className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-all duration-200"
                   >
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center font-orbitron font-bold text-sm">
+                    <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
                       {user.username.charAt(0).toUpperCase()}
                     </div>
                     <div className="hidden sm:block text-left">
-                      <p className="font-rajdhani font-semibold text-white">{user.username}</p>
-                      <p className={`text-xs font-rajdhani capitalize ${getRoleColor(user.role)}`}>
+                      <p className="font-inter font-semibold text-gray-900">{user.username}</p>
+                      <p className="text-xs font-inter capitalize text-gray-600">
                         {user.role.replace('_', ' ')}
                       </p>
                     </div>
                   </button>
 
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-56 bg-slate-800/95 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-2xl z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
                       <div className="py-1">
-                        <div className="px-4 py-3 border-b border-slate-700/50">
-                          <p className="font-rajdhani font-semibold text-white">{user.username}</p>
-                          <p className="text-sm text-slate-400 capitalize font-rajdhani">{user.role.replace('_', ' ')}</p>
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <p className="font-inter font-semibold text-gray-900">{user.username}</p>
+                          <p className="text-sm text-gray-600 capitalize font-inter">{user.role.replace('_', ' ')}</p>
                         </div>
-                        <button className="w-full text-left px-4 py-3 hover:bg-slate-700/50 flex items-center space-x-2 text-slate-300 hover:text-white transition-colors">
+                        <button className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors">
                           <Settings size={16} />
-                          <span className="font-rajdhani">Settings</span>
+                          <span className="font-inter">Settings</span>
                         </button>
                         <button
                           onClick={logout}
-                          className="w-full text-left px-4 py-3 hover:bg-red-900/20 flex items-center space-x-2 text-red-400 hover:text-red-300 transition-colors"
+                          className="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
                         >
                           <LogOut size={16} />
-                          <span className="font-rajdhani">Logout</span>
+                          <span className="font-inter">Logout</span>
                         </button>
                       </div>
                     </div>
@@ -94,10 +94,10 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="beyblade-button flex items-center space-x-2"
+                  className="primary-button flex items-center space-x-2"
                 >
                   <LogIn size={20} />
-                  <span className="hidden sm:block font-rajdhani font-semibold">Login</span>
+                  <span className="hidden sm:block font-inter font-semibold">Login</span>
                 </button>
               </div>
             )}
@@ -118,7 +118,7 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
           <>
             {/* Modal Backdrop */}
             <div 
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+              className="modal-overlay"
               style={{ zIndex: 999999 }}
               onClick={() => setShowLoginModal(false)}
             />
@@ -128,11 +128,11 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
               className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none"
               style={{ zIndex: 1000000 }}
             >
-              <div className="relative pointer-events-auto">
+              <div className="relative pointer-events-auto modal-content">
                 <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
                 <button
                   onClick={() => setShowLoginModal(false)}
-                  className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg transition-colors z-10"
+                  className="absolute -top-3 -right-3 w-8 h-8 bg-gray-900 hover:bg-gray-800 rounded-full flex items-center justify-center text-white shadow-lg transition-colors z-10"
                 >
                   <X size={16} />
                 </button>
