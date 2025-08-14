@@ -268,15 +268,15 @@ export function TournamentManager() {
   };
 
   const deleteTournament = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this tournament? This will also delete all associated registrations and matches. This action cannot be undone.')) {
+    if (!confirm('Are you sure you want to delete this tournament? This will permanently delete ALL related data including registrations, beyblades, parts, matches, and sessions. This action cannot be undone.')) {
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from('tournaments')
-        .delete()
-        .eq('id', id);
+      // Use the database function to safely delete tournament and all related data
+      const { data, error } = await supabase.rpc('delete_tournament_completely', {
+        tournament_id_to_delete: id
+      });
 
       if (error) {
         console.error('Delete error:', error);
@@ -288,7 +288,20 @@ export function TournamentManager() {
         return;
       }
       
-      alert('Tournament deleted successfully!');
+      // Show detailed deletion summary
+      if (data) {
+        const summary = `Tournament "${data.tournament_name}" deleted successfully!\n\n` +
+          `Deleted data:\n` +
+          `• ${data.registrations_deleted} registrations\n` +
+          `• ${data.beyblades_deleted} beyblades\n` +
+          `• ${data.parts_deleted} beyblade parts\n` +
+          `• ${data.matches_deleted} match results\n` +
+          `• ${data.sessions_deleted} match sessions`;
+        alert(summary);
+      } else {
+        alert('Tournament deleted successfully!');
+      }
+      
       await fetchTournaments();
     } catch (error) {
       console.error('Error deleting tournament:', error);
