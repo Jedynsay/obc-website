@@ -79,11 +79,11 @@ export function Inventory() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'Blade' | 'Blade (Custom)' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'Blade (Basic)' | 'Blade (Unique)' | 'Blade (X-Over)' | 'Blade (Custom)' | 'Ratchet' | 'Bit' | 'Lockchip' | 'Assist Blade'>('all');
   
   // Form state
   const [formData, setFormData] = useState({
-    part_type: 'Blade' as const,
+    part_type: 'Blade (Basic)' as const,
     part_name: '',
     part_data: null as any,
     quantity: 1,
@@ -152,6 +152,19 @@ export function Inventory() {
   const getPartOptions = (partType: string) => {
     let parts: any[] = [];
     
+    if (partType.startsWith('Blade (')) {
+      // Extract blade line from part type (e.g., "Blade (Basic)" -> "Basic")
+      const bladeLine = partType.replace('Blade (', '').replace(')', '');
+      parts = partsData.blades.filter(blade => blade.Line === bladeLine);
+    } else if (partType === 'Ratchet') {
+      parts = partsData.ratchets;
+    } else if (partType === 'Bit') {
+      parts = partsData.bits;
+    } else if (partType === 'Lockchip') {
+      parts = partsData.lockchips;
+    } else if (partType === 'Assist Blade') {
+      parts = partsData.assistBlades;
+    }
     if (partType === 'Blade') {
       // Regular Blade: exclude Custom line blades
       parts = partsData.blades.filter(blade => blade.Line !== 'Custom');
@@ -172,27 +185,28 @@ export function Inventory() {
   };
 
   const getPartDisplayName = (part: any, partType: string): string => {
-    switch (partType) {
-      case 'Blade':
-      case 'Blade (Custom)':
-        return part.Blades;
-      case 'Ratchet':
-        return part.Ratchet;
-      case 'Bit':
-        return `${part.Bit} (${part.Shortcut})`;
-      case 'Lockchip':
-        return part.Lockchip;
-      case 'Assist Blade':
-        return `${part['Assist Blade Name']} (${part['Assist Blade']})`;
-      default:
-        return '';
+    if (partType.startsWith('Blade (')) {
+      return part.Blades;
+    } else {
+      switch (partType) {
+        case 'Ratchet':
+          return part.Ratchet;
+        case 'Bit':
+          return `${part.Bit} (${part.Shortcut})`;
+        case 'Lockchip':
+          return part.Lockchip;
+        case 'Assist Blade':
+          return `${part['Assist Blade Name']} (${part['Assist Blade']})`;
+        default:
+          return '';
+      }
     }
   };
 
   const startAdd = () => {
     setIsAdding(true);
     setFormData({
-      part_type: 'Blade',
+      part_type: 'Blade (Basic)',
       part_name: '',
       part_data: null,
       quantity: 1,
@@ -284,7 +298,18 @@ export function Inventory() {
   const filteredInventory = inventory.filter(item => {
     const matchesSearch = item.part_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (item.notes && item.notes.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesFilter = filterType === 'all' || item.part_type === filterType;
+    
+    let matchesFilter = false;
+    if (filterType === 'all') {
+      matchesFilter = true;
+    } else if (filterType.startsWith('Blade (')) {
+      // For blade line filters, check if the item is a blade with matching line
+      const bladeLine = filterType.replace('Blade (', '').replace(')', '');
+      matchesFilter = item.part_type === 'Blade' && item.part_data?.Line === bladeLine;
+    } else {
+      matchesFilter = item.part_type === filterType;
+    }
+    
     return matchesSearch && matchesFilter;
   });
 
@@ -399,11 +424,16 @@ export function Inventory() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Parts</option>
-              <option value="Blade">Blades</option>
+              <option value="Blade (Basic)">Blades (Basic)</option>
+              <option value="Blade (Unique)">Blades (Unique)</option>
+              <option value="Blade (X-Over)">Blades (X-Over)</option>
               <option value="Blade (Custom)">Blades (Custom)</option>
               <option value="Ratchet">Ratchets</option>
               <option value="Bit">Bits</option>
-              <option value="Lockchip">Lockchips</option>
+              <option value="Blade (Basic)">Blade (Basic)</option>
+              <option value="Blade (Unique)">Blade (Unique)</option>
+              <option value="Blade (X-Over)">Blade (X-Over)</option>
+              <option value="Blade (Custom)">Blade (Custom)</option>
               <option value="Assist Blade">Assist Blades</option>
             </select>
           </div>
