@@ -27,9 +27,13 @@ interface TopPlayer {
   winRate: number;
 }
 
-export function Dashboard() {
+interface DashboardProps {
+  onToggleSidebar?: () => void;
+  isSidebarOpen?: boolean;
+}
+
+export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
   const { user } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalTournaments: 0,
     activePlayers: 0,
@@ -174,7 +178,7 @@ export function Dashboard() {
       <section className="relative overflow-hidden">
         {/* Hamburger Menu Button */}
         <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          onClick={onToggleSidebar}
           className="fixed top-4 left-4 z-50 p-3 bg-slate-800/90 hover:bg-slate-700/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105"
         >
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}

@@ -17,9 +17,13 @@ function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
-      case 'dashboard': return <Dashboard />;
+      case 'dashboard': return <Dashboard onToggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />;
       case 'tournaments': return <Tournaments />;
       case 'inventory': return <Inventory />;
       case 'deck-builder': return <DeckBuilder />;
@@ -38,10 +42,10 @@ function AppContent() {
         isOpen={isSidebarOpen} 
         currentView={currentView} 
         onViewChange={setCurrentView}
-        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        onToggle={toggleSidebar}
       />
       
-      <div className={`${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'} flex flex-col min-h-screen transition-all duration-300`}>
+      <div className={`${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'} transition-all duration-300`}>
         <main className="flex-1">
           {renderCurrentView()}
         </main>
