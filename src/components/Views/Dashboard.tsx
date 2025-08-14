@@ -48,6 +48,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
   const [recentMatches, setRecentMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [availableTournaments, setAvailableTournaments] = useState<Tournament[]>([]);
+  const [selectedLiveTournament, setSelectedLiveTournament] = useState<string>('');
 
   useEffect(() => {
     fetchDashboardData();
@@ -56,6 +58,11 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (selectedLiveTournament) {
+      fetchRecentMatches(selectedLiveTournament);
+    }
+  }, [selectedLiveTournament]);
   // Auto-rotate community highlights every 5 seconds
   useEffect(() => {
     if (topPlayers.length > 1) {
@@ -78,6 +85,16 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       const upcoming = tournaments.filter(t => t.status === 'upcoming').slice(0, 3);
       
       setUpcomingTournaments(upcoming);
+      setAvailableTournaments(tournaments);
+      
+      // Auto-select first active or completed tournament for live results
+      const activeTournament = tournaments.find(t => t.status === 'active');
+      const completedTournament = tournaments.find(t => t.status === 'completed');
+      const defaultTournament = activeTournament || completedTournament;
+      if (defaultTournament && !selectedLiveTournament) {
+        setSelectedLiveTournament(defaultTournament.id);
+      }
+      
       setStats({
         totalTournaments: tournaments.length,
         activePlayers: usersRes.count || 0,
@@ -87,7 +104,9 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
       // Fetch top players from match results
       await fetchTopPlayers();
-      await fetchRecentMatches();
+      if (defaultTournament && !selectedLiveTournament) {
+        await fetchRecentMatches(defaultTournament.id);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -134,11 +153,17 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     }
   };
 
-  const fetchRecentMatches = async () => {
+  const fetchRecentMatches = async (tournamentId?: string) => {
     try {
-      const { data: matches } = await supabase
+      let query = supabase
         .from('match_results')
-        .select('player1_name, player2_name, winner_name, outcome, submitted_at')
+        .select('player1_name, player2_name, winner_name, outcome, submitted_at');
+      
+      if (tournamentId) {
+        query = query.eq('tournament_id', tournamentId);
+      }
+      
+      const { data: matches } = await query
         .order('submitted_at', { ascending: false })
         .limit(10);
 
@@ -491,10 +516,26 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         {recentMatches.length > 0 && (
           <div className="mt-12 bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-bold text-lg flex items-center space-x-2">
-                <Play size={20} className="text-green-400" />
-                <span>Live Results</span>
-              </h3>
+              <div className="flex items-center space-x-4">
+                <h3 className="text-white font-bold text-lg flex items-center space-x-2">
+                  <Play size={20} className="text-green-400" />
+                  <span>Live Results</span>
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <select
+                    value={selectedLiveTournament}
+                    onChange={(e) => setSelectedLiveTournament(e.target.value)}
+                    className="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">All Tournaments</option>
+                    {availableTournaments.map(tournament => (
+                      <option key={tournament.id} value={tournament.id}>
+                        {tournament.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <span className="text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold animate-pulse">
                 LIVE
               </span>
