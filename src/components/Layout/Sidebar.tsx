@@ -57,15 +57,15 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-sm text-white">
               B
             </div>
+            {isOpen && (
+              <div className="ml-3">
+                <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
+                  OBC Portal
+                </h2>
+                <p className="text-xs text-gray-500 font-inter">Community</p>
+              </div>
+            )}
           </div>
-          {isOpen && (
-            <div className="flex-1 text-right">
-              <h2 className="font-space-grotesk font-bold text-sm text-gray-900">
-                OBC Portal
-              </h2>
-              <p className="text-xs text-gray-500 font-inter">Community</p>
-            </div>
-          )}
         </div>
 
       <div className="h-full px-4 py-6 overflow-y-auto">
