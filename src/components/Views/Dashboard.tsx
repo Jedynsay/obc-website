@@ -268,7 +268,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Trophy size={24} />
-                  <span>Join Next Tournament</span>
+                  <span>Check Tournaments</span>
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
                 <button 
@@ -376,8 +376,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           {/* Latest News */}
           <button 
             onClick={() => {
-              // For now, just show an alert since there's no news page
-              alert('Tournament Rules Update: New regulations for X-Over parts have been implemented. Check the official tournament guidelines for details.');
+              alert('News section is currently under construction. Stay tuned for updates!');
             }}
             className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
           >
@@ -385,13 +384,13 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               <div className="p-3 bg-green-600 rounded-xl">
                 <Newspaper size={24} className="text-white" />
               </div>
-              <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-semibold">NEW</span>
+              <span className="text-xs bg-yellow-500 text-black px-2 py-1 rounded-full font-semibold">SOON</span>
             </div>
-            <h3 className="text-white font-bold text-lg mb-2">Latest News</h3>
-            <p className="text-green-300 text-sm mb-2">Tournament Rules Update</p>
-            <p className="text-slate-400 text-xs mb-4">New regulations for X-Over parts</p>
+            <h3 className="text-white font-bold text-lg mb-2">Under Construction</h3>
+            <p className="text-green-300 text-sm mb-2">News & Updates</p>
+            <p className="text-slate-400 text-xs mb-4">Coming soon to keep you informed</p>
             <span className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
-              <span>Read More</span>
+              <span>Coming Soon</span>
               <ArrowRight size={14} />
             </span>
           </button>

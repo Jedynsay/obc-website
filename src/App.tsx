@@ -42,7 +42,11 @@ function AppContent() {
       {!isSidebarOpen && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-4 left-4 z-50 p-3 bg-slate-800/90 hover:bg-slate-700/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105"
+          className={`fixed top-4 left-4 z-50 p-3 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
+            currentView === 'dashboard' 
+              ? 'bg-slate-800/90 hover:bg-slate-700/90 text-white' 
+              : 'bg-white/90 hover:bg-white text-gray-800 border border-gray-200'
+          }`}
         >
           <Menu size={24} />
         </button>
