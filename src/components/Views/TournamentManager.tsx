@@ -29,6 +29,9 @@ export function TournamentManager() {
   const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const [loading, setLoading] = useState(true);
   const [viewingMatches, setViewingMatches] = useState<string | null>(null);
+  const [viewingRegistrations, setViewingRegistrations] = useState<string | null>(null);
+  const [registrations, setRegistrations] = useState<any[]>([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const [matches, setMatches] = useState<any[]>([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [editingMatch, setEditingMatch] = useState<string | null>(null);
@@ -42,6 +45,87 @@ export function TournamentManager() {
   React.useEffect(() => {
     fetchTournaments();
   }, []);
+
+  const fetchTournamentRegistrations = async (tournamentId: string) => {
+    setLoadingRegistrations(true);
+    try {
+      const { data, error } = await supabase
+        .from('tournament_registration_details')
+        .select('*')
+        .eq('tournament_id', tournamentId)
+        .order('registered_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by registration_id
+      const groupedData: { [key: string]: any } = {};
+      
+      data?.forEach((row: any) => {
+        if (!groupedData[row.registration_id]) {
+          groupedData[row.registration_id] = {
+            registration_id: row.registration_id,
+            tournament_id: row.tournament_id,
+            player_name: row.player_name,
+            payment_mode: row.payment_mode,
+            registered_at: row.registered_at,
+            status: row.status,
+            payment_status: row.payment_status,
+            beyblades: []
+          };
+        }
+
+        if (row.beyblade_id) {
+          const existingBeyblade = groupedData[row.registration_id].beyblades
+            .find((b: any) => b.beyblade_id === row.beyblade_id);
+          
+          if (!existingBeyblade) {
+            groupedData[row.registration_id].beyblades.push({
+              beyblade_id: row.beyblade_id,
+              beyblade_name: row.beyblade_name,
+              blade_line: row.blade_line,
+              parts: row.beyblade_parts || []
+            });
+          }
+        }
+      });
+
+      setRegistrations(Object.values(groupedData));
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+      setRegistrations([]);
+    } finally {
+      setLoadingRegistrations(false);
+    }
+  };
+
+  const updatePaymentStatus = async (registrationId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('tournament_registrations')
+        .update({ payment_status: newStatus })
+        .eq('id', registrationId);
+
+      if (error) throw error;
+
+      // Refresh registrations
+      if (viewingRegistrations) {
+        await fetchTournamentRegistrations(viewingRegistrations);
+      }
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      alert('Failed to update payment status');
+    }
+  };
+
+  const getPartOrder = (parts: any[], bladeLine: string) => {
+    if (bladeLine === 'Custom') {
+      const order = ['Lockchip', 'Main Blade', 'Assist Blade', 'Ratchet', 'Bit'];
+      return order.map(partType => parts.find(p => p.part_type === partType)).filter(Boolean);
+    } else {
+      const order = ['Blade', 'Ratchet', 'Bit'];
+      return order.map(partType => parts.find(p => p.part_type === partType)).filter(Boolean);
+    }
+  };
 
   const fetchTournaments = async () => {
     try {
@@ -386,6 +470,16 @@ export function TournamentManager() {
     }
   };
 
+  const handleViewRegistrations = (tournamentId: string) => {
+    setViewingRegistrations(tournamentId);
+    fetchTournamentRegistrations(tournamentId);
+  };
+
+  const handleBackToTournaments = () => {
+    setViewingRegistrations(null);
+    setRegistrations([]);
+  };
+
   if (loading) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
@@ -393,6 +487,133 @@ export function TournamentManager() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading tournaments...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Registrations View
+  if (viewingRegistrations) {
+    const tournament = tournaments.find(t => t.id === viewingRegistrations);
+    
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <button
+            onClick={handleBackToTournaments}
+            className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium transition-colors mb-4"
+          >
+            <ArrowLeft size={20} />
+            <span>Back to Tournament Manager</span>
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {tournament?.name} - Registrations
+          </h1>
+          <p className="text-gray-600">Manage tournament registrations and payment status</p>
+        </div>
+
+        {loadingRegistrations ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading registrations...</p>
+          </div>
+        ) : registrations.length === 0 ? (
+          <div className="text-center py-12">
+            <Users size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500">No registrations found for this tournament</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {registrations.map((registration) => (
+              <div key={registration.registration_id} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                        {registration.player_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900">{registration.player_name}</h3>
+                        <p className="text-sm text-gray-600">Registered: {new Date(registration.registered_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-500">Payment Mode:</span>
+                        <p className="font-medium capitalize">{registration.payment_mode?.replace('_', ' ') || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Status:</span>
+                        <p className="font-medium capitalize">{registration.status}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Payment Status</label>
+                      <select
+                        value={registration.payment_status || 'unpaid'}
+                        onChange={(e) => updatePaymentStatus(registration.registration_id, e.target.value)}
+                        className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="unpaid">Unpaid</option>
+                        <option value="paid">Paid</option>
+                        <option value="confirmed">Confirmed</option>
+                      </select>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      registration.payment_status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                      registration.payment_status === 'paid' ? 'bg-blue-100 text-blue-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {registration.payment_status || 'unpaid'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Beyblades */}
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-900 flex items-center">
+                    <Trophy size={16} className="mr-2 text-yellow-500" />
+                    Registered Beyblades ({registration.beyblades.length})
+                  </h4>
+                  
+                  {registration.beyblades.length === 0 ? (
+                    <p className="text-gray-500 text-sm italic">No Beyblades registered</p>
+                  ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {registration.beyblades.map((beyblade: any, index: number) => (
+                        <div key={beyblade.beyblade_id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          <div className="flex justify-between items-center mb-3">
+                            <h5 className="font-semibold text-gray-900">{beyblade.beyblade_name}</h5>
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              {beyblade.blade_line} Line
+                            </span>
+                          </div>
+                          
+                          {beyblade.parts.length > 0 ? (
+                            <div className="space-y-2">
+                              <h6 className="text-xs font-medium text-gray-600 uppercase tracking-wide">Parts</h6>
+                              <div className="space-y-1">
+                                {getPartOrder(beyblade.parts, beyblade.blade_line).map((part: any, partIndex: number) => (
+                                  <div key={partIndex} className="flex justify-between items-center text-xs">
+                                    <span className="font-medium text-gray-700">{part.part_type}:</span>
+                                    <span className="text-gray-600">{part.part_name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-gray-500 text-xs">No parts configured</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
