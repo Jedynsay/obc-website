@@ -106,19 +106,19 @@ export function TournamentManager() {
 
       if (error) {
         console.error('Payment status update error:', error);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to update payment status.');
+        } else {
+          alert(`Failed to update payment status: ${error.message}`);
+        }
         throw error;
       }
 
       console.log('Payment status updated successfully');
       await fetchTournaments();
+      alert('Payment status updated successfully!');
     } catch (error) {
       console.error('Error updating payment status:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      if (errorMessage.includes('RLS') || errorMessage.includes('permission')) {
-        alert('Permission denied. You need admin or developer role to update payment status.');
-      } else {
-        alert(`Failed to update payment status: ${errorMessage}. Please try again.`);
-      }
     }
   };
 
