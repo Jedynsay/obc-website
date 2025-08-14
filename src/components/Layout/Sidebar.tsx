@@ -1,6 +1,7 @@
 import React from 'react';
-import { Home, Trophy, Users, BarChart3, Settings, Database, Calendar, Newspaper, Package, Layers, X } from 'lucide-react';
+import { Home, Trophy, Users, BarChart3, Settings, Database, Calendar, Newspaper, Package, Layers, X, LogIn, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { LoginForm } from '../Auth/LoginForm';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,7 +30,8 @@ const menuItems: MenuItem[] = [
 ];
 
 export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
 
   const filteredMenuItems = menuItems.filter(item => 
     // For guest users (no user), only show items that don't require auth and are for 'user' role
@@ -37,6 +39,11 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     // For authenticated users, show items based on their role
     item.roles.includes(user.role || 'user')
   );
+
+  const handleLogout = async () => {
+    await logout();
+    onToggle(); // Close sidebar after logout
+  };
 
   return (
     <>
@@ -66,8 +73,8 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           )}
         </div>
 
-        <div className="h-full px-4 py-6 overflow-y-auto">
-          <ul className="space-y-2">
+        <div className="h-full px-4 py-6 overflow-y-auto flex flex-col">
+          <ul className="space-y-2 flex-1">
             {filteredMenuItems.map((item) => (
               <li key={item.id}>
                 <button
@@ -84,6 +91,35 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
               </li>
             ))}
           </ul>
+          
+          {/* Auth Section */}
+          <div className="border-t border-gray-200 pt-4 mt-4">
+            {user && !user.id.startsWith('guest-') ? (
+              <button
+                onClick={handleLogout}
+                className="sidebar-item w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <div className="transition-colors">
+                  <LogOut size={20} />
+                </div>
+                {isOpen && (
+                  <span className="ml-3 font-inter">Logout</span>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="sidebar-item w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              >
+                <div className="transition-colors">
+                  <LogIn size={20} />
+                </div>
+                {isOpen && (
+                  <span className="ml-3 font-inter">Login</span>
+                )}
+              </button>
+            )}
+          </div>
           
           {isOpen && (
             <div className="mt-8 px-2">
@@ -102,6 +138,33 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           )}
         </div>
       </aside>
+      
+      {/* Login Modal */}
+      {showLoginModal && (
+        <>
+          {/* Modal Backdrop */}
+          <div 
+            className="modal-overlay"
+            style={{ zIndex: 50 }}
+            onClick={() => setShowLoginModal(false)}
+          />
+          
+          {/* Modal Content */}
+          <div 
+            className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50"
+          >
+            <div className="relative pointer-events-auto bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
+              <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
