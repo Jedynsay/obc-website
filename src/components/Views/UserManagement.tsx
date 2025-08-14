@@ -105,21 +105,21 @@ export function UserManagement() {
     }
 
     try {
-      console.log('🗑️ USER MANAGEMENT: Attempting to delete user:', userId);
-      
       const { error } = await supabase
-        .from('users')
-        .delete() 
+        .from('profiles')
+        .delete()
         .eq('id', userId);
 
       if (error) {
         console.error('Delete error:', error);
-        console.error('❌ USER MANAGEMENT: Delete failed:', error);
-        alert(`Failed to delete user: ${error.message || 'Unknown error'}. Please check your permissions.`);
+        if (error.code === '42501' || error.message.includes('RLS')) {
+          alert('Permission denied. You need admin or developer role to delete users.');
+        } else {
+          alert(`Failed to delete user: ${error.message}`);
+        }
         return;
       }
       
-      console.log('✅ USER MANAGEMENT: User deleted successfully');
       alert('User deleted successfully!');
       await fetchUsers();
     } catch (error) {
