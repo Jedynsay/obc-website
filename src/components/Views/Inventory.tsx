@@ -150,20 +150,25 @@ export function Inventory() {
   };
 
   const getPartOptions = (partType: string) => {
-    switch (partType) {
-      case 'Blade':
-        return partsData.blades;
-      case 'Ratchet':
-        return partsData.ratchets;
-      case 'Bit':
-        return partsData.bits;
-      case 'Lockchip':
-        return partsData.lockchips;
-      case 'Assist Blade':
-        return partsData.assistBlades;
-      default:
-        return [];
+    let parts: any[] = [];
+    
+    if (partType === 'Blade') {
+      // Regular Blade: exclude Custom line blades
+      parts = partsData.blades.filter(blade => blade.Line !== 'Custom');
+    } else if (partType === 'Blade (Custom)') {
+      // Blade (Custom): only Custom line blades
+      parts = partsData.blades.filter(blade => blade.Line === 'Custom');
+    } else if (partType === 'Ratchet') {
+      parts = partsData.ratchets;
+    } else if (partType === 'Bit') {
+      parts = partsData.bits;
+    } else if (partType === 'Lockchip') {
+      parts = partsData.lockchips;
+    } else if (partType === 'Assist Blade') {
+      parts = partsData.assistBlades;
     }
+    
+    return parts;
   };
 
   const getPartDisplayName = (part: any, partType: string): string => {
@@ -279,20 +284,7 @@ export function Inventory() {
   const filteredInventory = inventory.filter(item => {
     const matchesSearch = item.part_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (item.notes && item.notes.toLowerCase().includes(searchTerm.toLowerCase()));
-    let matchesFilter = false;
-    
-    if (filterType === 'all') {
-      matchesFilter = true;
-    } else if (filterType === 'Blade') {
-      // Show regular blades (non-Custom)
-      matchesFilter = item.part_type === 'Blade' && item.part_data?.Line !== 'Custom';
-    } else if (filterType === 'Blade (Custom)') {
-      // Show only Custom blades
-      matchesFilter = item.part_type === 'Blade' && item.part_data?.Line === 'Custom';
-    } else {
-      matchesFilter = item.part_type === filterType;
-    }
-    
+    const matchesFilter = filterType === 'all' || item.part_type === filterType;
     return matchesSearch && matchesFilter;
   });
 
