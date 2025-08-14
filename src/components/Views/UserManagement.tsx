@@ -105,15 +105,17 @@ export function UserManagement() {
     }
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
+      // Use the database function to properly delete both profile and auth user
+      const { data, error } = await supabase.rpc('delete_user_completely', {
+        user_id_to_delete: userId
+      });
 
       if (error) {
         console.error('Delete error:', error);
         if (error.code === '42501' || error.message.includes('RLS')) {
           alert('Permission denied. You need admin or developer role to delete users.');
+        } else if (error.message.includes('cannot delete themselves')) {
+          alert('You cannot delete your own account.');
         } else {
           alert(`Failed to delete user: ${error.message}`);
         }
