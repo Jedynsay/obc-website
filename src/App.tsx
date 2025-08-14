@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { Sidebar } from './components/Layout/Sidebar';
-import { Header } from './components/Layout/Header';
 import { Dashboard } from './components/Views/Dashboard';
 import { Tournaments } from './components/Views/Tournaments';
 import { Analytics } from './components/Views/Analytics';
@@ -12,6 +11,7 @@ import { DatabaseView } from './components/Views/Database';
 import { Inventory } from './components/Views/Inventory';
 import { DeckBuilder } from './components/Views/DeckBuilder';
 import { Settings } from './components/Views/Settings';
+import { Menu } from 'lucide-react';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -23,7 +23,7 @@ function AppContent() {
 
   const renderCurrentView = () => {
     switch (currentView) {
-      case 'dashboard': return <Dashboard onToggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} onViewChange={setCurrentView} />;
+      case 'dashboard': return <Dashboard onViewChange={setCurrentView} />;
       case 'tournaments': return <Tournaments />;
       case 'inventory': return <Inventory />;
       case 'deck-builder': return <DeckBuilder />;
@@ -38,7 +38,16 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onMenuToggle={toggleSidebar} isMenuOpen={isSidebarOpen} />
+      {/* Global Hamburger Menu - Always Visible */}
+      {!isSidebarOpen && (
+        <button
+          onClick={toggleSidebar}
+          className="fixed top-4 left-4 z-50 p-3 bg-slate-800/90 hover:bg-slate-700/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105"
+        >
+          <Menu size={24} />
+        </button>
+      )}
+      
       <Sidebar 
         isOpen={isSidebarOpen} 
         currentView={currentView} 
