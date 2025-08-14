@@ -39,6 +39,9 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     item.roles.includes(user.role || 'user')
   );
 
+  return (
+    <>
+      <aside className={`fixed left-0 top-0 z-40 h-screen transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}>
         <div className="h-full px-4 py-6 overflow-y-auto">
           <ul className="space-y-2">
             {filteredMenuItems.map((item) => (
