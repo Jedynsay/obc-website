@@ -534,20 +534,12 @@ export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-2">
-          <button
-            onClick={onBack}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-            title="Go Back"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Player Performance Analysis</h1>
+    <div className="pt-20">
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Player Performance Analysis</h1>
+          <p className="text-gray-600">Analyze individual player statistics and performance</p>
         </div>
-        <p className="text-gray-600">Analyze individual player statistics and performance</p>
-      </div>
 
       {/* Tournament Selection */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -618,6 +610,7 @@ export function PlayerAnalytics({ onBack }: PlayerAnalyticsProps) {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

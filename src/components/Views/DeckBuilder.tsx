@@ -27,7 +27,7 @@ interface InventoryItem {
   quantity: number;
 }
 
-export function DeckBuilder() {
+export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
   const { user } = useAuth();
   
   // Early return for guest users - don't load anything
@@ -389,20 +389,34 @@ export function DeckBuilder() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Deck Builder</h1>
-          <p className="text-gray-600">Create and save Beyblade deck presets from your inventory</p>
+    <div className={showHeader ? "p-6 max-w-7xl mx-auto" : ""}>
+      {showHeader && (
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Deck Builder</h1>
+            <p className="text-gray-600">Create and save Beyblade deck presets from your inventory</p>
+          </div>
+          <button
+            onClick={startCreate}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          >
+            <Plus size={20} />
+            <span>New Deck</span>
+          </button>
         </div>
-        <button
-          onClick={startCreate}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
-        >
-          <Plus size={20} />
-          <span>New Deck</span>
-        </button>
-      </div>
+      )}
+      
+      {!showHeader && (
+        <div className="flex justify-end mb-8">
+          <button
+            onClick={startCreate}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          >
+            <Plus size={20} />
+            <span>New Deck</span>
+          </button>
+        </div>
+      )}
 
       {/* Create/Edit Form */}
       {(isCreating || editingId) && (

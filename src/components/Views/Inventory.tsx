@@ -294,7 +294,39 @@ export function Inventory() {
   }
 
   if (currentView === 'deck-builder') {
-    return <DeckBuilder onBack={() => setCurrentView('inventory')} />;
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Inventory & Deck Builder</h1>
+              <p className="text-gray-600">Track your parts and build custom decks</p>
+            </div>
+            <div className="filter-tabs">
+              <button
+                onClick={() => setCurrentView('inventory')}
+                className={`filter-tab ${
+                  currentView === 'inventory' ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
+              >
+                <Package size={16} className="mr-2" />
+                Inventory
+              </button>
+              <button
+                onClick={() => setCurrentView('deck-builder')}
+                className={`filter-tab ${
+                  currentView === 'deck-builder' ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
+              >
+                <Layers size={16} className="mr-2" />
+                Deck Builder
+              </button>
+            </div>
+          </div>
+        </div>
+        <DeckBuilder />
+      </div>
+    );
   }
 
   return (
