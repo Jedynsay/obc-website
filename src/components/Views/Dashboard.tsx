@@ -195,18 +195,19 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
         
         <div className="relative max-w-7xl mx-auto px-6 py-20">
           {/* User Profile in top right */}
-          <div className="absolute top-4 right-4">
+          {user && (
+            <div className="absolute top-4 right-4">
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center space-x-3 bg-slate-800/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg hover:bg-slate-700/90 transition-all duration-200 cursor-pointer"
               >
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                  {user?.username?.charAt(0).toUpperCase() || 'B'}
+                  {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="text-white">
-                  <p className="font-semibold text-sm">{user?.username || 'Bruh1'}</p>
-                  <p className="text-xs text-blue-200 capitalize">{user?.role || 'Developer'}</p>
+                  <p className="font-semibold text-sm">{user.username}</p>
+                  <p className="text-xs text-blue-200 capitalize">{user.role}</p>
                 </div>
               </button>
 
@@ -215,8 +216,8 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
                   <div className="py-1">
                     <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="font-semibold text-gray-900">{user?.username || 'Bruh1'}</p>
-                      <p className="text-sm text-gray-600 capitalize">{user?.role || 'Developer'}</p>
+                      <p className="font-semibold text-gray-900">{user.username}</p>
+                      <p className="text-sm text-gray-600 capitalize">{user.role}</p>
                     </div>
                     <button 
                       onClick={() => {
@@ -243,6 +244,7 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
               )}
             </div>
           </div>
+          )}
 
           {/* Click outside to close user menu */}
           {showUserMenu && (
@@ -262,7 +264,7 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
                 <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
                   Welcome back,{' '}
                   <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    {user?.username || 'Blader'}
+                    {user ? user.username : 'Blader'}
                   </span>!
                 </h1>
                 <p className="text-xl text-blue-200 leading-relaxed">
