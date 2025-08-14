@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
-import { Header } from './components/Layout/Header';
 import { Sidebar } from './components/Layout/Sidebar';
+import { Header } from './components/Layout/Header';
 import { Dashboard } from './components/Views/Dashboard';
 import { Tournaments } from './components/Views/Tournaments';
 import { Analytics } from './components/Views/Analytics';
@@ -38,6 +38,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Header onMenuToggle={toggleSidebar} isMenuOpen={isSidebarOpen} />
       <Sidebar 
         isOpen={isSidebarOpen} 
         currentView={currentView} 

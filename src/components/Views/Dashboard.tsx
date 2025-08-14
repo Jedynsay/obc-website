@@ -178,16 +178,6 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Hamburger Menu Button */}
-        {!isSidebarOpen && (
-          <button
-            onClick={onToggleSidebar}
-            className="fixed top-4 left-4 z-50 p-3 bg-slate-800/90 hover:bg-slate-700/90 text-white rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105"
-          >
-            <Menu size={24} />
-          </button>
-        )}
-
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%239C92AC%22%20fill-opacity%3D%220.1%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] animate-pulse"></div>
@@ -291,7 +281,7 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
                 </button>
               </div>
             </div>
-            
+        {user && !user.id.startsWith('guest-') ? (
             {/* Beyblade Illustration */}
             <div className="relative">
               <div className="relative w-80 h-80 mx-auto">
@@ -307,7 +297,20 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          /* Login Button for logged out users */
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={() => {
+                // Show login modal - we'll need to add this functionality
+                alert('Login functionality will be added. For now, please refresh the page and use the login form.');
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2"
+            >
+              <span>Login</span>
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Quick Access Cards */}
