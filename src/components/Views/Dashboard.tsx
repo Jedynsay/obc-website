@@ -281,36 +281,38 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
                 </button>
               </div>
             </div>
-        {user && !user.id.startsWith('guest-') ? (
-            {/* Beyblade Illustration */}
-            <div className="relative">
-              <div className="relative w-80 h-80 mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-spin-slow opacity-20"></div>
-                <div className="absolute inset-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
-                <div className="absolute inset-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                  <Zap size={120} className="text-white animate-pulse" />
+
+            {user && !user.id.startsWith('guest-') ? (
+              /* Beyblade Illustration */
+              <div className="relative">
+                <div className="relative w-80 h-80 mx-auto">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-spin-slow opacity-20"></div>
+                  <div className="absolute inset-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
+                  <div className="absolute inset-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+                    <Zap size={120} className="text-white animate-pulse" />
+                  </div>
+                  {/* Spark effects */}
+                  <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400 rounded-full animate-ping"></div>
+                  <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400 rounded-full animate-ping delay-1000"></div>
+                  <div className="absolute top-1/2 -left-8 w-4 h-4 bg-purple-400 rounded-full animate-ping delay-500"></div>
                 </div>
-                {/* Spark effects */}
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400 rounded-full animate-ping"></div>
-                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400 rounded-full animate-ping delay-1000"></div>
-                <div className="absolute top-1/2 -left-8 w-4 h-4 bg-purple-400 rounded-full animate-ping delay-500"></div>
               </div>
-            </div>
+            ) : (
+              /* Login Button for logged out users */
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => {
+                    // Show login modal - we'll need to add this functionality
+                    alert('Login functionality will be added. For now, please refresh the page and use the login form.');
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2"
+                >
+                  <span>Login</span>
+                </button>
+              </div>
+            )}
           </div>
-        ) : (
-          /* Login Button for logged out users */
-          <div className="absolute top-4 right-4">
-            <button
-              onClick={() => {
-                // Show login modal - we'll need to add this functionality
-                alert('Login functionality will be added. For now, please refresh the page and use the login form.');
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2"
-            >
-              <span>Login</span>
-            </button>
-          </div>
-        )}
+        </div>
       </section>
 
       {/* Quick Access Cards */}
