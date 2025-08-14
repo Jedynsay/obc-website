@@ -48,6 +48,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
   const [recentMatches, setRecentMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [selectedTournamentFilter, setSelectedTournamentFilter] = useState<string>('all');
+  const [allTournaments, setAllTournaments] = useState<Tournament[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -75,6 +77,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       ]);
 
       const tournaments = tournamentsRes.data || [];
+      setAllTournaments(tournaments);
       const upcoming = tournaments.filter(t => t.status === 'upcoming').slice(0, 3);
       
       setUpcomingTournaments(upcoming);
@@ -136,17 +139,30 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
   const fetchRecentMatches = async () => {
     try {
-      const { data: matches } = await supabase
+      let query = supabase
         .from('match_results')
-        .select('player1_name, player2_name, winner_name, outcome, submitted_at')
+        .select('player1_name, player2_name, winner_name, outcome, submitted_at, tournament_id')
         .order('submitted_at', { ascending: false })
         .limit(10);
+
+      if (selectedTournamentFilter !== 'all') {
+        query = query.eq('tournament_id', selectedTournamentFilter);
+      }
+
+      const { data: matches } = await query;
 
       setRecentMatches(matches || []);
     } catch (error) {
       console.error('Error fetching recent matches:', error);
     }
   };
+
+  // Refetch matches when tournament filter changes
+  useEffect(() => {
+    if (!loading) {
+      fetchRecentMatches();
+    }
+  }, [selectedTournamentFilter]);
 
   const fetchDeckPresets = async () => {
     if (!user || user.id.startsWith('guest-')) return;
@@ -495,9 +511,23 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                 <Play size={20} className="text-green-400" />
                 <span>Live Results</span>
               </h3>
-              <span className="text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold animate-pulse">
-                LIVE
-              </span>
+              <div className="flex items-center space-x-3">
+                <select
+                  value={selectedTournamentFilter}
+                  onChange={(e) => setSelectedTournamentFilter(e.target.value)}
+                  className="text-xs bg-slate-700 text-white border border-slate-600 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="all">All Tournaments</option>
+                  {allTournaments.map(tournament => (
+                    <option key={tournament.id} value={tournament.id}>
+                      {tournament.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xs bg-green-500 text-black px-2 py-1 rounded-full font-semibold animate-pulse">
+                  LIVE
+                </span>
+              </div>
             </div>
             <div className="space-y-3 max-h-48 overflow-y-auto">
               {recentMatches.slice(0, 5).map((match, index) => (
