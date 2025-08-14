@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Package, Search, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Package, Search, Filter, Layers } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { DeckBuilder } from './DeckBuilder';
 
 interface InventoryItem {
   id: string;
@@ -15,45 +16,49 @@ interface InventoryItem {
 
 export function Inventory() {
   const { user } = useAuth();
+  const [currentView, setCurrentView] = useState<'inventory' | 'deck-builder'>('inventory');
   
   // Early return for guest users - don't load anything
   if (!user || user.id.startsWith('guest-')) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Inventory</h1>
-          <p className="text-gray-600">Track your Beyblade parts collection</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Inventory & Deck Builder</h1>
+          <p className="text-gray-600">Track your parts and build custom decks</p>
         </div>
         
         <div className="text-center py-12">
-          <Package size={64} className="mx-auto text-gray-400 mb-6" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Inventory Tracker</h2>
+          <div className="flex justify-center space-x-4 mb-6">
+            <Package size={64} className="text-gray-400" />
+            <Layers size={64} className="text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Inventory & Deck Builder</h2>
           <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-            Keep track of all your Beyblade parts, organize your collection, and build custom decks. 
-            Save presets for quick tournament registration and never forget which parts you own.
+            Track your Beyblade parts collection and build powerful custom decks. 
+            Save deck presets for quick tournament registration.
           </p>
           
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-8 max-w-md mx-auto mb-8">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-8 max-w-md mx-auto mb-8">
             <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                📦
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                🎯
               </div>
             </div>
-            <h3 className="text-xl font-bold text-blue-900 mb-3">Login to Get Started</h3>
+            <h3 className="text-xl font-bold text-blue-900 mb-3">Login to Access Tools</h3>
             <p className="text-blue-800 text-sm mb-6">
-              Create a free account to start tracking your Beyblade parts and building custom decks!
+              Create a free account to access inventory tracking and deck building tools!
             </p>
             <div className="space-y-2 text-sm text-blue-700">
               <div className="flex items-center justify-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
                 Track unlimited Beyblade parts
               </div>
               <div className="flex items-center justify-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
                 Build and save custom decks
               </div>
               <div className="flex items-center justify-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
                 Quick tournament registration
               </div>
             </div>
@@ -61,7 +66,7 @@ export function Inventory() {
           
           <div className="bg-gray-50 rounded-lg p-6 max-w-lg mx-auto">
             <p className="text-gray-600 text-sm">
-              <strong>No account yet?</strong> Click the "Login" button in the top right corner to create your free account and unlock all inventory features.
+              <strong>Ready to start?</strong> Click the "Login" button to create your account and unlock inventory & deck building features.
             </p>
           </div>
         </div>
@@ -288,20 +293,51 @@ export function Inventory() {
     );
   }
 
+  if (currentView === 'deck-builder') {
+    return <DeckBuilder onBack={() => setCurrentView('inventory')} />;
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Inventory</h1>
-          <p className="text-gray-600">Track your Beyblade parts collection</p>
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Inventory & Deck Builder</h1>
+              <p className="text-gray-600">Track your parts and build custom decks</p>
+            </div>
+            <div className="filter-tabs">
+              <button
+                onClick={() => setCurrentView('inventory')}
+                className={`filter-tab ${
+                  currentView === 'inventory' ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
+              >
+                <Package size={16} className="mr-2" />
+                Inventory
+              </button>
+              <button
+                onClick={() => setCurrentView('deck-builder')}
+                className={`filter-tab ${
+                  currentView === 'deck-builder' ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
+              >
+                <Layers size={16} className="mr-2" />
+                Deck Builder
+              </button>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={startAdd}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
-        >
-          <Plus size={20} />
-          <span>Add Part</span>
-        </button>
+        
+        <div className="flex justify-end">
+          <button
+            onClick={startAdd}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          >
+            <Plus size={20} />
+            <span>Add Part</span>
+          </button>
+        </div>
       </div>
 
       {/* Search and Filter */}

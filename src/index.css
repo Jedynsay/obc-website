@@ -175,7 +175,8 @@
   }
   
   .main-content {
-    @apply lg:ml-64 min-h-screen relative z-10;
+    @apply min-h-screen relative z-10;
+    padding-top: 80px; /* Add top padding to avoid hamburger overlap */
   }
   
   .modal-overlay {

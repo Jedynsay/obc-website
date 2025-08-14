@@ -396,7 +396,10 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </button>
 
           {/* Deck Presets */}
-          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1">
+          <button 
+            onClick={() => onViewChange?.('inventory')}
+            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-orange-600 rounded-xl">
                 <Layers size={24} className="text-white" />
@@ -408,11 +411,11 @@ export function Dashboard({ onViewChange }: DashboardProps) {
             <h3 className="text-white font-bold text-lg mb-2">Your Decks</h3>
             <p className="text-orange-300 text-sm mb-2">Saved combinations</p>
             <p className="text-slate-400 text-xs mb-4">{deckPresets.length} presets ready</p>
-            <button className="text-orange-400 hover:text-orange-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+            <span className="text-orange-400 hover:text-orange-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
               <span>Manage</span>
               <ArrowRight size={14} />
-            </button>
-          </div>
+            </span>
+          </button>
         </div>
       </section>
 
