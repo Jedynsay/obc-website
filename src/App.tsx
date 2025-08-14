@@ -23,7 +23,7 @@ function AppContent() {
 
   const renderCurrentView = () => {
     switch (currentView) {
-      case 'dashboard': return <Dashboard onToggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />;
+      case 'dashboard': return <Dashboard onToggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} onViewChange={setCurrentView} />;
       case 'tournaments': return <Tournaments />;
       case 'inventory': return <Inventory />;
       case 'deck-builder': return <DeckBuilder />;

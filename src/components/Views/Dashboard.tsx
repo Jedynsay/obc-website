@@ -30,10 +30,12 @@ interface TopPlayer {
 interface DashboardProps {
   onToggleSidebar?: () => void;
   isSidebarOpen?: boolean;
+  onViewChange?: (view: string) => void;
 }
 
-export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
+export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: DashboardProps) {
   const { user } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalTournaments: 0,
     activePlayers: 0,
@@ -194,16 +196,101 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
         <div className="relative max-w-7xl mx-auto px-6 py-20">
           {/* User Profile in top right */}
           <div className="absolute top-4 right-4">
-            <div className="flex items-center space-x-3 bg-slate-800/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                {user?.username?.charAt(0).toUpperCase() || 'B'}
-              </div>
-              <div className="text-white">
-                <p className="font-semibold text-sm">{user?.username || 'Bruh1'}</p>
-                <p className="text-xs text-blue-200 capitalize">{user?.role || 'Developer'}</p>
-              </div>
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center space-x-3 bg-slate-800/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg hover:bg-slate-700/90 transition-all duration-200 cursor-pointer"
+              >
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                  {user?.username?.charAt(0).toUpperCase() || 'B'}
+                </div>
+                <div className="text-white">
+                  <p className="font-semibold text-sm">{user?.username || 'Bruh1'}</p>
+                  <p className="text-xs text-blue-200 capitalize">{user?.role || 'Developer'}</p>
+                </div>
+              </button>
+
+              {/* User Dropdown Menu */}
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                  <div className="py-1">
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <p className="font-semibold text-gray-900">{user?.username || 'Bruh1'}</p>
+                      <p className="text-sm text-gray-600 capitalize">{user?.role || 'Developer'}</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        // Add settings navigation here if needed
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors"
+                    >
+                      <Settings size={16} />
+                      <span>Settings</span>
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setShowUserMenu(false);
+                        await logout();
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
+                    >
+                      <LogOut size={16} />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Click outside to close user menu */}
+          {showUserMenu && (
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={() => setShowUserMenu(false)}
+            />
+          )}
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 text-yellow-400">
+                  <Flame size={24} />
+                  <span className="text-sm font-semibold uppercase tracking-wider">Battle Ready</span>
+                </div>
+                <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                  Welcome back,{' '}
+                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    {user?.username || 'Blader'}
+                  </span>!
+                </h1>
+                <p className="text-xl text-blue-200 leading-relaxed">
+                  Gear up and join the next battle. The arena awaits your ultimate Beyblade combination.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button 
+                  onClick={() => onViewChange?.('tournaments')}
+                  className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  <Trophy size={24} />
+                  <span>Join Next Tournament</span>
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button 
+                  onClick={() => onViewChange?.('deck-builder')}
+                  className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  <Layers size={24} />
+                  <span>Deck Builder</span>
+                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -265,7 +352,10 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Upcoming Tournament */}
-          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
+          <button 
+            onClick={() => onViewChange?.('tournaments')}
+            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-blue-600 rounded-xl">
                 <Trophy size={24} className="text-white" />
@@ -284,19 +374,22 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
                   <span className="text-xs text-slate-500">
                     {upcomingTournaments[0].current_participants}/{upcomingTournaments[0].max_participants} spots
                   </span>
-                  <button className="text-blue-400 hover:text-blue-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                  <span className="text-blue-400 hover:text-blue-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
                     <span>Register</span>
                     <ArrowRight size={14} />
-                  </button>
+                  </span>
                 </div>
               </div>
             ) : (
               <p className="text-slate-400">No upcoming tournaments</p>
             )}
-          </div>
+          </button>
 
           {/* Meta Analysis */}
-          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-purple-500 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1">
+          <button 
+            onClick={() => onViewChange?.('analytics')}
+            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-purple-500 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-purple-600 rounded-xl">
                 <TrendingUp size={24} className="text-white" />
@@ -306,14 +399,20 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
             <h3 className="text-white font-bold text-lg mb-2">Meta Analysis</h3>
             <p className="text-purple-300 text-sm mb-2">Latest tier rankings</p>
             <p className="text-slate-400 text-xs mb-4">Updated 2 hours ago</p>
-            <button className="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+            <span className="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
               <span>View Stats</span>
               <ArrowRight size={14} />
-            </button>
-          </div>
+            </span>
+          </button>
 
           {/* Latest News */}
-          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1">
+          <button 
+            onClick={() => {
+              // For now, just show an alert since there's no news page
+              alert('Tournament Rules Update: New regulations for X-Over parts have been implemented. Check the official tournament guidelines for details.');
+            }}
+            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-green-600 rounded-xl">
                 <Newspaper size={24} className="text-white" />
@@ -323,14 +422,17 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
             <h3 className="text-white font-bold text-lg mb-2">Latest News</h3>
             <p className="text-green-300 text-sm mb-2">Tournament Rules Update</p>
             <p className="text-slate-400 text-xs mb-4">New regulations for X-Over parts</p>
-            <button className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+            <span className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
               <span>Read More</span>
               <ArrowRight size={14} />
-            </button>
-          </div>
+            </span>
+          </button>
 
           {/* Deck Presets */}
-          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1">
+          <button 
+            onClick={() => onViewChange?.('deck-builder')}
+            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-orange-600 rounded-xl">
                 <Layers size={24} className="text-white" />
@@ -342,11 +444,11 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
             <h3 className="text-white font-bold text-lg mb-2">Your Decks</h3>
             <p className="text-orange-300 text-sm mb-2">Saved combinations</p>
             <p className="text-slate-400 text-xs mb-4">{deckPresets.length} presets ready</p>
-            <button className="text-orange-400 hover:text-orange-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+            <span className="text-orange-400 hover:text-orange-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
               <span>Manage</span>
               <ArrowRight size={14} />
-            </button>
-          </div>
+            </span>
+          </button>
         </div>
       </section>
 
