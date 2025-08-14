@@ -222,12 +222,18 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen }: DashboardProps) {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-2">
+                <button 
+                  onClick={() => {/* Navigate to tournaments */}}
+                  className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 flex items-center justify-center space-x-2 cursor-pointer"
+                >
                   <Trophy size={24} />
                   <span>Join Next Tournament</span>
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2">
+                <button 
+                  onClick={() => {/* Navigate to deck builder */}}
+                  className="group bg-slate-800/50 hover:bg-slate-700/50 text-white border border-slate-600 hover:border-slate-500 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer"
+                >
                   <Layers size={24} />
                   <span>Deck Builder</span>
                   <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
