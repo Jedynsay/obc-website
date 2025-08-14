@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Users, Calendar, TrendingUp, Zap, Target, Layers, Newspaper, ChevronRight, Play, Star, Crown, Flame, ArrowRight, ExternalLink, Menu, X, Settings, LogOut, Shield, Activity } from 'lucide-react';
+import { Trophy, Users, Calendar, TrendingUp, Zap, Target, Layers, Newspaper, ChevronRight, Play, Star, Crown, Flame, ArrowRight, ExternalLink, Menu, X, Settings, LogOut, Shield, Activity, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { LoginForm } from '../Auth/LoginForm';
