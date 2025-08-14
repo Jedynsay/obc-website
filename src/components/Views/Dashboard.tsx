@@ -366,7 +366,13 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
           </button>
 
           {/* Latest News */}
-          <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1">
+          <button 
+            onClick={() => {
+              // For now, just show an alert since there's no news page
+              alert('Tournament Rules Update: New regulations for X-Over parts have been implemented. Check the official tournament guidelines for details.');
+            }}
+            className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-green-500 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1 cursor-pointer text-left w-full"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-green-600 rounded-xl">
                 <Newspaper size={24} className="text-white" />
@@ -376,11 +382,11 @@ export function Dashboard({ onToggleSidebar, isSidebarOpen, onViewChange }: Dash
             <h3 className="text-white font-bold text-lg mb-2">Latest News</h3>
             <p className="text-green-300 text-sm mb-2">Tournament Rules Update</p>
             <p className="text-slate-400 text-xs mb-4">New regulations for X-Over parts</p>
-            <button className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+            <span className="text-green-400 hover:text-green-300 text-sm font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
               <span>Read More</span>
               <ArrowRight size={14} />
-            </button>
-          </div>
+            </span>
+          </button>
 
           {/* Deck Presets */}
           <div className="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 hover:border-orange-500 transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1">
