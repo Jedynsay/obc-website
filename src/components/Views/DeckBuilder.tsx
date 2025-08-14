@@ -90,6 +90,7 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [useInventory, setUseInventory] = useState(true);
   
   // Form state
   const [deckName, setDeckName] = useState('');
@@ -101,7 +102,10 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
 
   useEffect(() => {
     fetchPresets();
-    fetchInventory();
+    if (useInventory) {
+      fetchInventory();
+    }
+    fetchPartsData();
   }, [user]);
 
   const fetchPresets = async () => {
@@ -118,6 +122,35 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
       console.error('Error fetching presets:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch parts data when not using inventory
+  useEffect(() => {
+    if (!useInventory) {
+      fetchPartsData();
+    }
+  }, [useInventory]);
+
+  const fetchPartsData = async () => {
+    try {
+      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes] = await Promise.all([
+        supabase.from('beypart_blade').select('*'),
+        supabase.from('beypart_ratchet').select('*'),
+        supabase.from('beypart_bit').select('*'),
+        supabase.from('beypart_lockchip').select('*'),
+        supabase.from('beypart_assistblade').select('*')
+      ]);
+
+      setPartsData({
+        blades: bladesRes.data || [],
+        ratchets: ratchetsRes.data || [],
+        bits: bitsRes.data || [],
+        lockchips: lockchipsRes.data || [],
+        assistBlades: assistBladesRes.data || []
+      });
+    } catch (error) {
+      console.error('Error fetching parts data:', error);
     }
   };
 
@@ -150,6 +183,56 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
   };
 
   const getAvailableParts = (partType: string) => {
+    if (!useInventory) {
+      // Free build mode - return all parts from database
+      const mappedType = partType === 'Main Blade' ? 'Blade' : partType;
+      switch (mappedType) {
+        case 'Blade':
+          return partsData.blades.map(blade => ({
+            id: `db-${blade.Blades}`,
+            part_type: 'Blade',
+            part_name: blade.Blades,
+            part_data: blade,
+            quantity: 999 // Unlimited in free build
+          }));
+        case 'Ratchet':
+          return partsData.ratchets.map(ratchet => ({
+            id: `db-${ratchet.Ratchet}`,
+            part_type: 'Ratchet',
+            part_name: ratchet.Ratchet,
+            part_data: ratchet,
+            quantity: 999
+          }));
+        case 'Bit':
+          return partsData.bits.map(bit => ({
+            id: `db-${bit.Bit}`,
+            part_type: 'Bit',
+            part_name: `${bit.Bit} (${bit.Shortcut})`,
+            part_data: bit,
+            quantity: 999
+          }));
+        case 'Lockchip':
+          return partsData.lockchips.map(lockchip => ({
+            id: `db-${lockchip.Lockchip}`,
+            part_type: 'Lockchip',
+            part_name: lockchip.Lockchip,
+            part_data: lockchip,
+            quantity: 999
+          }));
+        case 'Assist Blade':
+          return partsData.assistBlades.map(assistBlade => ({
+            id: `db-${assistBlade['Assist Blade']}`,
+            part_type: 'Assist Blade',
+            part_name: `${assistBlade['Assist Blade Name']} (${assistBlade['Assist Blade']})`,
+            part_data: assistBlade,
+            quantity: 999
+          }));
+        default:
+          return [];
+      }
+    }
+    
+    // Inventory mode - return user's inventory
     const mappedType = partType === 'Main Blade' ? 'Blade' : partType;
     const parts = inventory.filter(item => item.part_type === mappedType);
     
@@ -403,18 +486,70 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Deck Builder</h1>
             <p className="text-gray-600">Create and save Beyblade deck presets from your inventory</p>
           </div>
-          <button
-            onClick={startCreate}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <Plus size={20} />
-            <span>New Deck</span>
-          </button>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700">Build Mode:</label>
+              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setUseInventory(true)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                    useInventory 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Use Inventory
+                </button>
+                <button
+                  onClick={() => setUseInventory(false)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                    !useInventory 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Free Build
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={startCreate}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <Plus size={20} />
+              <span>New Deck</span>
+            </button>
+          </div>
         </div>
       )}
       
       {!showHeader && (
-        <div className="flex justify-end mb-8">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Build Mode:</label>
+            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setUseInventory(true)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  useInventory 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Use Inventory
+              </button>
+              <button
+                onClick={() => setUseInventory(false)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  !useInventory 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Free Build
+              </button>
+            </div>
+          </div>
           <button
             onClick={startCreate}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
@@ -523,7 +658,7 @@ export function DeckBuilder({ showHeader = true }: { showHeader?: boolean }) {
                           })
                           .map((item) => (
                             <option key={item.id} value={JSON.stringify(item.part_data)}>
-                              {item.part_name} (Qty: {item.quantity})
+                              {item.part_name} {useInventory ? `(Qty: ${item.quantity})` : ''}
                             </option>
                           ))}
                       </select>

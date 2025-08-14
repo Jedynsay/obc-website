@@ -244,14 +244,10 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
     
     switch (partType) {
       case 'Blade':
+        options = partsData.blades.filter(blade => blade.Line === bladeLine);
+        break;
       case 'Main Blade':
-        options = partsData.blades.filter(blade => {
-          if (partType === 'Main Blade') {
-            // Main Blade for Custom line should only show Custom blades
-            return blade.Line === 'Custom';
-          }
-          return blade.Line === bladeLine;
-        });
+        options = partsData.blades.filter(blade => blade.Line === 'Custom');
         break;
       case 'Ratchet':
         options = partsData.ratchets;
