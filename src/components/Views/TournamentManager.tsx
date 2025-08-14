@@ -562,14 +562,15 @@ export function TournamentManager() {
                   <div className="flex items-center space-x-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Payment Status</label>
-                        className="text-xs text-gray-900 font-medium"
+                      <select
+                        value={registration.payment_status || 'unpaid'}
+                        onChange={(e) => updatePaymentStatus(registration.registration_id, e.target.value)}
+                        className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                       >
-                        {registration.payment_mode === 'free' ? 'Free' :
-                         registration.payment_mode === 'cash' ? 'Cash' :
-                         registration.payment_mode === 'gcash' ? 'GCash' :
-                         registration.payment_mode === 'bank_transfer' ? 'Bank Transfer' :
-                         'Unknown'}
-                      </span>
+                        <option value="unpaid">Unpaid</option>
+                        <option value="paid">Paid</option>
+                        <option value="confirmed">Confirmed</option>
+                      </select>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       registration.payment_status === 'confirmed' ? 'bg-green-100 text-green-800' :
