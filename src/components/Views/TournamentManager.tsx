@@ -562,7 +562,7 @@ export function TournamentManager() {
                   <div className="flex items-center space-x-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Payment Status</label>
-                      <p className="font-medium capitalize">
+                      <select
                         {registration.payment_mode === 'free' ? 'Free' : 
                          registration.payment_mode === 'cash' ? 'Cash' :
                          registration.payment_mode === 'gcash' ? 'GCash' :
@@ -577,7 +577,6 @@ export function TournamentManager() {
                         <option value="paid">Paid</option>
                         <option value="confirmed">Confirmed</option>
                       </select>
-                    </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       registration.payment_status === 'confirmed' ? 'bg-green-100 text-green-800' :
                       registration.payment_status === 'paid' ? 'bg-blue-100 text-blue-800' :
