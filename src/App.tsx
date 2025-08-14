@@ -5,7 +5,7 @@ import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Views/Dashboard';
 import { Tournaments } from './components/Views/Tournaments';
 import { Analytics } from './components/Views/Analytics';
-import { MatchTracker } from './components/Views/MatchTracker';
+import MatchTracker from './components/Views/MatchTracker';
 import { TournamentManager } from './components/Views/TournamentManager';
 import { UserManagement } from './components/Views/UserManagement';
 import { DatabaseView } from './components/Views/Database';
