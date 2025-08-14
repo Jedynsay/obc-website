@@ -36,6 +36,7 @@ export function TournamentManager() {
   const [viewingAllRegistrations, setViewingAllRegistrations] = useState(false);
   const [allRegistrations, setAllRegistrations] = useState<TournamentRegistration[]>([]);
   const [loadingAllRegistrations, setLoadingAllRegistrations] = useState(false);
+  const [showAllRegistrations, setShowAllRegistrations] = useState(false);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'developer';
 
