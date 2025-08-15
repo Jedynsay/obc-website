@@ -9,6 +9,14 @@ import { SystemFooter } from './SystemFooter';
 import { LoginModal } from './LoginModal';
 import { BeybladeLoader } from './BeybladeLoader';
 
+export function Dashboard({ onViewChange }: DashboardProps) {
+  const { user, logout } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
 interface Tournament {
   id: string;
   name: string;
@@ -152,15 +160,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     setDeckPresets(data || []);
   };
 
-  export function Dashboard({ onViewChange }: DashboardProps) {
-  const { user, logout } = useAuth();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  if (loading) {
+    if (loading) {
     return <BeybladeLoader loading={loading} />;
   }
 
