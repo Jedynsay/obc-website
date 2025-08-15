@@ -35,6 +35,7 @@ const menuItems: MenuItem[] = [
 export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
   const { user, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
   const sidebarRef = React.useRef<HTMLDivElement>(null);
 
   const filteredMenuItems = menuItems.filter(item =>
@@ -47,10 +48,19 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
-  // Close sidebar when clicking outside
+  // Detect screen size
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close sidebar when clicking outside (only mobile)
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
+        isMobile &&
         isOpen &&
         sidebarRef.current &&
         !sidebarRef.current.contains(event.target as Node)
@@ -72,15 +82,17 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscKey);
     };
-  }, [isOpen, onToggle]);
+  }, [isMobile, isOpen, onToggle]);
 
   return (
     <>
       <aside
         ref={sidebarRef}
-        className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
-        transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
-        bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}
+        className={`fixed left-0 top-0 z-40 h-screen flex flex-col bg-white border-r border-gray-200 transition-all
+          ${isMobile
+            ? `${isOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'}`
+            : `${isOpen ? 'w-64' : 'w-16'} translate-x-0`
+          }`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
