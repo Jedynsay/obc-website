@@ -152,6 +152,14 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     setDeckPresets(data || []);
   };
 
+  export function Dashboard({ onViewChange }: DashboardProps) {
+  const { user, logout } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
   if (loading) {
     return <BeybladeLoader loading={loading} />;
   }
