@@ -30,6 +30,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
     setSelectedPreset,
     loadPreset,
     partsData,
+    fusionParts,
     isLoadingParts,
     partsError,
     fetchPartsData,
