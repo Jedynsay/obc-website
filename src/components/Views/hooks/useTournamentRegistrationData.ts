@@ -22,6 +22,7 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     lockchips: [],
     assistBlades: []
   });
+  const [fusionParts, setFusionParts] = useState<any[]>([]); // NEW: Fusion parts
   const [isLoadingParts, setIsLoadingParts] = useState(false);
   const [partsError, setPartsError] = useState<string | null>(null);
 
@@ -31,12 +32,20 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     setPartsError(null);
 
     try {
-      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes] = await Promise.all([
+      const [
+        bladesRes,
+        ratchetsRes,
+        bitsRes,
+        lockchipsRes,
+        assistBladesRes,
+        fusionPartsRes // NEW: fetch from beypart_fusionparts
+      ] = await Promise.all([
         supabase.from('beypart_blade').select('*'),
         supabase.from('beypart_ratchet').select('*'),
         supabase.from('beypart_bit').select('*'),
         supabase.from('beypart_lockchip').select('*'),
-        supabase.from('beypart_assistblade').select('*')
+        supabase.from('beypart_assistblade').select('*'),
+        supabase.from('beypart_fusionparts').select('*')
       ]);
 
       if (bladesRes.error) throw bladesRes.error;
@@ -44,6 +53,7 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
       if (bitsRes.error) throw bitsRes.error;
       if (lockchipsRes.error) throw lockchipsRes.error;
       if (assistBladesRes.error) throw assistBladesRes.error;
+      if (fusionPartsRes.error) throw fusionPartsRes.error;
 
       setPartsData({
         blades: bladesRes.data || [],
@@ -52,6 +62,8 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
         lockchips: lockchipsRes.data || [],
         assistBlades: assistBladesRes.data || []
       });
+
+      setFusionParts(fusionPartsRes.data || []); // store fusion parts
     } catch (err) {
       console.error(err);
       setPartsError('Failed to load Beyblade parts. Please try again.');
@@ -93,14 +105,12 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
 
   // Submit registration
   const handleSubmit = async () => {
-    // Simple validation (more in useBeybladeValidation)
     if (!playerName.trim()) {
       await alert('Missing Information', 'Please enter your player name.');
       return;
     }
 
     try {
-      // Insert registration
       const tournamentData = await supabase
         .from('tournaments')
         .select('is_free')
@@ -123,7 +133,6 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
 
       if (regError) throw regError;
 
-      // Insert each Beyblade & parts
       for (const beyblade of beyblades) {
         const beyName = generateBeybladeName(beyblade);
         const { data: beyData, error: beyError } = await supabase
@@ -158,7 +167,6 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     }
   };
 
-  // Helper functions
   const getPartDisplayName = (part: any, partType: string) => {
     switch (partType) {
       case 'Blade':
@@ -202,7 +210,6 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     }
   };
 
-  // On mount
   useEffect(() => {
     fetchPartsData();
     fetchDeckPresets();
@@ -214,6 +221,7 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     beyblades, setBeyblades,
     deckPresets, selectedPreset, setSelectedPreset, loadPreset,
     partsData, isLoadingParts, partsError, fetchPartsData,
-    handleSubmit
+    handleSubmit,
+    fusionParts // NEW: pass to components
   };
 }
