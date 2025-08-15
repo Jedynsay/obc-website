@@ -47,31 +47,23 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
-  // Close sidebar when clicking outside
+  // Detect mouse near left edge for desktop
   React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        isOpen &&
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target as Node)
-      ) {
-        onToggle();
+    const handleMouseMove = (e: MouseEvent) => {
+      // Only apply for desktop
+      if (window.innerWidth >= 1024) {
+        if (e.clientX <= 10 && !isOpen) {
+          onToggle(); // open if closed
+        }
+        if (e.clientX > 300 && isOpen) {
+          // Optional: auto-close if they move far from sidebar
+          // onToggle();
+        }
       }
-    }
-
-    function handleEscKey(event: KeyboardEvent) {
-      if (isOpen && event.key === 'Escape') {
-        onToggle();
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscKey);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscKey);
     };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isOpen, onToggle]);
 
   return (
@@ -79,7 +71,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
       <aside
         ref={sidebarRef}
         className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
-        transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+        transition-all duration-300 
         bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}
       >
         {/* Sidebar Header */}
@@ -143,7 +135,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           )}
         </div>
 
-        {/* Created by Jedynsay - pinned bottom */}
+        {/* Created by Jedynsay */}
         {isOpen && (
           <div className="px-2 pb-4">
             <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
