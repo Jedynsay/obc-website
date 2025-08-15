@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Save, Plus } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useConfirmation } from '../../context/ConfirmationContext';
-import { Tournament } from '../../types';
+import { useAuth } from '../../../context/AuthContext';
+import { useConfirmation } from '../../../context/ConfirmationContext';
+import { Tournament } from '../../../types';
 import { useTournamentRegistrationData } from './hooks/useTournamentRegistrationData';
 import { useBeybladeValidation } from './hooks/useBeybladeValidation';
 import { PlayerInfoSection } from './PlayerInfoSection';
@@ -30,7 +30,6 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
     setSelectedPreset,
     loadPreset,
     partsData,
-    fusionParts, // ⬅ NEW
     isLoadingParts,
     partsError,
     fetchPartsData,
@@ -101,7 +100,6 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
               beyblades={beyblades}
               setBeyblades={setBeyblades}
               partsData={partsData}
-              fusionParts={fusionParts} // ⬅ NEW
               validationErrors={validationErrors}
             />
           ))}
@@ -124,7 +122,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
             <button
               onClick={handleSubmit}
               disabled={!isFormValid() || isLoadingParts}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center space-x-2"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
               <Save size={16} />
               <span>Register</span>
