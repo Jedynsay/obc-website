@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Plus } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext';
-import { useConfirmation } from '../../../context/ConfirmationContext';
-import { Tournament } from '../../../types';
+import { useAuth } from '../../context/AuthContext';
+import { useConfirmation } from '../../context/ConfirmationContext';
+import { Tournament } from '../../types';
 import { useTournamentRegistrationData } from './hooks/useTournamentRegistrationData';
 import { useBeybladeValidation } from './hooks/useBeybladeValidation';
 import { PlayerInfoSection } from './PlayerInfoSection';
