@@ -46,24 +46,32 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
-// Inside your Sidebar component
 React.useEffect(() => {
   const handleMouseMove = (e: MouseEvent) => {
-    // Only on desktop
-    if (window.innerWidth > 1024) {
+    if (window.innerWidth > 1024) { // Desktop only
       if (!isOpen && e.clientX <= 20) {
-        // Open when cursor near left edge
-        onToggle();
+        onToggle(); // Open
       } else if (isOpen && e.clientX > 300) {
-        // Close when cursor far away from sidebar (300px is slightly bigger than sidebar width)
-        onToggle();
+        onToggle(); // Close
+      }
+    }
+  };
+
+  const handleClickOutside = (e: MouseEvent) => {
+    if (window.innerWidth <= 1024 && isOpen) { // Mobile only
+      const sidebarEl = document.querySelector('aside');
+      if (sidebarEl && !sidebarEl.contains(e.target as Node)) {
+        onToggle(); // Close on tap outside
       }
     }
   };
 
   window.addEventListener('mousemove', handleMouseMove);
+  window.addEventListener('click', handleClickOutside);
+
   return () => {
     window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('click', handleClickOutside);
   };
 }, [isOpen, onToggle]);
 
