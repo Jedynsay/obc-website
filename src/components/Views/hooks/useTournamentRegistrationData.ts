@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../src/lib/supabase';
+import { supabase } from '/src/lib/supabase';
 import { Tournament } from '../types';
-import { useAuth } from '../../context/AuthContext';
-import { useConfirmation } from '../../context/ConfirmationContext';
+import { useAuth } from '/src/context/AuthContext';
+import { useConfirmation } from '/src/context/ConfirmationContext';
 
 export function useTournamentRegistrationData(tournament: Tournament, onClose: () => void) {
   const { user } = useAuth();
