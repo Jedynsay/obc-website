@@ -61,12 +61,18 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isOpen, onToggle]);
 
-  // Mobile outside-click close
+  // Mobile outside-click close (ignore hamburger)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (window.innerWidth <= 768 && isOpen) {
         const sidebarEl = document.getElementById('app-sidebar');
-        if (sidebarEl && !sidebarEl.contains(e.target as Node)) {
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        if (
+          sidebarEl &&
+          !sidebarEl.contains(e.target as Node) &&
+          toggleBtn &&
+          !toggleBtn.contains(e.target as Node)
+        ) {
           onToggle();
         }
       }
@@ -107,7 +113,10 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           </div>
           {isOpen && (
             <button
-              onClick={onToggle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle();
+              }}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <X size={20} />
