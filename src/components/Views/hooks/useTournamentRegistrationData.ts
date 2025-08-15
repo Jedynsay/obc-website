@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 import { Tournament } from '../../../types';
 
 export function useTournamentRegistrationData(tournament: Tournament, onClose: () => void) {
