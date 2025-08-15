@@ -46,6 +46,22 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
+  // Auto-open when mouse is near left edge (desktop only)
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth > 1024) { // Only on desktop
+        if (e.clientX <= 20 && !isOpen) {
+          onToggle(); // Open if mouse near left edge
+        }
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isOpen, onToggle]);
+
   return (
     <>
       <aside
@@ -114,7 +130,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           )}
         </div>
 
-        {/* Created by Jedynsay - pinned bottom */}
+        {/* Created by Jedynsay */}
         {isOpen && (
           <div className="px-2 pb-4">
             <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
