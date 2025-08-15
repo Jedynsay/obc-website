@@ -61,22 +61,27 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isOpen, onToggle]);
 
-  // Mobile outside-click close (ignore hamburger)
+  // Outside-click close for mobile
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (window.innerWidth <= 768 && isOpen) {
+      if (isOpen) {
         const sidebarEl = document.getElementById('app-sidebar');
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const headerToggleBtn = document.querySelector('[data-sidebar-toggle]');
+        
         if (
           sidebarEl &&
           !sidebarEl.contains(e.target as Node) &&
           toggleBtn &&
-          !toggleBtn.contains(e.target as Node)
+          !toggleBtn.contains(e.target as Node) &&
+          headerToggleBtn &&
+          !headerToggleBtn.contains(e.target as Node)
         ) {
           onToggle();
         }
       }
     };
+    
     if (isOpen) {
       document.addEventListener('click', handleClickOutside);
     }
@@ -85,14 +90,14 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
 
   return (
     <>
-      {/* Backdrop for mobile */}
-      {isOpen && window.innerWidth <= 768 && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 z-30" />
+      {/* Backdrop */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 z-30 lg:hidden" />
       )}
 
       <aside
         id="app-sidebar"
-        className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
+        className={`fixed left-0 top-0 z-50 h-screen flex flex-col 
         transition-transform duration-200 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
         bg-white border-r border-gray-200 w-64`}
