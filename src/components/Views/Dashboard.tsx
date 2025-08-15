@@ -151,16 +151,84 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     setDeckPresets(data || []);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-center text-slate-300">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
-          Loading dashboard...
-        </div>
-      </div>
-    );
-  }
+if (loading) {
+  return (
+    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center">
+      <svg
+        className="w-32 h-32 animate-spin-slow"
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Outer energy ring */}
+        <circle
+          cx="50"
+          cy="50"
+          r="45"
+          stroke="url(#outerGradient)"
+          strokeWidth="6"
+          strokeDasharray="20 10"
+          strokeLinecap="round"
+        />
+
+        {/* Attack layer */}
+        <circle
+          cx="50"
+          cy="50"
+          r="30"
+          stroke="url(#attackGradient)"
+          strokeWidth="8"
+          strokeDasharray="10 6"
+        />
+
+        {/* Core disk */}
+        <circle cx="50" cy="50" r="15" fill="url(#coreGradient)" />
+
+        <defs>
+          <linearGradient id="outerGradient" x1="0" y1="0" x2="100" y2="0">
+            <stop stopColor="#00f0ff" />
+            <stop offset="1" stopColor="#0044ff" />
+          </linearGradient>
+          <linearGradient id="attackGradient" x1="0" y1="0" x2="100" y2="100">
+            <stop stopColor="#ff4500" />
+            <stop offset="1" stopColor="#ffdd00" />
+          </linearGradient>
+          <radialGradient id="coreGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#fff" />
+            <stop offset="100%" stopColor="#ffd700" />
+          </radialGradient>
+        </defs>
+      </svg>
+
+      <p className="mt-6 text-xl font-bold text-yellow-300 animate-pulse">
+        Let it Rip! Loading Dashboard...
+      </p>
+
+      <style jsx>{`
+        .animate-spin-slow {
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+  
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+  //       <div className="text-center text-slate-300">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+  //         Loading dashboard...
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
