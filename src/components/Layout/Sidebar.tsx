@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Home, Trophy, Users, BarChart3, Settings,
-  Database, Calendar, Package, X, LogIn, LogOut, Menu
+  Database, Calendar, Package, X, LogIn, LogOut
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { LoginForm } from '../Auth/LoginForm';
@@ -107,14 +107,14 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
               </div>
             )}
           </div>
-
-          {/* Toggle button always in sidebar */}
-          <button
-            onClick={onToggle}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {isOpen && (
+            <button
+              onClick={onToggle}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
         {/* Scrollable menu */}
@@ -155,7 +155,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           )}
         </div>
 
-        {/* Created by Jedynsay */}
+        {/* Created by Jedynsay - pinned bottom */}
         {isOpen && (
           <div className="px-2 pb-4">
             <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
