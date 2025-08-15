@@ -1,53 +1,35 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '../../../lib/supabaseClient';
 import { Tournament } from '../../../types';
-import { useAuth } from '../../../context/AuthContext';
-import { useConfirmation } from '../../../context/ConfirmationContext';
 
 export function useTournamentRegistrationData(tournament: Tournament, onClose: () => void) {
-  const { user } = useAuth();
-  const { alert } = useConfirmation();
-
   const [playerName, setPlayerName] = useState('');
-  const [paymentMode, setPaymentMode] = useState<'free' | 'cash' | 'gcash' | 'bank_transfer'>(
-    tournament.is_free ? 'free' : 'cash'
-  );
-  const [beyblades, setBeyblades] = useState([{ id: '1', bladeLine: '', parts: {} }]);
+  const [paymentMode, setPaymentMode] = useState('');
+  const [beyblades, setBeyblades] = useState<any[]>([{ id: Date.now().toString(), bladeLine: '', parts: {} }]);
   const [deckPresets, setDeckPresets] = useState<any[]>([]);
-  const [selectedPreset, setSelectedPreset] = useState('');
-
-  const [partsData, setPartsData] = useState({
+  const [selectedPreset, setSelectedPreset] = useState<string>('');
+  const [partsData, setPartsData] = useState<any>({
     blades: [],
     ratchets: [],
     bits: [],
     lockchips: [],
-    assistBlades: []
+    assistBlades: [],
   });
-
-  const [fusionParts, setFusionParts] = useState<any[]>([]); // ⬅ NEW
+  const [fusionParts, setFusionParts] = useState<any[]>([]);
   const [isLoadingParts, setIsLoadingParts] = useState(false);
   const [partsError, setPartsError] = useState<string | null>(null);
 
-  // Fetch parts data from Supabase
   const fetchPartsData = async () => {
     setIsLoadingParts(true);
     setPartsError(null);
-
     try {
-      const [
-        bladesRes,
-        ratchetsRes,
-        bitsRes,
-        lockchipsRes,
-        assistBladesRes,
-        fusionRes // ⬅ NEW
-      ] = await Promise.all([
-        supabase.from('beypart_blade').select('*'),
-        supabase.from('beypart_ratchet').select('*'),
-        supabase.from('beypart_bit').select('*'),
-        supabase.from('beypart_lockchip').select('*'),
-        supabase.from('beypart_assistblade').select('*'),
-        supabase.from('beypart_fusionparts').select('*') // ⬅ NEW
+      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes, fusionPartsRes] = await Promise.all([
+        supabase.from('beyparts_blades').select('*'),
+        supabase.from('beyparts_ratchets').select('*'),
+        supabase.from('beyparts_bits').select('*'),
+        supabase.from('beyparts_lockchips').select('*'),
+        supabase.from('beyparts_assistblades').select('*'),
+        supabase.from('beyparts_fusionparts').select('*'),
       ]);
 
       if (bladesRes.error) throw bladesRes.error;
@@ -55,54 +37,30 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
       if (bitsRes.error) throw bitsRes.error;
       if (lockchipsRes.error) throw lockchipsRes.error;
       if (assistBladesRes.error) throw assistBladesRes.error;
-      if (fusionRes.error) throw fusionRes.error;
+      if (fusionPartsRes.error) throw fusionPartsRes.error;
 
       setPartsData({
         blades: bladesRes.data || [],
         ratchets: ratchetsRes.data || [],
         bits: bitsRes.data || [],
         lockchips: lockchipsRes.data || [],
-        assistBlades: assistBladesRes.data || []
+        assistBlades: assistBladesRes.data || [],
       });
 
-      setFusionParts(fusionRes.data || []); // ⬅ NEW
-    } catch (err) {
-      console.error(err);
+      setFusionParts(fusionPartsRes.data || []);
+    } catch (error: any) {
+      console.error('Error fetching parts:', error);
       setPartsError('Failed to load Beyblade parts. Please try again.');
     } finally {
       setIsLoadingParts(false);
     }
   };
 
-  // Fetch deck presets
-  const fetchDeckPresets = async () => {
-    if (!user || user.id.startsWith('guest-')) return;
-    try {
-      const { data, error } = await supabase
-        .from('deck_presets')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
-      if (error) throw error;
-      setDeckPresets(data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Load preset into beyblades
   const loadPreset = (presetId: string) => {
-    const preset = deckPresets.find(p => p.id === presetId);
-    if (!preset) return;
-    const presetBeyblades = preset.beyblades
-      .slice(0, tournament.beyblades_per_player)
-      .map((bey: any, index: number) => ({
-        id: (index + 1).toString(),
-        bladeLine: bey.blade_line,
-        parts: bey.parts
-      }));
-    setBeyblades(presetBeyblades);
-    setSelectedPreset('');
+    const preset = deckPresets.find((p) => p.id === presetId);
+    if (preset) {
+      setBeyblades(preset.beyblades || []);
+    }
   };
 
   // Submit registration
@@ -169,62 +127,26 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     }
   };
 
-  // Helper functions
-  const getPartDisplayName = (part: any, partType: string) => {
-    switch (partType) {
-      case 'Blade':
-      case 'Main Blade':
-        return part.Blades;
-      case 'Ratchet':
-        return part.Ratchet;
-      case 'Bit':
-        return `${part.Bit} (${part.Shortcut})`;
-      case 'Lockchip':
-        return part.Lockchip;
-      case 'Assist Blade':
-        return `${part['Assist Blade Name']} (${part['Assist Blade']})`;
-      default:
-        return '';
-    }
-  };
-
-  const generateBeybladeName = (beyblade: any) => {
-    const requiredParts = getRequiredParts(beyblade.bladeLine);
-    if (!requiredParts.every(p => beyblade.parts[p])) return '';
-    if (beyblade.bladeLine === 'Custom') {
-      const { Lockchip, 'Main Blade': MainBlade, 'Assist Blade': AssistBlade, Ratchet, Bit } = beyblade.parts;
-      return `${Lockchip?.Lockchip || ''}${MainBlade?.Blades || ''} ${AssistBlade?.['Assist Blade'] || ''}${Ratchet?.Ratchet || ''}${Bit?.Shortcut || ''}`;
-    } else {
-      const { Blade, Ratchet, Bit } = beyblade.parts;
-      return `${Blade?.Blades || ''} ${Ratchet?.Ratchet || ''}${Bit?.Shortcut || ''}`;
-    }
-  };
-
-  const getRequiredParts = (bladeLine: string) => {
-    switch (bladeLine) {
-      case 'Basic':
-      case 'Unique':
-      case 'X-Over':
-        return ['Blade', 'Ratchet', 'Bit'];
-      case 'Custom':
-        return ['Lockchip', 'Main Blade', 'Assist Blade', 'Ratchet', 'Bit'];
-      default:
-        return [];
-    }
-  };
-
   useEffect(() => {
     fetchPartsData();
-    fetchDeckPresets();
   }, []);
 
   return {
-    playerName, setPlayerName,
-    paymentMode, setPaymentMode,
-    beyblades, setBeyblades,
-    deckPresets, selectedPreset, setSelectedPreset, loadPreset,
-    partsData, fusionParts, // ⬅ RETURN fusionParts
-    isLoadingParts, partsError, fetchPartsData,
-    handleSubmit
+    playerName,
+    setPlayerName,
+    paymentMode,
+    setPaymentMode,
+    beyblades,
+    setBeyblades,
+    deckPresets,
+    selectedPreset,
+    setSelectedPreset,
+    loadPreset,
+    partsData,
+    fusionParts, // ✅ new return
+    isLoadingParts,
+    partsError,
+    fetchPartsData,
+    handleSubmit,
   };
 }
