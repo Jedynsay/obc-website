@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Home, Trophy, Users, BarChart3, Settings,
   Database, Calendar, Package, X, LogIn, LogOut
@@ -46,12 +46,51 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
+  // Detect mouse near left edge on desktop
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth > 768) { // Desktop only
+        if (e.clientX <= 20 && !isOpen) {
+          onToggle();
+        } else if (e.clientX > 200 && isOpen) {
+          onToggle();
+        }
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isOpen, onToggle]);
+
+  // Mobile outside-click close
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (window.innerWidth <= 768 && isOpen) {
+        const sidebarEl = document.getElementById('app-sidebar');
+        if (sidebarEl && !sidebarEl.contains(e.target as Node)) {
+          onToggle();
+        }
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isOpen, onToggle]);
+
   return (
     <>
+      {/* Backdrop for mobile */}
+      {isOpen && window.innerWidth <= 768 && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 z-30" />
+      )}
+
       <aside
+        id="app-sidebar"
         className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
-        transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
-        bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}
+        transition-transform duration-200 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+        bg-white border-r border-gray-200 w-64`}
+        style={{ pointerEvents: 'auto' }}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -114,7 +153,6 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           )}
         </div>
 
-        {/* Created by Jedynsay - pinned bottom */}
         {isOpen && (
           <div className="px-2 pb-4">
             <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
