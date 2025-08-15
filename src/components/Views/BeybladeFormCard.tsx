@@ -14,7 +14,7 @@ interface BeybladeFormCardProps {
     lockchips: any[];
     assistBlades: any[];
   };
-  fusionParts: any[]; // NEW
+  fusionParts: any[];
   validationErrors: { duplicateParts: string[] };
 }
 
@@ -40,15 +40,6 @@ export function BeybladeFormCard({
     }
   };
 
-  const isSlotDisabled = (slotType: string) => {
-    return Object.entries(beyblade.parts).some(([slot, part]: any) => {
-      if (!part) return false;
-      const shortcut = part.Shortcut || part.part_shortcut;
-      const fusion = fusionParts.find(fp => fp.part_shortcut === shortcut);
-      return fusion?.covered_parts?.includes(slotType) && slot !== slotType;
-    });
-  };
-
   const getPartOptions = (bladeLine: string, partType: string) => {
     let options: any[] = [];
     switch (partType) {
@@ -59,10 +50,10 @@ export function BeybladeFormCard({
         options = partsData.blades.filter(blade => blade.Line === 'Custom');
         break;
       case 'Ratchet':
-        options = partsData.ratchets;
+        options = [...partsData.ratchets, ...fusionParts];
         break;
       case 'Bit':
-        options = partsData.bits;
+        options = [...partsData.bits, ...fusionParts];
         break;
       case 'Lockchip':
         options = partsData.lockchips;
@@ -71,19 +62,16 @@ export function BeybladeFormCard({
         options = partsData.assistBlades;
         break;
     }
-
-    // Merge fusion parts that can fill this slot
-    const fusionOptions = fusionParts.filter(fp =>
-      fp.covered_parts?.includes(partType)
-    );
-
-    return [...options, ...fusionOptions].sort((a, b) =>
+    return options.sort((a, b) =>
       getPartDisplayName(a, partType).localeCompare(getPartDisplayName(b, partType))
     );
   };
 
   const getPartDisplayName = (part: any, partType: string) => {
-    if (part.part_name) return `${part.part_name} (${part.part_shortcut})`; // fusion part
+    if (part.is_fusion) {
+      // Fusion parts
+      return `${part.name} (${part.shortcut})`;
+    }
     switch (partType) {
       case 'Blade':
       case 'Main Blade':
@@ -102,33 +90,35 @@ export function BeybladeFormCard({
   };
 
   const updateBeyblade = (field: string, value: any) => {
-    setBeyblades(beyblades.map(b =>
-      b.id === beyblade.id
-        ? field === 'bladeLine'
-          ? { ...b, bladeLine: value, parts: {} }
-          : { ...b, [field]: value }
-        : b
-    ));
+    setBeyblades(
+      beyblades.map(b =>
+        b.id === beyblade.id
+          ? field === 'bladeLine'
+            ? { ...b, bladeLine: value, parts: {} }
+            : { ...b, [field]: value }
+          : b
+      )
+    );
   };
 
   const updatePart = (partType: string, selectedPart: any) => {
-    let newParts = { ...beyblade.parts, [partType]: selectedPart };
+    setBeyblades(
+      beyblades.map(b => {
+        if (b.id !== beyblade.id) return b;
+        const newParts = { ...b.parts, [partType]: selectedPart };
 
-    // If selected part is a fusion part, clear other covered slots
-    if (selectedPart && selectedPart.part_shortcut) {
-      const fusion = fusionParts.find(fp => fp.part_shortcut === selectedPart.part_shortcut);
-      if (fusion?.covered_parts) {
-        fusion.covered_parts.forEach((coveredSlot: string) => {
-          if (coveredSlot !== partType) {
-            newParts[coveredSlot] = undefined;
+        // Fusion part logic: disable opposite slot if selected
+        if (selectedPart?.is_fusion) {
+          if (partType === 'Ratchet') {
+            newParts['Bit'] = null;
+          } else if (partType === 'Bit') {
+            newParts['Ratchet'] = null;
           }
-        });
-      }
-    }
+        }
 
-    setBeyblades(beyblades.map(b =>
-      b.id === beyblade.id ? { ...b, parts: newParts } : b
-    ));
+        return { ...b, parts: newParts };
+      })
+    );
   };
 
   const removeBeyblade = () => {
@@ -141,11 +131,16 @@ export function BeybladeFormCard({
     const requiredParts = getRequiredParts(beyblade.bladeLine);
     if (!requiredParts.every(p => beyblade.parts[p])) return '';
     if (beyblade.bladeLine === 'Custom') {
-      const { Lockchip, 'Main Blade': MainBlade, 'Assist Blade': AssistBlade, Ratchet, Bit } = beyblade.parts;
-      return `${Lockchip?.Lockchip || ''}${MainBlade?.Blades || ''} ${AssistBlade?.['Assist Blade'] || ''}${Ratchet?.Ratchet || ''}${Bit?.Shortcut || Bit?.part_shortcut || ''}`;
+      const { Lockchip, 'Main Blade': MainBlade, 'Assist Blade': AssistBlade, Ratchet, Bit } =
+        beyblade.parts;
+      return `${Lockchip?.Lockchip || ''}${MainBlade?.Blades || ''} ${
+        AssistBlade?.['Assist Blade'] || ''
+      }${Ratchet?.Ratchet || Ratchet?.shortcut || ''}${Bit?.Shortcut || Bit?.shortcut || ''}`;
     } else {
       const { Blade, Ratchet, Bit } = beyblade.parts;
-      return `${Blade?.Blades || ''} ${Ratchet?.Ratchet || Ratchet?.part_shortcut || ''}${Bit?.Shortcut || Bit?.part_shortcut || ''}`;
+      return `${Blade?.Blades || ''} ${Ratchet?.Ratchet || Ratchet?.shortcut || ''}${
+        Bit?.Shortcut || Bit?.shortcut || ''
+      }`;
     }
   };
 
@@ -157,12 +152,22 @@ export function BeybladeFormCard({
           stats.defense += part.Defense || part.defense || 0;
           stats.stamina += part.Stamina || part.stamina || 0;
           stats.dash += part.Dash || part.dash || 0;
-          stats.burstRes += part['Burst Res'] || part.burst_resistance || 0;
+          stats.burstRes += part['Burst Res'] || part.burst_res || 0;
         }
         return stats;
       },
       { attack: 0, defense: 0, stamina: 0, dash: 0, burstRes: 0 }
     );
+  };
+
+  const isFusionSelected = (partType: string) => {
+    if (partType === 'Ratchet') {
+      return beyblade.parts['Bit']?.is_fusion;
+    }
+    if (partType === 'Bit') {
+      return beyblade.parts['Ratchet']?.is_fusion;
+    }
+    return false;
   };
 
   return (
@@ -171,7 +176,10 @@ export function BeybladeFormCard({
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Beyblade #{index + 1}</h3>
         {beyblades.length > 1 && (
-          <button onClick={removeBeyblade} className="p-2 text-red-600 hover:bg-red-50 rounded-full">
+          <button
+            onClick={removeBeyblade}
+            className="p-2 text-red-600 hover:bg-red-50 rounded-full"
+          >
             <Trash2 size={16} />
           </button>
         )}
@@ -185,7 +193,7 @@ export function BeybladeFormCard({
           </label>
           <select
             value={beyblade.bladeLine}
-            onChange={(e) => updateBeyblade('bladeLine', e.target.value)}
+            onChange={e => updateBeyblade('bladeLine', e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select Blade Line</option>
@@ -211,39 +219,34 @@ export function BeybladeFormCard({
       {/* Parts Selection */}
       {beyblade.bladeLine && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {getRequiredParts(beyblade.bladeLine).map((partType) => {
-            const options = getPartOptions(beyblade.bladeLine, partType);
-            return (
-              <div key={partType}>
-                <label className="block text-sm font-medium mb-1">
-                  {partType} *
-                </label>
-                <select
-                  value={beyblade.parts[partType] ? JSON.stringify(beyblade.parts[partType]) : ''}
-                  onChange={(e) => e.target.value && updatePart(partType, JSON.parse(e.target.value))}
-                  disabled={isSlotDisabled(partType)}
-                  className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    isSlotDisabled(partType) ? 'bg-gray-200 cursor-not-allowed' : ''
-                  }`}
-                >
-                  <option value="">Select {partType}</option>
-                  {options.map((part: any, idx) => (
-                    <option key={idx} value={JSON.stringify(part)}>
-                      {getPartDisplayName(part, partType)}
-                    </option>
-                  ))}
-                </select>
-                {beyblade.parts[partType] &&
-                  validationErrors.duplicateParts.some(err =>
-                    err.includes(getPartDisplayName(beyblade.parts[partType], partType))
-                  ) && (
-                    <div className="mt-1 text-xs text-red-600">
-                      ⚠ This part is used in another Beyblade
-                    </div>
-                  )}
-              </div>
-            );
-          })}
+          {getRequiredParts(beyblade.bladeLine).map(partType => (
+            <div key={partType}>
+              <label className="block text-sm font-medium mb-1">{partType} *</label>
+              <select
+                value={beyblade.parts[partType] ? JSON.stringify(beyblade.parts[partType]) : ''}
+                onChange={e =>
+                  e.target.value && updatePart(partType, JSON.parse(e.target.value))
+                }
+                disabled={isFusionSelected(partType)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Select {partType}</option>
+                {getPartOptions(beyblade.bladeLine, partType).map((part: any, idx) => (
+                  <option key={idx} value={JSON.stringify({ ...part, is_fusion: !!part.is_fusion })}>
+                    {getPartDisplayName(part, partType)}
+                  </option>
+                ))}
+              </select>
+              {beyblade.parts[partType] &&
+                validationErrors.duplicateParts.some(err =>
+                  err.includes(getPartDisplayName(beyblade.parts[partType], partType))
+                ) && (
+                  <div className="mt-1 text-xs text-red-600">
+                    ⚠ This part is used in another Beyblade
+                  </div>
+                )}
+            </div>
+          ))}
         </div>
       )}
 
