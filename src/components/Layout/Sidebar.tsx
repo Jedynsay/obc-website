@@ -46,35 +46,6 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
-React.useEffect(() => {
-  const handleMouseMove = (e: MouseEvent) => {
-    if (window.innerWidth > 1024) { // Desktop only
-      if (!isOpen && e.clientX <= 20) {
-        onToggle(); // Open
-      } else if (isOpen && e.clientX > 300) {
-        onToggle(); // Close
-      }
-    }
-  };
-
-  const handleClickOutside = (e: MouseEvent) => {
-    if (window.innerWidth <= 1024 && isOpen) { // Mobile only
-      const sidebarEl = document.querySelector('aside');
-      if (sidebarEl && !sidebarEl.contains(e.target as Node)) {
-        onToggle(); // Close on tap outside
-      }
-    }
-  };
-
-  window.addEventListener('mousemove', handleMouseMove);
-  window.addEventListener('click', handleClickOutside);
-
-  return () => {
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('click', handleClickOutside);
-  };
-}, [isOpen, onToggle]);
-
   return (
     <>
       <aside
@@ -143,7 +114,7 @@ React.useEffect(() => {
           )}
         </div>
 
-        {/* Created by Jedynsay */}
+        {/* Created by Jedynsay - pinned bottom */}
         {isOpen && (
           <div className="px-2 pb-4">
             <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
