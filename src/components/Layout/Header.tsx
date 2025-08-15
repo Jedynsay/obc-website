@@ -28,12 +28,18 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
+              {/* Hamburger Icon */}
               <button
-                onClick={onMenuToggle}
+                id="sidebar-toggle-btn"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent click from bubbling to outside-click handler
+                  onMenuToggle();
+                }}
                 className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-all duration-200"
               >
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
+
               <div className="flex items-center space-x-2">
                 <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
                   B
