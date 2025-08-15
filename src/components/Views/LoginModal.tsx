@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { LoginForm } from '../../Auth/LoginForm';
+import { LoginForm } from '../Auth/LoginForm';
 
 export function LoginModal({ onClose }) {
   return (
