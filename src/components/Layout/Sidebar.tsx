@@ -28,14 +28,13 @@ const menuItems: MenuItem[] = [
   { id: 'inventory', label: 'Inventory & Decks', icon: <Package size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
   { id: 'match-tracker', label: 'Match Tracker', icon: <Calendar size={20} />, roles: ['technical_officer', 'admin', 'developer'] },
   { id: 'tournament-manager', label: 'Tournament Manager', icon: <Settings size={20} />, roles: ['admin', 'developer'] },
-  { id: 'user-management', label: 'User Management', icon: <Users size={20} />, roles: ['developer'] },
+  { id: 'user-management', label: 'User Management', icon: <Users size={20} />, roles: ['admin', 'developer'] },
   { id: 'database', label: 'Database', icon: <Database size={20} />, roles: ['developer'] },
 ];
 
 export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
   const { user, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = React.useState(false);
-  const sidebarRef = React.useRef<HTMLDivElement>(null);
 
   const filteredMenuItems = menuItems.filter(item =>
     !user ? (!item.requiresAuth && item.roles.includes('user')) :
@@ -47,31 +46,11 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
-  // Detect mouse near left edge for desktop
-  React.useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      // Only apply for desktop
-      if (window.innerWidth >= 1024) {
-        if (e.clientX <= 10 && !isOpen) {
-          onToggle(); // open if closed
-        }
-        if (e.clientX > 300 && isOpen) {
-          // Optional: auto-close if they move far from sidebar
-          // onToggle();
-        }
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isOpen, onToggle]);
-
   return (
     <>
       <aside
-        ref={sidebarRef}
         className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
-        transition-all duration-300 
+        transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
         bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}
       >
         {/* Sidebar Header */}
@@ -135,7 +114,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           )}
         </div>
 
-        {/* Created by Jedynsay */}
+        {/* Created by Jedynsay - pinned bottom */}
         {isOpen && (
           <div className="px-2 pb-4">
             <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
