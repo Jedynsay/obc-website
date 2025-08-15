@@ -154,71 +154,116 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 if (loading) {
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center">
-      <svg
-        className="w-32 h-32 animate-spin-slow"
-        viewBox="0 0 100 100"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Outer energy ring */}
-        <circle
-          cx="50"
-          cy="50"
-          r="45"
-          stroke="url(#outerGradient)"
-          strokeWidth="6"
-          strokeDasharray="20 10"
-          strokeLinecap="round"
-        />
+      <div className="relative w-48 h-32 clash-container">
+        {/* Left disc */}
+        <div className="disc disc-left"></div>
 
-        {/* Attack layer */}
-        <circle
-          cx="50"
-          cy="50"
-          r="30"
-          stroke="url(#attackGradient)"
-          strokeWidth="8"
-          strokeDasharray="10 6"
-        />
+        {/* Right disc */}
+        <div className="disc disc-right"></div>
 
-        {/* Core disk */}
-        <circle cx="50" cy="50" r="15" fill="url(#coreGradient)" />
-
-        <defs>
-          <linearGradient id="outerGradient" x1="0" y1="0" x2="100" y2="0">
-            <stop stopColor="#00f0ff" />
-            <stop offset="1" stopColor="#0044ff" />
-          </linearGradient>
-          <linearGradient id="attackGradient" x1="0" y1="0" x2="100" y2="100">
-            <stop stopColor="#ff4500" />
-            <stop offset="1" stopColor="#ffdd00" />
-          </linearGradient>
-          <radialGradient id="coreGradient" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#fff" />
-            <stop offset="100%" stopColor="#ffd700" />
-          </radialGradient>
-        </defs>
-      </svg>
+        {/* Sparks */}
+        <div className="spark"></div>
+      </div>
 
       <p className="mt-6 text-xl font-bold text-yellow-300 animate-pulse">
         Let it Rip! Loading Dashboard...
       </p>
 
       <style jsx>{`
-        .animate-spin-slow {
-          animation: spin 2s linear infinite;
+        .clash-container {
+          position: relative;
         }
+
+        .disc {
+          position: absolute;
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          border: 4px solid white;
+          animation: spin 0.6s linear infinite;
+        }
+
+        .disc-left {
+          background: radial-gradient(circle, #ff5555 40%, #aa0000 100%);
+          left: 0;
+          animation: spin 0.6s linear infinite, moveLeft 1s ease-in-out infinite;
+        }
+
+        .disc-right {
+          background: radial-gradient(circle, #5599ff 40%, #0033aa 100%);
+          right: 0;
+          animation: spin 0.6s linear infinite, moveRight 1s ease-in-out infinite;
+        }
+
+        .spark {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 10px;
+          height: 10px;
+          background: yellow;
+          border-radius: 50%;
+          transform: translate(-50%, -50%) scale(0);
+          animation: spark 1s ease-in-out infinite;
+          box-shadow: 0 0 10px yellow, 0 0 20px orange;
+        }
+
         @keyframes spin {
           to {
             transform: rotate(360deg);
+          }
+        }
+
+        @keyframes moveLeft {
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          50% {
+            transform: translateX(80px);
+          }
+        }
+
+        @keyframes moveRight {
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          50% {
+            transform: translateX(-80px);
+          }
+        }
+
+        @keyframes spark {
+          0%,
+          40%,
+          100% {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+          }
+          45%,
+          55% {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 1;
+          }
+        }
+
+        /* Fade-out animation when loading ends */
+        .fade-out {
+          animation: fadeOut 0.5s forwards;
+        }
+
+        @keyframes fadeOut {
+          to {
+            opacity: 0;
+            transform: scale(0.8);
           }
         }
       `}</style>
     </div>
   );
 }
-
-  
+ 
   // if (loading) {
   //   return (
   //     <div className="min-h-screen bg-slate-900 flex items-center justify-center">
