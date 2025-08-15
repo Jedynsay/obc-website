@@ -152,17 +152,26 @@ export function Dashboard({ onViewChange }: DashboardProps) {
   };
 
 if (loading) {
+  const [finished, setFinished] = React.useState(false);
+
+  // Trigger fade-out when loading finishes
+  React.useEffect(() => {
+    if (!loading) {
+      setFinished(true);
+    }
+  }, [loading]);
+
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center">
-      <div className="relative w-48 h-32 clash-container">
-        {/* Left disc */}
-        <div className="disc disc-left"></div>
-
-        {/* Right disc */}
-        <div className="disc disc-right"></div>
-
-        {/* Sparks */}
-        <div className="spark"></div>
+      <div
+        className={`relative w-32 h-32 ${
+          finished ? 'fade-out' : 'spin-up'
+        }`}
+      >
+        {/* Spiky Beyblade circle */}
+        <div className="w-32 h-32 border-4 border-transparent border-t-yellow-400 rounded-full absolute top-0 left-0"></div>
+        {/* Inner core */}
+        <div className="w-12 h-12 bg-yellow-400 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
       <p className="mt-6 text-xl font-bold text-yellow-300 animate-pulse">
@@ -170,93 +179,48 @@ if (loading) {
       </p>
 
       <style jsx>{`
-        .clash-container {
-          position: relative;
+        /* Accelerate spin */
+        .spin-up {
+          animation: spinUp 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          transform-origin: 50% 50%;
         }
 
-        .disc {
-          position: absolute;
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          border: 4px solid white;
-          animation: spin 0.6s linear infinite;
-        }
-
-        .disc-left {
-          background: radial-gradient(circle, #ff5555 40%, #aa0000 100%);
-          left: 0;
-          animation: spin 0.6s linear infinite, moveLeft 1s ease-in-out infinite;
-        }
-
-        .disc-right {
-          background: radial-gradient(circle, #5599ff 40%, #0033aa 100%);
-          right: 0;
-          animation: spin 0.6s linear infinite, moveRight 1s ease-in-out infinite;
-        }
-
-        .spark {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 10px;
-          height: 10px;
-          background: yellow;
-          border-radius: 50%;
-          transform: translate(-50%, -50%) scale(0);
-          animation: spark 1s ease-in-out infinite;
-          box-shadow: 0 0 10px yellow, 0 0 20px orange;
-        }
-
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
+        @keyframes spinUp {
+          0% {
+            transform: rotate(0deg);
           }
-        }
-
-        @keyframes moveLeft {
-          0%,
-          100% {
-            transform: translateX(0);
+          25% {
+            transform: rotate(90deg);
           }
           50% {
-            transform: translateX(80px);
+            transform: rotate(270deg);
+          }
+          75% {
+            transform: rotate(540deg);
+          }
+          100% {
+            transform: rotate(720deg);
           }
         }
 
-        @keyframes moveRight {
-          0%,
-          100% {
-            transform: translateX(0);
-          }
-          50% {
-            transform: translateX(-80px);
-          }
+        /* Fade out + slow down */
+        .fade-out {
+          animation: fadeOutSpin 1s forwards;
+          transform-origin: 50% 50%;
         }
 
-        @keyframes spark {
-          0%,
-          40%,
-          100% {
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0;
-          }
-          45%,
-          55% {
-            transform: translate(-50%, -50%) scale(1.5);
+        @keyframes fadeOutSpin {
+          0% {
+            transform: rotate(0deg);
             opacity: 1;
           }
-        }
-
-        /* Fade-out animation when loading ends */
-        .fade-out {
-          animation: fadeOut 0.5s forwards;
-        }
-
-        @keyframes fadeOut {
-          to {
+          50% {
+            transform: rotate(360deg);
+            opacity: 0.8;
+          }
+          100% {
+            transform: rotate(450deg);
             opacity: 0;
-            transform: scale(0.8);
           }
         }
       `}</style>
