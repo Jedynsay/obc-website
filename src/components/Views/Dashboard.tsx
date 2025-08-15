@@ -9,14 +9,6 @@ import { SystemFooter } from './SystemFooter';
 import { LoginModal } from './LoginModal';
 import { BeybladeLoader } from './BeybladeLoader';
 
-export function Dashboard({ onViewChange }: DashboardProps) {
-  const { user, logout } = useAuth();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
 interface Tournament {
   id: string;
   name: string;
@@ -160,18 +152,6 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     setDeckPresets(data || []);
   };
 
-    if (loading) {
-    return <BeybladeLoader loading={loading} />;
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <HeroSection user={user} onViewChange={onViewChange} onLoginClick={() => {}} onLogout={logout} />
-      {/* ... rest of dashboard */}
-    </div>
-  );
-}
- 
   // if (loading) {
   //   return (
   //     <div className="min-h-screen bg-slate-900 flex items-center justify-center">
