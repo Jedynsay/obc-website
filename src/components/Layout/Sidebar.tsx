@@ -35,7 +35,6 @@ const menuItems: MenuItem[] = [
 export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
   const { user, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = React.useState(false);
-  const [isMobile, setIsMobile] = React.useState(false);
   const sidebarRef = React.useRef<HTMLDivElement>(null);
 
   const filteredMenuItems = menuItems.filter(item =>
@@ -48,19 +47,10 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
-  // Detect screen size
-  React.useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Close sidebar when clicking outside (only mobile)
+  // Close sidebar when clicking outside
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        isMobile &&
         isOpen &&
         sidebarRef.current &&
         !sidebarRef.current.contains(event.target as Node)
@@ -82,22 +72,20 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscKey);
     };
-  }, [isMobile, isOpen, onToggle]);
+  }, [isOpen, onToggle]);
 
   return (
     <>
       <aside
         ref={sidebarRef}
-        className={`fixed left-0 top-0 z-40 h-screen flex flex-col bg-white border-r border-gray-200 transition-all
-          ${isMobile
-            ? `${isOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'}`
-            : `${isOpen ? 'w-64' : 'w-16'} translate-x-0`
-          }`}
+        className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
+        transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+        bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}
       >
         {/* Sidebar Header */}
-        <div className={`flex items-center justify-between border-b border-gray-200 ${isOpen ? 'p-4' : 'p-2'}`}>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white mx-auto">
+            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
               B
             </div>
             {isOpen && (
@@ -118,7 +106,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         </div>
 
         {/* Scrollable menu */}
-        <div className={`flex-1 overflow-y-auto ${isOpen ? 'px-4 py-6' : 'px-2 py-6'}`}>
+        <div className="flex-1 overflow-y-auto px-4 py-6">
           <ul className="space-y-2">
             {filteredMenuItems.map((item) => (
               <li key={item.id}>
@@ -126,7 +114,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
                   onClick={() => onViewChange(item.id)}
                   className={currentView === item.id ? 'sidebar-item-active' : 'sidebar-item'}
                 >
-                  <div className="flex justify-center">{item.icon}</div>
+                  <div className="transition-colors">{item.icon}</div>
                   {isOpen && <span className="ml-3 font-inter">{item.label}</span>}
                 </button>
               </li>
@@ -135,13 +123,13 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         </div>
 
         {/* Auth Section */}
-        <div className={`border-t border-gray-200 py-4 ${isOpen ? 'px-4' : 'px-2'}`}>
+        <div className="px-4 border-t border-gray-200 py-4">
           {user && !user.id.startsWith('guest-') ? (
             <button
               onClick={handleLogout}
               className="sidebar-item w-full text-red-600 hover:text-red-700 hover:bg-red-50"
             >
-              <div className="flex justify-center"><LogOut size={20} /></div>
+              <div className="transition-colors"><LogOut size={20} /></div>
               {isOpen && <span className="ml-3 font-inter">Logout</span>}
             </button>
           ) : (
@@ -149,7 +137,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
               onClick={() => setShowLoginModal(true)}
               className="sidebar-item w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
             >
-              <div className="flex justify-center"><LogIn size={20} /></div>
+              <div className="transition-colors"><LogIn size={20} /></div>
               {isOpen && <span className="ml-3 font-inter">Login</span>}
             </button>
           )}
