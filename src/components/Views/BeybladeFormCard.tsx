@@ -14,7 +14,6 @@ interface BeybladeFormCardProps {
     lockchips: any[];
     assistBlades: any[];
   };
-  fusionParts: any[];
   validationErrors: { duplicateParts: string[] };
 }
 
@@ -24,7 +23,6 @@ export function BeybladeFormCard({
   beyblades,
   setBeyblades,
   partsData,
-  fusionParts,
   validationErrors
 }: BeybladeFormCardProps) {
   const getRequiredParts = (bladeLine: string): string[] => {
@@ -42,7 +40,6 @@ export function BeybladeFormCard({
 
   const getPartOptions = (bladeLine: string, partType: string) => {
     let options: any[] = [];
-
     switch (partType) {
       case 'Blade':
         options = partsData.blades.filter(blade => blade.Line === bladeLine);
@@ -51,10 +48,10 @@ export function BeybladeFormCard({
         options = partsData.blades.filter(blade => blade.Line === 'Custom');
         break;
       case 'Ratchet':
-        options = [...partsData.ratchets, ...fusionParts.filter(fp => fp.type === 'Ratchet' || fp.type === 'Both')];
+        options = partsData.ratchets;
         break;
       case 'Bit':
-        options = [...partsData.bits, ...fusionParts.filter(fp => fp.type === 'Bit' || fp.type === 'Both')];
+        options = partsData.bits;
         break;
       case 'Lockchip':
         options = partsData.lockchips;
@@ -63,19 +60,18 @@ export function BeybladeFormCard({
         options = partsData.assistBlades;
         break;
     }
-
     return options.sort((a, b) => getPartDisplayName(a, partType).localeCompare(getPartDisplayName(b, partType)));
   };
 
   const getPartDisplayName = (part: any, partType: string) => {
-    if (partType === 'Bit' || partType === 'Ratchet') {
-      if (part.Shortcut) return `${part.Bit || part.Ratchet} (${part.Shortcut})`;
-      return part.Bit || part.Ratchet || part.name;
-    }
     switch (partType) {
       case 'Blade':
       case 'Main Blade':
         return part.Blades;
+      case 'Ratchet':
+        return part.Ratchet;
+      case 'Bit':
+        return `${part.Bit} (${part.Shortcut})`;
       case 'Lockchip':
         return part.Lockchip;
       case 'Assist Blade':
@@ -83,12 +79,6 @@ export function BeybladeFormCard({
       default:
         return '';
     }
-  };
-
-  const isFusionSelected = (currentBey: any, slot: 'Ratchet' | 'Bit') => {
-    const selectedPart = currentBey.parts[slot];
-    if (!selectedPart) return false;
-    return fusionParts.some(fp => fp.name === selectedPart.Ratchet || fp.name === selectedPart.Bit || fp.name === selectedPart.name);
   };
 
   const updateBeyblade = (field: string, value: any) => {
@@ -104,16 +94,7 @@ export function BeybladeFormCard({
   const updatePart = (partType: string, selectedPart: any) => {
     setBeyblades(beyblades.map(b =>
       b.id === beyblade.id
-        ? { 
-            ...b, 
-            parts: { 
-              ...b.parts, 
-              [partType]: selectedPart,
-              ...(fusionParts.some(fp => fp.name === (selectedPart.Ratchet || selectedPart.Bit || selectedPart.name))
-                ? (partType === 'Ratchet' ? { Bit: undefined } : { Ratchet: undefined })
-                : {})
-            } 
-          }
+        ? { ...b, parts: { ...b.parts, [partType]: selectedPart } }
         : b
     ));
   };
@@ -154,6 +135,7 @@ export function BeybladeFormCard({
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 sm:p-6">
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Beyblade #{index + 1}</h3>
         {beyblades.length > 1 && (
@@ -163,9 +145,12 @@ export function BeybladeFormCard({
         )}
       </div>
 
+      {/* Blade Line */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Blade Line *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Blade Line *
+          </label>
           <select
             value={beyblade.bladeLine}
             onChange={(e) => updateBeyblade('bladeLine', e.target.value)}
@@ -181,7 +166,9 @@ export function BeybladeFormCard({
 
         {beyblade.bladeLine && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Generated Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Generated Name
+            </label>
             <div className="border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-sm font-mono">
               {generateBeybladeName() || 'Select all parts to generate name'}
             </div>
@@ -189,40 +176,40 @@ export function BeybladeFormCard({
         )}
       </div>
 
+      {/* Parts Selection */}
       {beyblade.bladeLine && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {getRequiredParts(beyblade.bladeLine).map((partType) => {
-            const disable = 
-              (partType === 'Ratchet' && isFusionSelected(beyblade, 'Bit')) ||
-              (partType === 'Bit' && isFusionSelected(beyblade, 'Ratchet'));
-            return (
-              <div key={partType}>
-                <label className="block text-sm font-medium mb-1">{partType} *</label>
-                <select
-                  disabled={disable}
-                  value={beyblade.parts[partType] ? JSON.stringify(beyblade.parts[partType]) : ''}
-                  onChange={(e) => e.target.value && updatePart(partType, JSON.parse(e.target.value))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                >
-                  <option value="">Select {partType}</option>
-                  {getPartOptions(beyblade.bladeLine, partType).map((part: any, idx) => (
-                    <option key={idx} value={JSON.stringify(part)}>
-                      {getPartDisplayName(part, partType)}
-                    </option>
-                  ))}
-                </select>
-                {beyblade.parts[partType] &&
-                  validationErrors.duplicateParts.some(err =>
-                    err.includes(getPartDisplayName(beyblade.parts[partType], partType))
-                  ) && (
-                    <div className="mt-1 text-xs text-red-600">⚠ This part is used in another Beyblade</div>
-                  )}
-              </div>
-            );
-          })}
+          {getRequiredParts(beyblade.bladeLine).map((partType) => (
+            <div key={partType}>
+              <label className="block text-sm font-medium mb-1">
+                {partType} *
+              </label>
+              <select
+                value={beyblade.parts[partType] ? JSON.stringify(beyblade.parts[partType]) : ''}
+                onChange={(e) => e.target.value && updatePart(partType, JSON.parse(e.target.value))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select {partType}</option>
+                {getPartOptions(beyblade.bladeLine, partType).map((part: any, idx) => (
+                  <option key={idx} value={JSON.stringify(part)}>
+                    {getPartDisplayName(part, partType)}
+                  </option>
+                ))}
+              </select>
+              {beyblade.parts[partType] &&
+                validationErrors.duplicateParts.some(err =>
+                  err.includes(getPartDisplayName(beyblade.parts[partType], partType))
+                ) && (
+                  <div className="mt-1 text-xs text-red-600">
+                    ⚠ This part is used in another Beyblade
+                  </div>
+                )}
+            </div>
+          ))}
         </div>
       )}
 
+      {/* Stats */}
       {beyblade.bladeLine && Object.keys(beyblade.parts).length > 0 && (
         <StatBar stats={calculateStats()} />
       )}
