@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Users, Calendar, Target } from 'lucide-react';
+import { BarChart3, TrendingUp, Trophy, Users, Calendar, Target } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { MetaAnalysis } from './MetaAnalysis';
 import { PlayerAnalytics } from './PlayerAnalytics';
@@ -44,10 +44,11 @@ export function Analytics() {
   React.useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const [tournamentsRes, usersRes, matchesRes] = await Promise.all([
+        const [tournamentsRes, usersRes, matchesRes, registrationsRes] = await Promise.all([
           supabase.from('tournaments').select('*'),
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('match_results').select('*'),
+          supabase.from('tournament_registrations').select('*', { count: 'exact', head: true })
         ]);
 
         const tournaments = tournamentsRes.data || [];
@@ -143,7 +144,7 @@ export function Analytics() {
 
   if (loading) {
     return (
-      <div className="p-4 max-w-full overflow-x-hidden">
+      <div className="p-6 max-w-7xl mx-auto">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading analytics...</p>
@@ -168,39 +169,49 @@ export function Analytics() {
     }} />;
   }
 
+  // Don't render overview during transitions
   if (isTransitioning) {
     return (
-      <div className="p-4 max-w-full overflow-x-hidden text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+      <div className="page-container">
+        <div className="content-wrapper">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          </div>
+        </div>
       </div>
     );
   }
-
   return (
-    <div className="page-container p-4 max-w-full overflow-x-hidden">
-      <div className="content-wrapper max-w-full overflow-x-hidden">
-        <div className="page-header mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-            <div className="mb-4 sm:mb-0">
-              <h1 className="page-title text-xl font-bold">Tournament Analytics</h1>
-              <p className="page-subtitle text-gray-600">Comprehensive tournament and player statistics</p>
+    <div className="page-container">
+      <div className="content-wrapper">
+        <div className="page-header">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="page-title">Tournament Analytics</h1>
+              <p className="page-subtitle">Comprehensive tournament and player statistics</p>
             </div>
-            <div className="filter-tabs flex space-x-2">
+            <div className="filter-tabs">
               <button
                 onClick={() => setCurrentView('overview')}
-                className={`filter-tab ${currentView === 'overview' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+                className={`filter-tab ${
+                  currentView === 'overview' ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
               >
                 Overview
               </button>
               <button
                 onClick={() => setCurrentView('meta')}
-                className={`filter-tab ${currentView === 'meta' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+                className={`filter-tab ${
+                  currentView === 'meta' ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
               >
                 Meta Analysis
               </button>
               <button
                 onClick={() => setCurrentView('player')}
-                className={`filter-tab ${currentView === 'player' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+                className={`filter-tab ${
+                  currentView === 'player' ? 'filter-tab-active' : 'filter-tab-inactive'
+                }`}
               >
                 Player Analytics
               </button>
@@ -208,79 +219,78 @@ export function Analytics() {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <div key={index} className="metric-card w-full flex justify-between items-center p-4 bg-white rounded-lg shadow">
-              <div>
-                <p className="metric-label text-sm font-medium">{stat.label}</p>
-                <p className="metric-value text-xl font-bold">{stat.value}</p>
-              </div>
-              <div className={`p-3 rounded-lg ${stat.bgColor} ${stat.color}`}>
-                <stat.icon size={24} />
+            <div key={index} className="metric-card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="metric-label">{stat.label}</p>
+                  <p className="metric-value">{stat.value}</p>
+                </div>
+                <div className={`p-3 rounded-lg ${stat.bgColor} ${stat.color}`}>
+                  <stat.icon size={24} />
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Tournament Status & Top Players */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Tournament Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="chart-container">
-            <h2 className="chart-title text-lg font-bold mb-2">Tournament Status</h2>
-            <div className="space-y-3">
-              {[
-                { label: 'Completed', value: analytics.completedTournaments.length, color: 'bg-green-500' },
-                { label: 'Active', value: analytics.activeTournaments, color: 'bg-blue-500' },
-                { label: 'Upcoming', value: analytics.upcomingTournaments, color: 'bg-orange-500' },
-              ].map((status) => {
-                const percent = analytics.totalTournaments
-                  ? (status.value / analytics.totalTournaments) * 100
-                  : 0;
-                return (
-                  <div key={status.label} className="flex flex-col sm:flex-row sm:items-center justify-between">
-                    <span className="text-gray-700 font-medium mb-1 sm:mb-0">{status.label}</span>
-                    <div className="flex-1 sm:ml-4 flex items-center">
-                      <div className="flex-1 bg-gray-200 h-3 rounded-full">
-                        <div
-                          className={`${status.color} h-3 rounded-full`}
-                          style={{ width: `${percent}%` }}
-                        ></div>
-                      </div>
-                      <span className="ml-2 text-sm font-bold text-gray-900">{status.value}</span>
-                    </div>
+            <h2 className="chart-title">Tournament Status</h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-inter font-medium">Completed</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-40 bg-gray-200 rounded-full h-3">
+                    <div className="bg-green-500 h-3 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.completedTournaments.length / analytics.totalTournaments) * 100 : 0}%` }}></div>
                   </div>
-                );
-              })}
+                  <span className="text-lg font-space-grotesk font-bold text-gray-900">{analytics.completedTournaments.length}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-inter font-medium">Active</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-40 bg-gray-200 rounded-full h-3">
+                    <div className="bg-blue-500 h-3 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.activeTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
+                  </div>
+                  <span className="text-lg font-space-grotesk font-bold text-gray-900">{analytics.activeTournaments}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-inter font-medium">Upcoming</span>
+                <div className="flex items-center space-x-2">
+                  <div className="w-40 bg-gray-200 rounded-full h-3">
+                    <div className="bg-orange-500 h-3 rounded-full" style={{ width: `${analytics.totalTournaments > 0 ? (analytics.upcomingTournaments / analytics.totalTournaments) * 100 : 0}%` }}></div>
+                  </div>
+                  <span className="text-lg font-space-grotesk font-bold text-gray-900">{analytics.upcomingTournaments}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Top Player Win Rates */}
           <div className="chart-container">
-            <h2 className="chart-title text-lg font-bold mb-2">Top Player Win Rates</h2>
+            <h2 className="chart-title">Top Player Win Rates</h2>
             <div className="space-y-4">
               {winRates.map((player, index) => (
-                <div
-                  key={player.player}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3 mb-2 sm:mb-0">
-                    <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold">
+                <div key={player.player} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-space-grotesk font-bold">
                       {index + 1}
                     </div>
-                    <div className="truncate">
-                      <p className="font-bold text-gray-900 truncate">{player.player}</p>
-                      <p className="text-gray-600">{player.wins}/{player.matches} matches</p>
+                    <div>
+                      <p className="font-space-grotesk font-bold text-gray-900">{player.player}</p>
+                      <p className="text-gray-600 font-inter">{player.wins}/{player.matches} matches</p>
                     </div>
                   </div>
-                  <div className="flex-1 sm:ml-4 flex items-center">
-                    <div className="flex-1 bg-gray-200 h-3 rounded-full mr-2">
-                      <div
-                        className="bg-green-500 h-3 rounded-full"
+                  <div className="text-right">
+                    <p className="font-space-grotesk font-bold text-xl text-gray-900">{player.winRate}%</p>
+                    <div className="w-20 bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-green-500 h-3 rounded-full" 
                         style={{ width: `${player.winRate}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-bold text-gray-900">{player.winRate}%</span>
                   </div>
                 </div>
               ))}
@@ -288,20 +298,25 @@ export function Analytics() {
           </div>
         </div>
 
-        {/* Match Stats */}
-        <div className="chart-container mt-6">
-          <h2 className="chart-title text-lg font-bold mb-3">Match Statistics</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="metric-value text-blue-600 text-xl font-bold">{analytics.completedMatches}</div>
+        <div className="chart-container mt-8">
+          <h2 className="chart-title">Match Statistics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="metric-value text-blue-600">
+                {analytics.completedMatches}
+              </div>
               <p className="metric-label">Completed Matches</p>
             </div>
-            <div>
-              <div className="metric-value text-orange-600 text-xl font-bold">0</div>
+            <div className="text-center">
+              <div className="metric-value text-orange-600">
+                0
+              </div>
               <p className="metric-label">Ongoing Matches</p>
             </div>
-            <div>
-              <div className="metric-value text-green-600 text-xl font-bold">0</div>
+            <div className="text-center">
+              <div className="metric-value text-green-600">
+                0
+              </div>
               <p className="metric-label">Scheduled Matches</p>
             </div>
           </div>
