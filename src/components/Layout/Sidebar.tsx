@@ -1,198 +1,98 @@
-import React from 'react';
-import {
-  Home, Trophy, Users, BarChart3, Settings,
-  Database, Calendar, Package, X, LogIn, LogOut
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Home, Trophy, BarChart2, Box, Calendar, Settings, Users, Database, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { LoginForm } from '../Auth/LoginForm';
 
 interface SidebarProps {
   isOpen: boolean;
-  currentView: string;
-  onViewChange: (view: string) => void;
+  isMobile: boolean;
+  onClose: () => void;
   onToggle: () => void;
 }
 
-interface MenuItem {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  roles: string[];
-  requiresAuth?: boolean;
-}
+export function Sidebar({ isOpen, isMobile, onClose, onToggle }: SidebarProps) {
+  const { logout } = useAuth();
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-const menuItems: MenuItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: <Home size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
-  { id: 'tournaments', label: 'Tournaments', icon: <Trophy size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
-  { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
-  { id: 'inventory', label: 'Inventory & Decks', icon: <Package size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
-  { id: 'match-tracker', label: 'Match Tracker', icon: <Calendar size={20} />, roles: ['technical_officer', 'admin', 'developer'] },
-  { id: 'tournament-manager', label: 'Tournament Manager', icon: <Settings size={20} />, roles: ['admin', 'developer'] },
-  { id: 'user-management', label: 'User Management', icon: <Users size={20} />, roles: ['developer'] },
-  { id: 'database', label: 'Database', icon: <Database size={20} />, roles: ['developer'] },
-];
-
-export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
-  const { user, logout } = useAuth();
-  const [showLoginModal, setShowLoginModal] = React.useState(false);
-  const [isMobile, setIsMobile] = React.useState(false);
-  const sidebarRef = React.useRef<HTMLDivElement>(null);
-
-  const filteredMenuItems = menuItems.filter(item =>
-    !user ? (!item.requiresAuth && item.roles.includes('user')) :
-    item.roles.includes(user.role || 'user')
-  );
-
-  const handleLogout = async () => {
-    await logout();
-    onToggle();
-  };
-
-  // Detect screen size
-  React.useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Close sidebar when clicking outside (only mobile)
-  React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        isMobile &&
-        isOpen &&
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target as Node)
-      ) {
-        onToggle();
+  // Click outside to close (mobile only)
+  useEffect(() => {
+    if (!isMobile || !isOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar && !sidebar.contains(e.target as Node)) {
+        onClose();
       }
-    }
-
-    function handleEscKey(event: KeyboardEvent) {
-      if (isOpen && event.key === 'Escape') {
-        onToggle();
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscKey);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscKey);
     };
-  }, [isMobile, isOpen, onToggle]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobile, isOpen, onClose]);
+
+  const menuItems = [
+    { icon: Home, label: 'Home', href: '/' },
+    { icon: Trophy, label: 'Tournaments', href: '/tournaments' },
+    { icon: BarChart2, label: 'Stats', href: '/stats' },
+    { icon: Box, label: 'Products', href: '/products' },
+    { icon: Calendar, label: 'Events', href: '/events' },
+    { icon: Settings, label: 'Settings', href: '/settings' },
+    { icon: Users, label: 'Users', href: '/users' },
+    { icon: Database, label: 'Database', href: '/database' },
+  ];
+
+  const collapsed = !isMobile && !isOpen; // desktop icon-only mode
 
   return (
     <>
+      {/* Sidebar container */}
       <aside
-        ref={sidebarRef}
-        className={`fixed left-0 top-0 z-40 h-screen flex flex-col bg-white border-r border-gray-200 transition-all
-          ${isMobile
-            ? `${isOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'}`
-            : `${isOpen ? 'w-64' : 'w-16'} translate-x-0`
-          }`}
+        id="sidebar"
+        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40
+          ${isMobile ? (isOpen ? 'w-64' : 'w-0') : collapsed ? 'w-16' : 'w-64'}
+        `}
       >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
-              B
-            </div>
-            {isOpen && (
-              <div>
-                <h1 className="text-xl font-space-grotesk font-bold text-gray-900">OBC Portal</h1>
-                <p className="text-xs text-gray-500 font-inter">Beyblade Community</p>
-              </div>
-            )}
-          </div>
-          {isOpen && (
-            <button
-              onClick={onToggle}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X size={20} />
-            </button>
-          )}
+        {/* Logo */}
+        <div className="flex items-center h-16 px-4 border-b border-gray-200">
+          {!collapsed && <span className="text-lg font-bold">OBC Portal</span>}
+          {collapsed && <span className="text-lg font-bold">B</span>}
         </div>
 
-        {/* Scrollable menu */}
-        <div className="flex-1 overflow-y-auto px-4 py-6">
-          <ul className="space-y-2">
-            {filteredMenuItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => onViewChange(item.id)}
-                  className={currentView === item.id ? 'sidebar-item-active' : 'sidebar-item'}
-                >
-                  <div className="transition-colors">{item.icon}</div>
-                  {isOpen && <span className="ml-3 font-inter">{item.label}</span>}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Auth Section */}
-        <div className="px-4 border-t border-gray-200 py-4">
-          {user && !user.id.startsWith('guest-') ? (
-            <button
-              onClick={handleLogout}
-              className="sidebar-item w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+        {/* Menu */}
+        <nav className="flex-1 overflow-y-auto">
+          {menuItems.map(({ icon: Icon, label, href }) => (
+            <a
+              key={label}
+              href={href}
+              className={`flex items-center p-3 hover:bg-gray-100 transition-colors ${
+                collapsed ? 'justify-center' : 'space-x-3'
+              }`}
             >
-              <div className="transition-colors"><LogOut size={20} /></div>
-              {isOpen && <span className="ml-3 font-inter">Logout</span>}
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowLoginModal(true)}
-              className="sidebar-item w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-            >
-              <div className="transition-colors"><LogIn size={20} /></div>
-              {isOpen && <span className="ml-3 font-inter">Login</span>}
-            </button>
-          )}
-        </div>
+              <Icon size={20} />
+              {!collapsed && <span>{label}</span>}
+            </a>
+          ))}
+        </nav>
 
-        {/* Created by Jedynsay - pinned bottom */}
-        {isOpen && (
-          <div className="px-2 pb-4">
-            <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
-                  <span className="text-xs text-white">J</span>
-                </div>
-                <h3 className="font-space-grotesk font-semibold text-sm text-gray-900">
-                  Created by Jedynsay
-                </h3>
-              </div>
-              <p className="text-xs text-gray-600 font-inter mb-2">Powered by Supabase</p>
-            </div>
-          </div>
-        )}
+        {/* Logout button */}
+        <div className="p-3 border-t border-gray-200">
+          <button
+            onClick={logout}
+            className={`flex items-center w-full hover:bg-red-50 text-red-600 p-2 rounded-lg transition-colors ${
+              collapsed ? 'justify-center' : 'space-x-3'
+            }`}
+          >
+            <LogOut size={20} />
+            {!collapsed && <span>Logout</span>}
+          </button>
+        </div>
       </aside>
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <>
-          <div
-            className="modal-overlay"
-            style={{ zIndex: 50 }}
-            onClick={() => setShowLoginModal(false)}
-          />
-          <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50">
-            <div className="relative pointer-events-auto bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
-              <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
-              <button
-                onClick={() => setShowLoginModal(false)}
-                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        </>
+      {/* Mobile overlay */}
+      {isMobile && isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-30" onClick={onClose}></div>
       )}
     </>
   );
