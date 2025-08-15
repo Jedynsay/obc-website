@@ -13,6 +13,7 @@ interface BeybladeFormCardProps {
     bits: any[];
     lockchips: any[];
     assistBlades: any[];
+    fusionParts: any[];
   };
   validationErrors: { duplicateParts: string[] };
 }
@@ -63,6 +64,10 @@ export function BeybladeFormCard({
     return options.sort((a, b) => getPartDisplayName(a, partType).localeCompare(getPartDisplayName(b, partType)));
   };
 
+  const getFusionPartOptions = () => {
+    return partsData.fusionParts.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  };
+
   const getPartDisplayName = (part: any, partType: string) => {
     switch (partType) {
       case 'Blade':
@@ -77,7 +82,7 @@ export function BeybladeFormCard({
       case 'Assist Blade':
         return `${part['Assist Blade Name']} (${part['Assist Blade']})`;
       default:
-        return '';
+        return part?.name || '';
     }
   };
 
@@ -85,7 +90,7 @@ export function BeybladeFormCard({
     setBeyblades(beyblades.map(b =>
       b.id === beyblade.id
         ? field === 'bladeLine'
-          ? { ...b, bladeLine: value, parts: {} }
+          ? { ...b, bladeLine: value, parts: {}, fusionParts: {} }
           : { ...b, [field]: value }
         : b
     ));
@@ -95,6 +100,14 @@ export function BeybladeFormCard({
     setBeyblades(beyblades.map(b =>
       b.id === beyblade.id
         ? { ...b, parts: { ...b.parts, [partType]: selectedPart } }
+        : b
+    ));
+  };
+
+  const updateFusionPart = (fusionType: string, selectedPart: any) => {
+    setBeyblades(beyblades.map(b =>
+      b.id === beyblade.id
+        ? { ...b, fusionParts: { ...b.fusionParts, [fusionType]: selectedPart } }
         : b
     ));
   };
@@ -118,7 +131,11 @@ export function BeybladeFormCard({
   };
 
   const calculateStats = () => {
-    return Object.values(beyblade.parts).reduce(
+    const allParts = [
+      ...Object.values(beyblade.parts || {}),
+      ...Object.values(beyblade.fusionParts || {})
+    ];
+    return allParts.reduce(
       (stats: any, part: any) => {
         if (part) {
           stats.attack += part.Attack || 0;
@@ -206,11 +223,30 @@ export function BeybladeFormCard({
                 )}
             </div>
           ))}
+
+          {/* Fusion Parts */}
+          {partsData.fusionParts.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium mb-1">Fusion Part</label>
+              <select
+                value={beyblade.fusionParts?.Fusion || ''}
+                onChange={(e) => e.target.value && updateFusionPart('Fusion', JSON.parse(e.target.value))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Fusion Part</option>
+                {getFusionPartOptions().map((part: any, idx) => (
+                  <option key={idx} value={JSON.stringify(part)}>
+                    {part.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       )}
 
       {/* Stats */}
-      {beyblade.bladeLine && Object.keys(beyblade.parts).length > 0 && (
+      {beyblade.bladeLine && (Object.keys(beyblade.parts).length > 0 || Object.keys(beyblade.fusionParts || {}).length > 0) && (
         <StatBar stats={calculateStats()} />
       )}
     </div>
