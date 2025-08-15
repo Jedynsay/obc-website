@@ -95,9 +95,9 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           }`}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className={`flex items-center justify-between border-b border-gray-200 ${isOpen ? 'p-4' : 'p-2'}`}>
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
+            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white mx-auto">
               B
             </div>
             {isOpen && (
@@ -118,7 +118,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         </div>
 
         {/* Scrollable menu */}
-        <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className={`flex-1 overflow-y-auto ${isOpen ? 'px-4 py-6' : 'px-2 py-6'}`}>
           <ul className="space-y-2">
             {filteredMenuItems.map((item) => (
               <li key={item.id}>
@@ -126,7 +126,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
                   onClick={() => onViewChange(item.id)}
                   className={currentView === item.id ? 'sidebar-item-active' : 'sidebar-item'}
                 >
-                  <div className="transition-colors">{item.icon}</div>
+                  <div className="flex justify-center">{item.icon}</div>
                   {isOpen && <span className="ml-3 font-inter">{item.label}</span>}
                 </button>
               </li>
@@ -135,13 +135,13 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         </div>
 
         {/* Auth Section */}
-        <div className="px-4 border-t border-gray-200 py-4">
+        <div className={`border-t border-gray-200 py-4 ${isOpen ? 'px-4' : 'px-2'}`}>
           {user && !user.id.startsWith('guest-') ? (
             <button
               onClick={handleLogout}
               className="sidebar-item w-full text-red-600 hover:text-red-700 hover:bg-red-50"
             >
-              <div className="transition-colors"><LogOut size={20} /></div>
+              <div className="flex justify-center"><LogOut size={20} /></div>
               {isOpen && <span className="ml-3 font-inter">Logout</span>}
             </button>
           ) : (
@@ -149,7 +149,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
               onClick={() => setShowLoginModal(true)}
               className="sidebar-item w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
             >
-              <div className="transition-colors"><LogIn size={20} /></div>
+              <div className="flex justify-center"><LogIn size={20} /></div>
               {isOpen && <span className="ml-3 font-inter">Login</span>}
             </button>
           )}
