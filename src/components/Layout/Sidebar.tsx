@@ -35,6 +35,7 @@ const menuItems: MenuItem[] = [
 export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
   const { user, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = React.useState(false);
+  const sidebarRef = React.useRef<HTMLDivElement>(null);
 
   const filteredMenuItems = menuItems.filter(item =>
     !user ? (!item.requiresAuth && item.roles.includes('user')) :
@@ -46,9 +47,37 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     onToggle();
   };
 
+  // Close sidebar when clicking outside
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        isOpen &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        onToggle();
+      }
+    }
+
+    function handleEscKey(event: KeyboardEvent) {
+      if (isOpen && event.key === 'Escape') {
+        onToggle();
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [isOpen, onToggle]);
+
   return (
     <>
       <aside
+        ref={sidebarRef}
         className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
         transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
         bg-white border-r border-gray-200 ${isOpen ? 'w-64' : 'w-16'}`}
