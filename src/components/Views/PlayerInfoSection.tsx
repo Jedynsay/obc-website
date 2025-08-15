@@ -1,6 +1,6 @@
 import React from 'react';
 import { User } from 'lucide-react';
-import { Tournament } from '../../../types';
+import { Tournament } from '../../types';
 
 interface PlayerInfoSectionProps {
   playerName: string;
