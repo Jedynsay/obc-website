@@ -595,7 +595,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
             
             <div className="flex justify-end">
               <div className="text-slate-400 text-sm">
-                OBC Portal v1.0
+                OBC Portal beta v0.3
               </div>
             </div>
           </div>
