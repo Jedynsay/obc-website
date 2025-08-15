@@ -12,7 +12,7 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
   const [paymentMode, setPaymentMode] = useState<'free' | 'cash' | 'gcash' | 'bank_transfer'>(
     tournament.is_free ? 'free' : 'cash'
   );
-  const [beyblades, setBeyblades] = useState([{ id: '1', bladeLine: '', parts: {} }]);
+  const [beyblades, setBeyblades] = useState([{ id: '1', bladeLine: '', parts: {}, fusionParts: {} }]);
   const [deckPresets, setDeckPresets] = useState<any[]>([]);
   const [selectedPreset, setSelectedPreset] = useState('');
   const [partsData, setPartsData] = useState({
@@ -20,7 +20,8 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     ratchets: [],
     bits: [],
     lockchips: [],
-    assistBlades: []
+    assistBlades: [],
+    fusionParts: []
   });
   const [isLoadingParts, setIsLoadingParts] = useState(false);
   const [partsError, setPartsError] = useState<string | null>(null);
@@ -31,12 +32,13 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     setPartsError(null);
 
     try {
-      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes] = await Promise.all([
+      const [bladesRes, ratchetsRes, bitsRes, lockchipsRes, assistBladesRes, fusionPartsRes] = await Promise.all([
         supabase.from('beypart_blade').select('*'),
         supabase.from('beypart_ratchet').select('*'),
         supabase.from('beypart_bit').select('*'),
         supabase.from('beypart_lockchip').select('*'),
-        supabase.from('beypart_assistblade').select('*')
+        supabase.from('beypart_assistblade').select('*'),
+        supabase.from('beypart_fusionparts').select('*')
       ]);
 
       if (bladesRes.error) throw bladesRes.error;
@@ -44,13 +46,15 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
       if (bitsRes.error) throw bitsRes.error;
       if (lockchipsRes.error) throw lockchipsRes.error;
       if (assistBladesRes.error) throw assistBladesRes.error;
+      if (fusionPartsRes.error) throw fusionPartsRes.error;
 
       setPartsData({
         blades: bladesRes.data || [],
         ratchets: ratchetsRes.data || [],
         bits: bitsRes.data || [],
         lockchips: lockchipsRes.data || [],
-        assistBlades: assistBladesRes.data || []
+        assistBlades: assistBladesRes.data || [],
+        fusionParts: fusionPartsRes.data || []
       });
     } catch (err) {
       console.error(err);
@@ -85,7 +89,8 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
       .map((bey: any, index: number) => ({
         id: (index + 1).toString(),
         bladeLine: bey.blade_line,
-        parts: bey.parts
+        parts: bey.parts,
+        fusionParts: bey.fusionParts || {}
       }));
     setBeyblades(presetBeyblades);
     setSelectedPreset('');
@@ -93,14 +98,12 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
 
   // Submit registration
   const handleSubmit = async () => {
-    // Simple validation (more in useBeybladeValidation)
     if (!playerName.trim()) {
       await alert('Missing Information', 'Please enter your player name.');
       return;
     }
 
     try {
-      // Insert registration
       const tournamentData = await supabase
         .from('tournaments')
         .select('is_free')
@@ -123,7 +126,6 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
 
       if (regError) throw regError;
 
-      // Insert each Beyblade & parts
       for (const beyblade of beyblades) {
         const beyName = generateBeybladeName(beyblade);
         const { data: beyData, error: beyError } = await supabase
@@ -137,6 +139,7 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
           .single();
         if (beyError) throw beyError;
 
+        // Normal parts
         const partsToInsert = Object.entries(beyblade.parts).map(([partType, partData]) => ({
           beyblade_id: beyData.id,
           part_type: partType,
@@ -144,10 +147,27 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
           part_data: partData
         }));
 
-        const { error: partsError } = await supabase
-          .from('tournament_beyblade_parts')
-          .insert(partsToInsert);
-        if (partsError) throw partsError;
+        // Fusion parts
+        const fusionToInsert = Object.entries(beyblade.fusionParts || {}).map(([fusionType, fusionData]) => ({
+          beyblade_id: beyData.id,
+          fusion_type: fusionType,
+          part_name: fusionData?.name || '',
+          part_data: fusionData
+        }));
+
+        if (partsToInsert.length > 0) {
+          const { error: partsError } = await supabase
+            .from('tournament_beyblade_parts')
+            .insert(partsToInsert);
+          if (partsError) throw partsError;
+        }
+
+        if (fusionToInsert.length > 0) {
+          const { error: fusionError } = await supabase
+            .from('tournament_beyblade_fusionparts')
+            .insert(fusionToInsert);
+          if (fusionError) throw fusionError;
+        }
       }
 
       await alert('Registration Successful', `You have registered ${playerName} for ${tournament.name}!`);
@@ -158,7 +178,6 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     }
   };
 
-  // Helper functions
   const getPartDisplayName = (part: any, partType: string) => {
     switch (partType) {
       case 'Blade':
@@ -202,7 +221,6 @@ export function useTournamentRegistrationData(tournament: Tournament, onClose: (
     }
   };
 
-  // On mount
   useEffect(() => {
     fetchPartsData();
     fetchDeckPresets();
