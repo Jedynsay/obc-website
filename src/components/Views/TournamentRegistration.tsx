@@ -894,7 +894,7 @@ export function TournamentRegistration({ tournament, onClose, onSubmit }: Tourna
                           ) && (
                             <div className="mt-1 text-sm text-red-600 flex items-center">
                               <span className="mr-1">⚠️</span>
-                              This part is already used in another Beyblade
+                              This part is being used in another Beyblade
                             </div>
                           )}
                           
