@@ -85,14 +85,14 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
 
   return (
     <>
-      {/* Backdrop for mobile */}
-      {isOpen && window.innerWidth <= 768 && (
+      {/* Backdrop for all screen sizes when sidebar is open */}
+      {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-30 z-30" />
       )}
 
       <aside
         id="app-sidebar"
-        className={`fixed left-0 top-0 z-40 h-screen flex flex-col 
+        className={`fixed left-0 top-0 z-50 h-screen flex flex-col 
         transition-transform duration-200 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
         bg-white border-r border-gray-200 w-64`}

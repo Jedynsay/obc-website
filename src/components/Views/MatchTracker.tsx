@@ -10,6 +10,7 @@ interface Tournament {
   tournament_date: string;
   location: string;
   beyblades_per_player: number;
+  password?: string;
 }
 
 interface PlayerData {
@@ -46,6 +47,9 @@ const MatchTracker = () => {
   const { confirm, alert } = useConfirmation();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [selectedTournament, setSelectedTournament] = useState<string>('');
+  const [tournamentPassword, setTournamentPassword] = useState('');
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   const [playerData, setPlayerData] = useState<PlayerData>({});
   const [playerBeybladeData, setPlayerBeybladeData] = useState<PlayerBeybladeData>({});
   const [loading, setLoading] = useState(true);
@@ -77,7 +81,16 @@ const MatchTracker = () => {
   // Fetch player data when tournament is selected
   useEffect(() => {
     if (selectedTournament) {
-      fetchPlayerData(selectedTournament);
+      setIsPasswordVerified(false);
+      setTournamentPassword('');
+      setPasswordError('');
+      // Check if tournament has password
+      const tournament = tournaments.find(t => t.id === selectedTournament);
+      if (!tournament?.password) {
+        // No password required, proceed directly
+        setIsPasswordVerified(true);
+        fetchPlayerData(selectedTournament);
+      }
     }
   }, [selectedTournament]);
 
@@ -85,7 +98,7 @@ const MatchTracker = () => {
     try {
       const { data, error } = await supabase
         .from('tournaments')
-        .select('id, name, status, tournament_date, location, beyblades_per_player')
+        .select('id, name, status, tournament_date, location, beyblades_per_player, password')
         .order('tournament_date', { ascending: false });
 
       if (error) throw error;
@@ -100,6 +113,23 @@ const MatchTracker = () => {
       console.error('Error fetching tournaments:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const verifyPassword = () => {
+    const tournament = tournaments.find(t => t.id === selectedTournament);
+    if (!tournament?.password) {
+      setIsPasswordVerified(true);
+      fetchPlayerData(selectedTournament);
+      return;
+    }
+
+    if (tournamentPassword === tournament.password) {
+      setIsPasswordVerified(true);
+      setPasswordError('');
+      fetchPlayerData(selectedTournament);
+    } else {
+      setPasswordError('Incorrect password. Please try again.');
     }
   };
 
@@ -533,12 +563,51 @@ const MatchTracker = () => {
               }`}>{selectedTournamentData.status}</span></p>
               <p className="text-sm text-gray-600">Date: {new Date(selectedTournamentData.tournament_date).toLocaleDateString()}</p>
               <p className="text-sm text-gray-600">Location: {selectedTournamentData.location}</p>
+              {selectedTournamentData.password && (
+                <p className="text-sm text-orange-600 font-medium">🔒 Password protected</p>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      {selectedTournament && (
+      {/* Password Verification */}
+      {selectedTournament && selectedTournamentData?.password && !isPasswordVerified && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+            🔒 Tournament Access
+          </h2>
+          <p className="text-gray-600 mb-4">
+            This tournament requires a password to access match tracking features.
+          </p>
+          <div className="max-w-md">
+            <div className="flex space-x-3">
+              <input
+                type="password"
+                placeholder="Enter tournament password"
+                value={tournamentPassword}
+                onChange={(e) => {
+                  setTournamentPassword(e.target.value);
+                  setPasswordError('');
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && verifyPassword()}
+                className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={verifyPassword}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Verify
+              </button>
+            </div>
+            {passwordError && (
+              <p className="text-red-600 text-sm mt-2">{passwordError}</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {selectedTournament && isPasswordVerified && (
         <>
           {/* Match Setup */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">

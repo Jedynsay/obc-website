@@ -59,7 +59,7 @@ function AppContent() {
         onToggle={toggleSidebar}
       />
       
-      <div className={`${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'} transition-all duration-300`}>
+      <div className="w-full">
         <main className="flex-1">
           {renderCurrentView()}
         </main>
