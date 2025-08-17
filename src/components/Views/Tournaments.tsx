@@ -114,7 +114,9 @@ export function Tournaments() {
                   </div>
                   <div className="flex items-center text-gray-600 font-inter">
                     <Users size={16} className="mr-2" />
-                    {tournament.current_participants}/{tournament.max_participants} participants
+                    {tournament.max_participants === 999999
+                      ? `${tournament.current_participants} participants`
+                      : `${tournament.current_participants}/${tournament.max_participants} participants`}
                   </div>
                   {tournament.prize_pool && (
                     <div className="flex items-center text-gray-600 font-inter">
