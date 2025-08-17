@@ -124,7 +124,6 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
               disabled={!isFormValid() || isLoadingParts}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              <Save size={16} />
               <span>Register</span>
             </button>
           </div>
