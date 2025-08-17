@@ -54,7 +54,7 @@ export function HeroSection({ user, onViewChange, onLoginClick, onLogout }) {
             Welcome back, <span className="text-blue-400">{user ? user.username : 'Blader'}</span>
           </h1>
           <p className="mt-4 text-lg text-slate-400">
-            Prepare your ultimate combo and dominate the arena.
+            Create decks. Register tournaments. Dominate the leaderboards. Let it rip.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <button onClick={() => onViewChange?.('tournaments')}
