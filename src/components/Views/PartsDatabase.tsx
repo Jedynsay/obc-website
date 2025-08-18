@@ -40,6 +40,7 @@ export function PartsDatabase() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedPart, setSelectedPart] = useState<Part | null>(null);
   const [activeTab, setActiveTab] = useState<string>('lockchips');
+  const [activeRole, setActiveRole] = useState<string>('');
 
   const tabs = ['lockchips', 'main blades', 'blades', 'ratchets', 'bits'];
 
@@ -154,6 +155,8 @@ export function PartsDatabase() {
       setLoading(false);
     }
   };
+
+  // Helpers
   const getStatIcon = (stat: string) => {
     switch (stat) {
       case 'attack':
@@ -168,23 +171,6 @@ export function PartsDatabase() {
         return <ShieldCheck size={16} className="text-purple-500" />;
       default:
         return null;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'Blade':
-        return 'bg-red-100 text-red-800';
-      case 'Ratchet':
-        return 'bg-blue-100 text-blue-800';
-      case 'Bit':
-        return 'bg-green-100 text-green-800';
-      case 'Lockchip':
-        return 'bg-purple-100 text-purple-800';
-      case 'Assist Blade':
-        return 'bg-orange-100 text-orange-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -207,6 +193,7 @@ export function PartsDatabase() {
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
 
+  // Tab filter
   const tabFilteredParts = filteredAndSortedParts.filter((part) => {
     if (activeTab === 'main blades')
       return part.type === 'Blade' && part.line?.toLowerCase() === 'custom';
@@ -221,27 +208,56 @@ export function PartsDatabase() {
     return true;
   });
 
-  const renderPartCard = (part: Part) => (
-    <div
-      key={part.id}
-      onClick={() => setSelectedPart(part)}
-      className="cursor-pointer bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition"
-    >
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold truncate break-words">{part.name}</h3>
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(
-            part.type
-          )}`}
-        >
-          {part.type}
-        </span>
+  // Role filter
+  const roleFilteredParts = tabFilteredParts.filter((part) => {
+    if (!activeRole) return true;
+    const role =
+      part.stats.attack >= part.stats.defense &&
+      part.stats.attack >= part.stats.stamina
+        ? 'attack'
+        : part.stats.defense >= part.stats.attack &&
+          part.stats.defense >= part.stats.stamina
+        ? 'defense'
+        : part.stats.stamina >= part.stats.attack &&
+          part.stats.stamina >= part.stats.defense
+        ? 'stamina'
+        : 'balance';
+    return role === activeRole;
+  });
+
+  // Grid Card
+  const renderPartCard = (part: Part) => {
+    const role =
+      part.stats.attack >= part.stats.defense &&
+      part.stats.attack >= part.stats.stamina
+        ? 'Attack'
+        : part.stats.defense >= part.stats.attack &&
+          part.stats.defense >= part.stats.stamina
+        ? 'Defense'
+        : part.stats.stamina >= part.stats.attack &&
+          part.stats.stamina >= part.stats.defense
+        ? 'Stamina'
+        : 'Balance';
+
+    return (
+      <div
+        key={part.id}
+        onClick={() => setSelectedPart(part)}
+        className="cursor-pointer bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition"
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold truncate break-words">{part.name}</h3>
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {role}
+          </span>
+        </div>
+        {part.line && (
+          <p className="text-xs text-gray-500 mt-1 truncate">{part.line}</p>
+        )}
       </div>
-      {part.line && (
-        <p className="text-xs text-gray-500 mt-1 truncate">{part.line}</p>
-      )}
-    </div>
-  );
+    );
+  };
+
   if (loading) {
     return (
       <div className="page-container">
@@ -295,9 +311,9 @@ export function PartsDatabase() {
           </div>
         </div>
 
-        {/* Search + Sort + Tabs */}
+        {/* Search + Sort + Role Filter + Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="relative">
               <Search
@@ -338,6 +354,33 @@ export function PartsDatabase() {
                 <option value="burstRes-asc">Burst Res (Low-High)</option>
               </select>
             </div>
+
+            {/* Sort Toggle */}
+            <div className="flex items-center">
+              <button
+                onClick={() =>
+                  setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
+              >
+                {sortDirection === 'asc' ? '⬆️ Asc' : '⬇️ Desc'}
+              </button>
+            </div>
+
+            {/* Role Filter */}
+            <div>
+              <select
+                value={activeRole}
+                onChange={(e) => setActiveRole(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Roles</option>
+                <option value="attack">Attack</option>
+                <option value="defense">Defense</option>
+                <option value="stamina">Stamina</option>
+                <option value="balance">Balance</option>
+              </select>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -357,8 +400,9 @@ export function PartsDatabase() {
             ))}
           </div>
         </div>
+
         {/* Parts Display */}
-        {tabFilteredParts.length === 0 ? (
+        {roleFilteredParts.length === 0 ? (
           <div className="text-center py-12">
             <Database size={48} className="mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -370,16 +414,47 @@ export function PartsDatabase() {
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {tabFilteredParts.map(renderPartCard)}
+            {roleFilteredParts.map(renderPartCard)}
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Attack
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Defense
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Stamina
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Dash
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Burst Res
+                  </th>
+                  <th></th>
+                </tr>
+              </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {tabFilteredParts.map((part) => (
+                {roleFilteredParts.map((part) => (
                   <tr key={part.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 truncate break-words">{part.name}</td>
                     <td className="px-6 py-4 text-center">{part.type}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.attack}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.defense}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.stamina}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.dash}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.burstRes}</td>
                     <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => setSelectedPart(part)}
@@ -462,6 +537,14 @@ export function PartsDatabase() {
                 <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">
                     Win Rate
+                  </h4>
+                  <p className="text-gray-600">Coming Soon</p>
+                </div>
+
+                {/* Top 3 Combos Placeholder */}
+                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                    Top 3 Combos
                   </h4>
                   <p className="text-gray-600">Coming Soon</p>
                 </div>
