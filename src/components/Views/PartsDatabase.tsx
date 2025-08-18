@@ -438,7 +438,7 @@ export function PartsDatabase() {
                         <div className="inline-flex items-center space-x-1">
                           <span>{col}</span>
                           {sortBy === col && (
-                            <span>{sortDirection === 'asc' ? '⬆️' : '⬇️'}</span>
+                            <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
                           )}
                         </div>
                       </th>
