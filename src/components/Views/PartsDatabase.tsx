@@ -13,6 +13,7 @@ import {
   X,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { FaSortUp, FaSortDown } from 'react-icons/fa';
 
 interface Part {
   id: string;
