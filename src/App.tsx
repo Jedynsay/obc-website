@@ -12,6 +12,7 @@ import { DatabaseView } from './components/Views/Database';
 import { Inventory } from './components/Views/Inventory';
 import { DeckBuilder } from './components/Views/DeckBuilder';
 import { Settings } from './components/Views/Settings';
+import { PartsDatabase } from './components/Views/PartsDatabase';
 import { Menu } from 'lucide-react';
 
 function AppContent() {
@@ -28,6 +29,7 @@ function AppContent() {
       case 'tournaments': return <Tournaments />;
       case 'inventory': return <Inventory />;
       case 'analytics': return <Analytics />;
+      case 'parts-database': return <PartsDatabase />;
       case 'match-tracker': return <MatchTracker />;
       case 'tournament-manager': return <TournamentManager />;
       case 'user-management': return <UserManagement />;
@@ -60,7 +62,7 @@ function AppContent() {
       />
       
       <div className="w-full">
-        <main className="flex-1">
+        <main className="flex-1 w-full">
           {renderCurrentView()}
         </main>
       </div>

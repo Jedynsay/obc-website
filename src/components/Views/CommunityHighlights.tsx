@@ -50,11 +50,28 @@ export function CommunityHighlights({ topPlayers, currentTournamentFilter, setTo
         ) : (
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {recentMatches.slice(0, 5).map((match, idx) => (
-              <div key={idx} className="flex justify-between text-sm">
-                <span className="text-white">{match.winner_name}</span>
-                <span className="text-slate-400">defeated</span>
-                <span className="text-slate-300">{match.winner_name === match.player1_name ? match.player2_name : match.player1_name}</span>
-                <span className="text-slate-500">{match.outcome?.split(' (')[0] || 'Victory'}</span>
+              <div key={idx} className="flex items-center justify-between text-sm bg-slate-800/50 rounded-lg p-3">
+                <div className="flex items-center space-x-3 flex-1">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div className="flex flex-col">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-white font-semibold">{match.winner_name}</span>
+                      <span className="text-slate-400">defeated</span>
+                      <span className="text-slate-300">
+                        {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 font-mono mt-1">
+                      {match.winner_name === match.player1_name 
+                        ? `${match.player1_beyblade || 'Unknown'} vs ${match.player2_beyblade || 'Unknown'}`
+                        : `${match.player2_beyblade || 'Unknown'} vs ${match.player1_beyblade || 'Unknown'}`
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div className="text-slate-500 text-xs">
+                  {match.outcome?.split(' (')[0] || 'Victory'}
+                </div>
               </div>
             ))}
           </div>
