@@ -16,7 +16,8 @@ import { supabase } from '../../lib/supabase';
 interface Part {
   id: string;
   name: string;
-  type: string;
+  category: string; // Blade, Bit, Ratchet, etc.
+  role?: string;    // Attack, Defense, Stamina, Balance (from Supabase)
   line?: string;
   stats: {
     attack: number;
@@ -33,7 +34,7 @@ export function PartsDatabase() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<
-    'name' | 'attack' | 'defense' | 'stamina' | 'dash' | 'burstRes' | 'role'
+    'name' | 'role' | 'attack' | 'defense' | 'stamina' | 'dash' | 'burstRes'
   >('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -66,7 +67,8 @@ export function PartsDatabase() {
         allParts.push({
           id: `blade-${blade.Blades}`,
           name: blade.Blades,
-          type: 'Blade',
+          category: 'Blade',
+          role: blade.Type, // role from DB
           line: blade.Line,
           stats: {
             attack: blade.Attack || 0,
@@ -83,7 +85,8 @@ export function PartsDatabase() {
         allParts.push({
           id: `ratchet-${ratchet.Ratchet}`,
           name: ratchet.Ratchet,
-          type: 'Ratchet',
+          category: 'Ratchet',
+          role: ratchet.Type,
           stats: {
             attack: ratchet.Attack || 0,
             defense: ratchet.Defense || 0,
@@ -99,7 +102,8 @@ export function PartsDatabase() {
         allParts.push({
           id: `bit-${bit.Bit}`,
           name: `${bit.Bit} (${bit.Shortcut})`,
-          type: 'Bit',
+          category: 'Bit',
+          role: bit.Type,
           stats: {
             attack: bit.Attack || 0,
             defense: bit.Defense || 0,
@@ -115,7 +119,8 @@ export function PartsDatabase() {
         allParts.push({
           id: `lockchip-${lockchip.Lockchip}`,
           name: lockchip.Lockchip,
-          type: 'Lockchip',
+          category: 'Lockchip',
+          role: lockchip.Type,
           stats: {
             attack: lockchip.Attack || 0,
             defense: lockchip.Defense || 0,
@@ -131,7 +136,8 @@ export function PartsDatabase() {
         allParts.push({
           id: `assistblade-${assistBlade['Assist Blade']}`,
           name: `${assistBlade['Assist Blade Name']} (${assistBlade['Assist Blade']})`,
-          type: 'Assist Blade',
+          category: 'Assist Blade',
+          role: assistBlade.Type,
           stats: {
             attack: assistBlade.Attack || 0,
             defense: assistBlade.Defense || 0,
@@ -176,17 +182,8 @@ export function PartsDatabase() {
         aValue = a.name;
         bValue = b.name;
       } else if (sortBy === 'role') {
-        const roleMap = (p: Part) => {
-          if (['Blade', 'Bit'].includes(p.type)) {
-            if (p.stats.attack >= p.stats.defense && p.stats.attack >= p.stats.stamina) return 'Attack';
-            if (p.stats.defense >= p.stats.attack && p.stats.defense >= p.stats.stamina) return 'Defense';
-            if (p.stats.stamina >= p.stats.attack && p.stats.stamina >= p.stats.defense) return 'Stamina';
-            return 'Balance';
-          }
-          return p.type;
-        };
-        aValue = roleMap(a);
-        bValue = roleMap(b);
+        aValue = a.role || '';
+        bValue = b.role || '';
       } else {
         aValue = a.stats[sortBy];
         bValue = b.stats[sortBy];
@@ -202,38 +199,23 @@ export function PartsDatabase() {
 
   const tabFilteredParts = filteredAndSortedParts.filter((part) => {
     if (activeTab === 'blades (custom)')
-      return part.type === 'Blade' && part.line?.toLowerCase() === 'custom';
+      return part.category === 'Blade' && part.line?.toLowerCase() === 'custom';
     if (activeTab === 'blades') {
-      if (!bladeFilter) return part.type === 'Blade' && ['basic', 'unique', 'x-over'].includes(part.line?.toLowerCase() || '');
-      return part.type === 'Blade' && part.line?.toLowerCase() === bladeFilter.toLowerCase();
+      if (!bladeFilter)
+        return part.category === 'Blade' && ['basic', 'unique', 'x-over'].includes(part.line?.toLowerCase() || '');
+      return part.category === 'Blade' && part.line?.toLowerCase() === bladeFilter.toLowerCase();
     }
-    if (activeTab === 'lockchips') return part.type === 'Lockchip';
-    if (activeTab === 'ratchets') return part.type === 'Ratchet';
-    if (activeTab === 'bits') return part.type === 'Bit';
+    if (activeTab === 'lockchips') return part.category === 'Lockchip';
+    if (activeTab === 'ratchets') return part.category === 'Ratchet';
+    if (activeTab === 'bits') return part.category === 'Bit';
     return true;
   });
 
   const roleFilteredParts = tabFilteredParts.filter((part) => {
     if (!activeRole) return true;
-    let role: string;
-    if (['Blade','Bit'].includes(part.type) || (part.type === 'Blade' && part.line?.toLowerCase() === 'custom')) {
-      if (part.stats.attack >= part.stats.defense && part.stats.attack >= part.stats.stamina) role = 'attack';
-      else if (part.stats.defense >= part.stats.attack && part.stats.defense >= part.stats.stamina) role = 'defense';
-      else if (part.stats.stamina >= part.stats.attack && part.stats.stamina >= part.stats.defense) role = 'stamina';
-      else role = 'balance';
-      return role === activeRole;
-    }
-    return true;
+    return (part.role || '').toLowerCase() === activeRole;
   });
   const renderPartCard = (part: Part) => {
-    let role: string | null = null;
-    if (['Blade','Bit'].includes(part.type) || (part.type === 'Blade' && part.line?.toLowerCase() === 'custom')) {
-      if (part.stats.attack >= part.stats.defense && part.stats.attack >= part.stats.stamina) role = 'Attack';
-      else if (part.stats.defense >= part.stats.attack && part.stats.defense >= part.stats.stamina) role = 'Defense';
-      else if (part.stats.stamina >= part.stats.attack && part.stats.stamina >= part.stats.defense) role = 'Stamina';
-      else role = 'Balance';
-    }
-
     return (
       <div
         key={part.id}
@@ -245,9 +227,9 @@ export function PartsDatabase() {
         </div>
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold truncate break-words">{part.name}</h3>
-          {role && (
+          {part.role && (
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-              {role}
+              {part.role}
             </span>
           )}
         </div>
@@ -406,11 +388,11 @@ export function PartsDatabase() {
                           setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
                         }}
                       >
-                        <div className="inline-flex items-center space-x-1">
+                        <div className="inline-flex items-center justify-center space-x-1">
                           <span>{col}</span>
-                          {sortBy === col && (
-                            <span>{sortDirection === 'asc' ? '⬆️' : '⬇️'}</span>
-                          )}
+                          <span className="w-4 inline-block">
+                            {sortBy === col && (sortDirection === 'asc' ? '⬆️' : '⬇️')}
+                          </span>
                         </div>
                       </th>
                     ))}
@@ -418,41 +400,29 @@ export function PartsDatabase() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {roleFilteredParts.map((part) => {
-                  let role = '';
-                  if (['Blade','Bit'].includes(part.type)) {
-                    if (part.stats.attack >= part.stats.defense && part.stats.attack >= part.stats.stamina) role = 'Attack';
-                    else if (part.stats.defense >= part.stats.attack && part.stats.defense >= part.stats.stamina) role = 'Defense';
-                    else if (part.stats.stamina >= part.stats.attack && part.stats.stamina >= part.stats.defense) role = 'Stamina';
-                    else role = 'Balance';
-                  } else {
-                    role = part.type;
-                  }
-
-                  return (
-                    <tr key={part.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-left truncate break-words">{part.name}</td>
-                      <td className="px-6 py-4 text-center">{role}</td>
-                      <td className="px-6 py-4 text-center">{part.stats.attack}</td>
-                      <td className="px-6 py-4 text-center">{part.stats.defense}</td>
-                      <td className="px-6 py-4 text-center">{part.stats.stamina}</td>
-                      {activeTab === 'bits' && (
-                        <>
-                          <td className="px-6 py-4 text-center">{part.stats.dash}</td>
-                          <td className="px-6 py-4 text-center">{part.stats.burstRes}</td>
-                        </>
-                      )}
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => setSelectedPart(part)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {roleFilteredParts.map((part) => (
+                  <tr key={part.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-left truncate break-words">{part.name}</td>
+                    <td className="px-6 py-4 text-center">{part.role || '-'}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.attack}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.defense}</td>
+                    <td className="px-6 py-4 text-center">{part.stats.stamina}</td>
+                    {activeTab === 'bits' && (
+                      <>
+                        <td className="px-6 py-4 text-center">{part.stats.dash}</td>
+                        <td className="px-6 py-4 text-center">{part.stats.burstRes}</td>
+                      </>
+                    )}
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => setSelectedPart(part)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -468,8 +438,13 @@ export function PartsDatabase() {
                     <h2 className="text-2xl font-bold truncate">{selectedPart.name}</h2>
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="bg-white/20 px-2 py-1 rounded-full text-sm">
-                        {selectedPart.type}
+                        {selectedPart.category}
                       </span>
+                      {selectedPart.role && (
+                        <span className="bg-white/20 px-2 py-1 rounded-full text-sm">
+                          {selectedPart.role}
+                        </span>
+                      )}
                       {selectedPart.line && (
                         <span className="bg-white/20 px-2 py-1 rounded-full text-sm">
                           {selectedPart.line} Line
@@ -493,7 +468,7 @@ export function PartsDatabase() {
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {Object.entries(selectedPart.stats)
                       .filter(([stat]) =>
-                        selectedPart.type === 'Bit'
+                        selectedPart.category === 'Bit'
                           ? true
                           : !['dash','burstRes'].includes(stat)
                       )
