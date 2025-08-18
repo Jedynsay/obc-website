@@ -350,7 +350,7 @@ export function PartsDatabase() {
                     }
                     className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100"
                   >
-                    {sortDirection === 'asc' ? '⬆️' : '⬇️'}
+                    {sortDirection === 'asc' ? '▲' : '▼'}
                   </button>
                 </div>
               </>
