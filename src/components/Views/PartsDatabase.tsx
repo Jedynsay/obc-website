@@ -62,7 +62,6 @@ export function PartsDatabase() {
 
       const allParts: Part[] = [];
 
-      // Blades
       (bladesRes.data || []).forEach((blade: any) => {
         allParts.push({
           id: `blade-${blade.Blades}`,
@@ -80,7 +79,6 @@ export function PartsDatabase() {
         });
       });
 
-      // Ratchets
       (ratchetsRes.data || []).forEach((ratchet: any) => {
         allParts.push({
           id: `ratchet-${ratchet.Ratchet}`,
@@ -97,7 +95,6 @@ export function PartsDatabase() {
         });
       });
 
-      // Bits
       (bitsRes.data || []).forEach((bit: any) => {
         allParts.push({
           id: `bit-${bit.Bit}`,
@@ -114,7 +111,6 @@ export function PartsDatabase() {
         });
       });
 
-      // Lockchips
       (lockchipsRes.data || []).forEach((lockchip: any) => {
         allParts.push({
           id: `lockchip-${lockchip.Lockchip}`,
@@ -131,7 +127,6 @@ export function PartsDatabase() {
         });
       });
 
-      // Assist Blades
       (assistBladesRes.data || []).forEach((assistBlade: any) => {
         allParts.push({
           id: `assistblade-${assistBlade['Assist Blade']}`,
@@ -156,7 +151,6 @@ export function PartsDatabase() {
     }
   };
 
-  // Helpers
   const getStatIcon = (stat: string) => {
     switch (stat) {
       case 'attack':
@@ -193,7 +187,6 @@ export function PartsDatabase() {
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
 
-  // Tab filter
   const tabFilteredParts = filteredAndSortedParts.filter((part) => {
     if (activeTab === 'main blades')
       return part.type === 'Blade' && part.line?.toLowerCase() === 'custom';
@@ -208,36 +201,63 @@ export function PartsDatabase() {
     return true;
   });
 
-  // Role filter
   const roleFilteredParts = tabFilteredParts.filter((part) => {
     if (!activeRole) return true;
-    const role =
-      part.stats.attack >= part.stats.defense &&
-      part.stats.attack >= part.stats.stamina
-        ? 'attack'
-        : part.stats.defense >= part.stats.attack &&
-          part.stats.defense >= part.stats.stamina
-        ? 'defense'
-        : part.stats.stamina >= part.stats.attack &&
-          part.stats.stamina >= part.stats.defense
-        ? 'stamina'
-        : 'balance';
-    return role === activeRole;
+    let role: string;
+    if (
+      part.type === 'Blade' ||
+      (part.type === 'Blade' && part.line?.toLowerCase() === 'custom') ||
+      part.type === 'Bit'
+    ) {
+      if (
+        part.stats.attack >= part.stats.defense &&
+        part.stats.attack >= part.stats.stamina
+      ) {
+        role = 'attack';
+      } else if (
+        part.stats.defense >= part.stats.attack &&
+        part.stats.defense >= part.stats.stamina
+      ) {
+        role = 'defense';
+      } else if (
+        part.stats.stamina >= part.stats.attack &&
+        part.stats.stamina >= part.stats.defense
+      ) {
+        role = 'stamina';
+      } else {
+        role = 'balance';
+      }
+      return role === activeRole;
+    }
+    return true;
   });
 
-  // Grid Card
   const renderPartCard = (part: Part) => {
-    const role =
-      part.stats.attack >= part.stats.defense &&
-      part.stats.attack >= part.stats.stamina
-        ? 'Attack'
-        : part.stats.defense >= part.stats.attack &&
-          part.stats.defense >= part.stats.stamina
-        ? 'Defense'
-        : part.stats.stamina >= part.stats.attack &&
-          part.stats.stamina >= part.stats.defense
-        ? 'Stamina'
-        : 'Balance';
+    let role: string | null = null;
+    if (
+      part.type === 'Blade' ||
+      (part.type === 'Blade' && part.line?.toLowerCase() === 'custom') ||
+      part.type === 'Bit'
+    ) {
+      if (
+        part.stats.attack >= part.stats.defense &&
+        part.stats.attack >= part.stats.stamina
+      ) {
+        role = 'Attack';
+      } else if (
+        part.stats.defense >= part.stats.attack &&
+        part.stats.defense >= part.stats.stamina
+      ) {
+        role = 'Defense';
+      } else if (
+        part.stats.stamina >= part.stats.attack &&
+        part.stats.stamina >= part.stats.defense
+      ) {
+        role = 'Stamina';
+      } else {
+        role = 'Balance';
+      }
+    }
 
     return (
       <div
@@ -245,11 +265,18 @@ export function PartsDatabase() {
         onClick={() => setSelectedPart(part)}
         className="cursor-pointer bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition"
       >
+        {/* 2D/3D Preview Placeholder */}
+        <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
+          <span className="text-gray-400 text-sm">2D/3D Preview</span>
+        </div>
+
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold truncate break-words">{part.name}</h3>
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            {role}
-          </span>
+          {role && (
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              {role}
+            </span>
+          )}
         </div>
         {part.line && (
           <p className="text-xs text-gray-500 mt-1 truncate">{part.line}</p>
@@ -311,7 +338,7 @@ export function PartsDatabase() {
           </div>
         </div>
 
-        {/* Search + Sort + Role Filter + Tabs */}
+        {/* Search + Sort + Role Filter */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
@@ -329,43 +356,45 @@ export function PartsDatabase() {
               />
             </div>
 
-            {/* Sort */}
-            <div>
-              <select
-                value={`${sortBy}-${sortDirection}`}
-                onChange={(e) => {
-                  const [key, direction] = e.target.value.split('-');
-                  setSortBy(key as any);
-                  setSortDirection(direction as any);
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="name-asc">Name (A-Z)</option>
-                <option value="name-desc">Name (Z-A)</option>
-                <option value="attack-desc">Attack (High-Low)</option>
-                <option value="attack-asc">Attack (Low-High)</option>
-                <option value="defense-desc">Defense (High-Low)</option>
-                <option value="defense-asc">Defense (Low-High)</option>
-                <option value="stamina-desc">Stamina (High-Low)</option>
-                <option value="stamina-asc">Stamina (Low-High)</option>
-                <option value="dash-desc">Dash (High-Low)</option>
-                <option value="dash-asc">Dash (Low-High)</option>
-                <option value="burstRes-desc">Burst Res (High-Low)</option>
-                <option value="burstRes-asc">Burst Res (Low-High)</option>
-              </select>
-            </div>
-
-            {/* Sort Toggle */}
-            <div className="flex items-center">
-              <button
-                onClick={() =>
-                  setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
-              >
-                {sortDirection === 'asc' ? '⬆️ Asc' : '⬇️ Desc'}
-              </button>
-            </div>
+            {/* Show sorter + toggle only in grid mode */}
+            {viewMode === 'grid' && (
+              <>
+                <div>
+                  <select
+                    value={`${sortBy}-${sortDirection}`}
+                    onChange={(e) => {
+                      const [key, direction] = e.target.value.split('-');
+                      setSortBy(key as any);
+                      setSortDirection(direction as any);
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="attack-desc">Attack (High-Low)</option>
+                    <option value="attack-asc">Attack (Low-High)</option>
+                    <option value="defense-desc">Defense (High-Low)</option>
+                    <option value="defense-asc">Defense (Low-High)</option>
+                    <option value="stamina-desc">Stamina (High-Low)</option>
+                    <option value="stamina-asc">Stamina (Low-High)</option>
+                    <option value="dash-desc">Dash (High-Low)</option>
+                    <option value="dash-asc">Dash (Low-High)</option>
+                    <option value="burstRes-desc">Burst Res (High-Low)</option>
+                    <option value="burstRes-asc">Burst Res (Low-High)</option>
+                  </select>
+                </div>
+                <div className="flex items-center">
+                  <button
+                    onClick={() =>
+                      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+                    }
+                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+                  >
+                    {sortDirection === 'asc' ? '⬆️' : '⬇️'}
+                  </button>
+                </div>
+              </>
+            )}
 
             {/* Role Filter */}
             <div>
@@ -421,27 +450,19 @@ export function PartsDatabase() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Attack
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Defense
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Stamina
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Dash
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                    Burst Res
-                  </th>
+                  {['name','type','attack','defense','stamina','dash','burstRes'].map((col) => (
+                    <th
+                      key={col}
+                      className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-blue-600"
+                      onClick={() => {
+                        setSortBy(col as any);
+                        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                      }}
+                    >
+                      {col}{' '}
+                      {sortBy === col ? (sortDirection === 'asc' ? '⬆️' : '⬇️') : ''}
+                    </th>
+                  ))}
                   <th></th>
                 </tr>
               </thead>
@@ -556,3 +577,4 @@ export function PartsDatabase() {
     </div>
   );
 }
+
