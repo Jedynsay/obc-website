@@ -262,7 +262,6 @@ export function PartsDatabase() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="page-title flex items-center">
-                <Database size={32} className="mr-3 text-blue-600" />
                 Parts Database
               </h1>
               <p className="page-subtitle">
