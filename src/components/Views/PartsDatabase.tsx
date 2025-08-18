@@ -307,7 +307,7 @@ export function PartsDatabase() {
           </div>
         </div>
 
-        {/* Search + Sort + Role Filter */}
+        {/* Search + Role Filter */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
@@ -325,39 +325,8 @@ export function PartsDatabase() {
               />
             </div>
 
-            {/* Sorter only in grid mode */}
-            {viewMode === 'grid' && (
-              <>
-                <div>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="name">Name</option>
-                    <option value="role">Role</option>
-                    <option value="attack">Attack</option>
-                    <option value="defense">Defense</option>
-                    <option value="stamina">Stamina</option>
-                    <option value="dash">Dash</option>
-                    <option value="burstRes">Burst Res</option>
-                  </select>
-                </div>
-                <div className="flex items-center">
-                  <button
-                    onClick={() =>
-                      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-                    }
-                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-                  >
-                    {sortDirection === 'asc' ? '▲' : '▼'}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* Role Filter */}
-            <div>
+            {/* Role Filter (always visible, right side) */}
+            <div className="md:col-start-4">
               <select
                 value={activeRole}
                 onChange={(e) => setActiveRole(e.target.value)}
@@ -429,7 +398,9 @@ export function PartsDatabase() {
                     .map((col) => (
                       <th
                         key={col}
-                        className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-blue-600"
+                        className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-blue-600 ${
+                          col === 'name' ? 'text-left' : 'text-center'
+                        }`}
                         onClick={() => {
                           setSortBy(col as any);
                           setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -438,7 +409,7 @@ export function PartsDatabase() {
                         <div className="inline-flex items-center space-x-1">
                           <span>{col}</span>
                           {sortBy === col && (
-                            <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                            <span>{sortDirection === 'asc' ? '⬆️' : '⬇️'}</span>
                           )}
                         </div>
                       </th>
@@ -460,7 +431,7 @@ export function PartsDatabase() {
 
                   return (
                     <tr key={part.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 truncate break-words">{part.name}</td>
+                      <td className="px-6 py-4 text-left truncate break-words">{part.name}</td>
                       <td className="px-6 py-4 text-center">{role}</td>
                       <td className="px-6 py-4 text-center">{part.stats.attack}</td>
                       <td className="px-6 py-4 text-center">{part.stats.defense}</td>
@@ -520,13 +491,19 @@ export function PartsDatabase() {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    {Object.entries(selectedPart.stats).map(([stat, value]) => (
-                      <div key={stat} className="text-center">
-                        <div className="flex justify-center mb-1">{getStatIcon(stat)}</div>
-                        <div className="text-sm font-medium capitalize">{stat}</div>
-                        <div className="text-lg font-bold text-gray-900">{value}</div>
-                      </div>
-                    ))}
+                    {Object.entries(selectedPart.stats)
+                      .filter(([stat]) =>
+                        selectedPart.type === 'Bit'
+                          ? true
+                          : !['dash','burstRes'].includes(stat)
+                      )
+                      .map(([stat, value]) => (
+                        <div key={stat} className="text-center">
+                          <div className="flex justify-center mb-1">{getStatIcon(stat)}</div>
+                          <div className="text-sm font-medium capitalize">{stat}</div>
+                          <div className="text-lg font-bold text-gray-900">{value}</div>
+                        </div>
+                      ))}
                   </div>
                 </div>
 
