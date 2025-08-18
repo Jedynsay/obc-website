@@ -68,7 +68,7 @@ export function PartsDatabase() {
           id: `blade-${blade.Blades}`,
           name: blade.Blades,
           category: 'Blade',
-          role: blade.Type, // role from DB
+          role: blade.Type,
           line: blade.Line,
           stats: {
             attack: blade.Attack || 0,
@@ -215,6 +215,7 @@ export function PartsDatabase() {
     if (!activeRole) return true;
     return (part.role || '').toLowerCase() === activeRole;
   });
+
   const renderPartCard = (part: Part) => {
     return (
       <div
@@ -461,39 +462,42 @@ export function PartsDatabase() {
                 </div>
               </div>
 
-                {/* Modal Content */}
+              {/* Modal Content */}
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
-                  {(() => {
-                    // Filter stats (Bits keep all, others hide dash/burstRes)
-                    const displayedStats = Object.entries(selectedPart.stats).filter(
-                      ([stat]) =>
-                        selectedPart.category === 'Bit' ? true : !['dash', 'burstRes'].includes(stat)
-                    );
-
-                    return (
-                      <div
-                        className={`grid gap-4 justify-items-center ${
-                          displayedStats.length <= 3
-                            ? 'grid-cols-3'
-                            : displayedStats.length === 4
-                            ? 'grid-cols-4'
-                            : 'grid-cols-5'
-                        }`}
-                      >
-                        {displayedStats.map(([stat, value]) => (
-                          <div key={stat} className="text-center">
-                            <div className="flex justify-center mb-1">{getStatIcon(stat)}</div>
-                            <div className="text-sm font-medium capitalize">{stat}</div>
-                            <div className="text-lg font-bold text-gray-900">{value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {Object.entries(selectedPart.stats)
+                      .filter(([stat]) =>
+                        selectedPart.category === 'Bit'
+                          ? true
+                          : !['dash','burstRes'].includes(stat)
+                      )
+                      .map(([stat, value]) => (
+                        <div key={stat} className="text-center">
+                          <div className="flex justify-center mb-1">{getStatIcon(stat)}</div>
+                          <div className="text-sm font-medium capitalize">{stat}</div>
+                          <div className="text-lg font-bold text-gray-900">{value}</div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
 
+                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">3D Viewer</h4>
+                  <p className="text-gray-600">Coming Soon</p>
+                </div>
+
+                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Win Rate</h4>
+                  <p className="text-gray-600">Coming Soon</p>
+                </div>
+
+                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Top 3 Combos</h4>
+                  <p className="text-gray-600">Coming Soon</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
