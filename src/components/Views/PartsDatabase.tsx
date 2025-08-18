@@ -460,8 +460,26 @@ export function PartsDatabase() {
                         setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
                       }}
                     >
-                      {col}{' '}
-                      {sortBy === col ? (sortDirection === 'asc' ? '⬆️' : '⬇️') : ''}
+                      <div className="flex items-center justify-center space-x-1">
+                        <span>{col}</span>
+                        {sortBy === col && (
+                          <div className="flex flex-col gap-0.5">
+                            {sortDirection === 'asc' ? (
+                              <>
+                                <div className="w-1 h-1 bg-gray-700" />
+                                <div className="w-2 h-2 bg-gray-700" />
+                                <div className="w-3 h-3 bg-gray-700" />
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-3 h-3 bg-gray-700" />
+                                <div className="w-2 h-2 bg-gray-700" />
+                                <div className="w-1 h-1 bg-gray-700" />
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </th>
                   ))}
                   <th></th>
