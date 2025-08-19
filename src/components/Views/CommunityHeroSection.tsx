@@ -1,19 +1,19 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-export function CommunityHeroSection({ user, onLoginClick, onLogout }) {
+export function CommunityHeroSection({ user, onLoginClick, onLogout, children }) {
   const { scrollY } = useScroll();
 
-  // Hero scales slightly as you scroll
-  const scale = useTransform(scrollY, [0, 300], [1, 1.05]);
+  // Rectangle overlay moves faster
+  const overlayY = useTransform(scrollY, [0, 500], [0, -500]);
+
+  // Dashboard content moves slightly faster than normal scroll for smooth "catch-up"
+  const contentY = useTransform(scrollY, [0, 500], [0, -250]);
 
   return (
-    <motion.div
-      style={{ scale }}
-      className="relative w-full h-screen overflow-hidden"
-    >
-      {/* Background Image */}
-      <img
+    <div className="relative w-full h-screen overflow-hidden">
+      {/* Hero image */}
+      <motion.img
         src="/community.jpg"
         alt="Ormoc Beyblade Community"
         className="absolute inset-0 w-full h-full object-cover"
@@ -42,22 +42,28 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout }) {
       </div>
 
       {/* Hero content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+      <motion.div
+        style={{ y: contentY }}
+        className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4"
+      >
         <h1 className="text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
           Ormoc Beyblade Community
         </h1>
         <p className="text-lg md:text-xl max-w-2xl drop-shadow-md">
           Welcome to the home of competitive Beyblade in Ormoc. Let it rip!
         </p>
-      </div>
+      </motion.div>
 
-      {/* Scroll overlay rectangle */}
+      {/* Scroll-cover rectangle */}
       <motion.div
-        style={{
-          y: useTransform(scrollY, [0, 400], [0, -400])
-        }}
+        style={{ y: overlayY }}
         className="absolute top-full left-0 w-full h-screen bg-slate-950 z-0"
-      />
-    </motion.div>
+      >
+        {/* Dashboard content moves with rectangle */}
+        <div className="relative z-10">
+          {children}
+        </div>
+      </motion.div>
+    </div>
   );
 }
