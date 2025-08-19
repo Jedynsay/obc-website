@@ -4,11 +4,11 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 export function CommunityHeroSection({ user, onLoginClick, onLogout, children }) {
   const { scrollY } = useScroll();
 
-  // Rectangle overlay moves faster
-  const overlayY = useTransform(scrollY, [0, 500], [0, -500]);
+  // Rectangle overlay moves faster than scroll
+  const overlayY = useTransform(scrollY, [0, 800], [0, -800]);
 
-  // Dashboard content moves slightly faster than normal scroll for smooth "catch-up"
-  const contentY = useTransform(scrollY, [0, 500], [0, -250]);
+  // Dashboard content moves slightly slower for smooth "catch-up"
+  const contentY = useTransform(scrollY, [0, 800], [0, -400]);
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -54,12 +54,11 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout, children })
         </p>
       </motion.div>
 
-      {/* Scroll-cover rectangle */}
+      {/* Scroll-cover rectangle + dashboard content */}
       <motion.div
         style={{ y: overlayY }}
-        className="absolute top-full left-0 w-full h-screen bg-slate-950 z-0"
+        className="absolute top-full left-0 w-full bg-slate-950 z-0"
       >
-        {/* Dashboard content moves with rectangle */}
         <div className="relative z-10">
           {children}
         </div>
