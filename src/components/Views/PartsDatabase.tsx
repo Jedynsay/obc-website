@@ -216,22 +216,30 @@ export function PartsDatabase() {
     return (part.role || '').toLowerCase() === activeRole;
   });
 
-const renderPartCard = (part: Part) => {
-  const tableFolder = part.category.toLowerCase().replace(' ', '');
-  const primaryKeyField =
-    part.category === 'Blade'
-      ? 'Blades'
-      : part.category === 'Bit'
-      ? 'Bit'
-      : part.category === 'Ratchet'
-      ? 'Ratchet'
-      : part.category === 'Lockchip'
-      ? 'Lockchip'
-      : part.category === 'Assist Blade'
-      ? 'Assist Blade'
-      : '';
+const tableFolderMap: Record<string, string> = {
+  Blade: 'beypart_blade',
+  Bit: 'beypart_bit',
+  Ratchet: 'beypart_ratchet',
+  Lockchip: 'beypart_lockchip',
+  'Assist Blade': 'beypart_assistblade',
+};
 
-  const imageUrl = `https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/beyblade-parts/${tableFolder}/${part.data[primaryKeyField]}.png`;
+const getPrimaryKeyField = (category: string) => {
+  switch (category) {
+    case 'Blade': return 'Blades';
+    case 'Bit': return 'Bit';
+    case 'Ratchet': return 'Ratchet';
+    case 'Lockchip': return 'Lockchip';
+    case 'Assist Blade': return 'Assist Blade';
+    default: return '';
+  }
+};
+
+const renderPartCard = (part: Part) => {
+  const folder = tableFolderMap[part.category] || '';
+  const primaryKeyField = getPrimaryKeyField(part.category);
+  const filename = encodeURIComponent(part.data[primaryKeyField]);
+  const imageUrl = `https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${folder}/${filename}.png`;
 
   return (
     <div
@@ -245,11 +253,10 @@ const renderPartCard = (part: Part) => {
           alt={part.name}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.replaceWith(document.createElement('div'));
             const fallback = document.createElement('div');
             fallback.textContent = 'Picture Not Available';
             fallback.className = 'text-gray-400 text-xs text-center';
-            target.parentNode?.appendChild(fallback);
+            target.replaceWith(fallback);
           }}
           className="object-contain w-full h-full"
         />
@@ -268,6 +275,7 @@ const renderPartCard = (part: Part) => {
     </div>
   );
 };
+
 
   if (loading) {
     return (
@@ -515,29 +523,16 @@ const renderPartCard = (part: Part) => {
                   {selectedPart && (
                     <div className="w-full aspect-square flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden mx-auto max-h-64">
                       <img
-                        src={`https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/beyblade-parts/${selectedPart.category.toLowerCase().replace(' ', '')}/${
-                          selectedPart.data[
-                            selectedPart.category === 'Blade'
-                              ? 'Blades'
-                              : selectedPart.category === 'Bit'
-                              ? 'Bit'
-                              : selectedPart.category === 'Ratchet'
-                              ? 'Ratchet'
-                              : selectedPart.category === 'Lockchip'
-                              ? 'Lockchip'
-                              : selectedPart.category === 'Assist Blade'
-                              ? 'Assist Blade'
-                              : ''
-                          ]
-                        }.png`}
+                        src={`https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${
+                          tableFolderMap[selectedPart.category]
+                        }/${encodeURIComponent(selectedPart.data[getPrimaryKeyField(selectedPart.category)])}.png`}
                         alt={selectedPart.name}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.replaceWith(document.createElement('div'));
                           const fallback = document.createElement('div');
                           fallback.textContent = 'Picture Not Available';
                           fallback.className = 'text-gray-400 text-sm text-center';
-                          target.parentNode?.appendChild(fallback);
+                          target.replaceWith(fallback);
                         }}
                         className="object-contain w-full h-full"
                       />
