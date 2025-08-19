@@ -7,6 +7,7 @@ import { QuickAccessCards } from './QuickAccessCards';
 import { CommunityHighlights } from './CommunityHighlights';
 import { SystemFooter } from './SystemFooter';
 import { LoginModal } from './LoginModal';
+import { CommunityHeroSection } from './CommunityHeroSection';
 
 interface Tournament {
   id: string;
