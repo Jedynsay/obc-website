@@ -231,7 +231,7 @@ const renderPartCard = (part: Part) => {
       ? 'Assist Blade'
       : '';
 
-  const imageUrl = `https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${tableFolder}/${part.data[primaryKeyField]}.png`;
+  const imageUrl = `https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/beyblade-parts/${tableFolder}/${part.data[primaryKeyField]}.png`;
 
   return (
     <div
@@ -515,7 +515,7 @@ const renderPartCard = (part: Part) => {
                   {selectedPart && (
                     <div className="w-full aspect-square flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden mx-auto max-h-64">
                       <img
-                        src={`https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${selectedPart.category.toLowerCase().replace(' ', '')}/${
+                        src={`https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/beyblade-parts/${selectedPart.category.toLowerCase().replace(' ', '')}/${
                           selectedPart.data[
                             selectedPart.category === 'Blade'
                               ? 'Blades'
