@@ -9,51 +9,22 @@ import { SystemFooter } from './SystemFooter';
 import { LoginModal } from './LoginModal';
 import { CommunityHeroSection } from './CommunityHeroSection';
 
-
-interface Tournament {
-  id: string;
-  name: string;
-  tournament_date: string;
-  location: string;
-  current_participants: number;
-  max_participants: number;
-  status: string;
-}
-
-interface DashboardStats {
-  totalTournaments: number;
-  activePlayers: number;
-  upcomingEvents: number;
-  completedMatches: number;
-}
-
-interface TopPlayer {
-  name: string;
-  wins: number;
-  tournaments: number;
-  winRate: number;
-}
-
-interface DashboardProps {
-  onViewChange?: (view: string) => void;
-}
-
-export function Dashboard({ onViewChange }: DashboardProps) {
+export function Dashboard({ onViewChange }) {
   const { user, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats, setStats] = useState({
     totalTournaments: 0,
     activePlayers: 0,
     upcomingEvents: 0,
     completedMatches: 0
   });
-  const [upcomingTournaments, setUpcomingTournaments] = useState<Tournament[]>([]);
-  const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([]);
-  const [deckPresets, setDeckPresets] = useState<any[]>([]);
-  const [recentMatches, setRecentMatches] = useState<any[]>([]);
-  const [allTournaments, setAllTournaments] = useState<Tournament[]>([]);
+  const [upcomingTournaments, setUpcomingTournaments] = useState([]);
+  const [topPlayers, setTopPlayers] = useState([]);
+  const [deckPresets, setDeckPresets] = useState([]);
+  const [recentMatches, setRecentMatches] = useState([]);
+  const [allTournaments, setAllTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTournamentFilter, setSelectedTournamentFilter] = useState<string>('all');
+  const [selectedTournamentFilter, setSelectedTournamentFilter] = useState('all');
 
   useEffect(() => {
     fetchDashboardData();
@@ -99,18 +70,14 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
     if (!matches) return;
 
-    const playerStats: { [key: string]: { wins: number; matches: number } } = {};
+    const playerStats = {};
 
     matches.forEach(match => {
       [match.player1_name, match.player2_name].forEach(player => {
         if (!player) return;
-        if (!playerStats[player]) {
-          playerStats[player] = { wins: 0, matches: 0 };
-        }
+        if (!playerStats[player]) playerStats[player] = { wins: 0, matches: 0 };
         playerStats[player].matches++;
-        if (match.winner_name === player) {
-          playerStats[player].wins++;
-        }
+        if (match.winner_name === player) playerStats[player].wins++;
       });
     });
 
@@ -134,9 +101,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       .order('submitted_at', { ascending: false })
       .limit(10);
 
-    if (selectedTournamentFilter !== 'all') {
-      query = query.eq('tournament_id', selectedTournamentFilter);
-    }
+    if (selectedTournamentFilter !== 'all') query = query.eq('tournament_id', selectedTournamentFilter);
 
     const { data: matches } = await query;
     setRecentMatches(matches || []);
@@ -165,17 +130,37 @@ export function Dashboard({ onViewChange }: DashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
-      <CommunityHeroSection />
-      <HeroSection user={user} onViewChange={onViewChange} onLoginClick={() => setShowLoginModal(true)} onLogout={logout} />
-      <QuickAccessCards stats={stats} upcomingTournaments={upcomingTournaments} deckPresets={deckPresets} onViewChange={onViewChange} />
-      <CommunityHighlights
-        topPlayers={topPlayers}
-        currentTournamentFilter={selectedTournamentFilter}
-        setTournamentFilter={setSelectedTournamentFilter}
-        tournaments={allTournaments}
-        recentMatches={recentMatches}
+    <div className="min-h-screen bg-slate-950 text-white">
+      {/* Full-page community hero */}
+      <CommunityHeroSection
+        user={user}
+        onLoginClick={() => setShowLoginModal(true)}
+        onLogout={logout}
       />
+
+      {/* Main dashboard content */}
+      <div className="relative z-10 -mt-20">
+        <HeroSection
+          user={user}
+          onViewChange={onViewChange}
+          onLoginClick={() => setShowLoginModal(true)}
+          onLogout={logout}
+        />
+        <QuickAccessCards
+          stats={stats}
+          upcomingTournaments={upcomingTournaments}
+          deckPresets={deckPresets}
+          onViewChange={onViewChange}
+        />
+        <CommunityHighlights
+          topPlayers={topPlayers}
+          currentTournamentFilter={selectedTournamentFilter}
+          setTournamentFilter={setSelectedTournamentFilter}
+          tournaments={allTournaments}
+          recentMatches={recentMatches}
+        />
+      </div>
+
       <SystemFooter />
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
     </div>
