@@ -4,30 +4,23 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 export function CommunityHeroSection({ user, onLoginClick, onLogout }) {
   const { scrollY } = useScroll();
 
-  // Parallax: background moves slower than scroll
-  const bgY = useTransform(scrollY, [0, 500], [0, -100]); // background moves up slightly
-  const opacity = useTransform(scrollY, [0, 400], [1, 0.7]);
-  const scale = useTransform(scrollY, [0, 500], [1, 1.05]);
+  // Hero scales slightly as you scroll
+  const scale = useTransform(scrollY, [0, 300], [1, 1.05]);
 
   return (
     <motion.div
-      style={{ opacity, scale }}
+      style={{ scale }}
       className="relative w-full h-screen overflow-hidden"
     >
-      {/* Background Image with parallax */}
-      <motion.img
+      {/* Background Image */}
+      <img
         src="/community.jpg"
         alt="Ormoc Beyblade Community"
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ y: bgY }}
       />
 
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70"></div>
-
-      {/* Edge fade effect */}
-      <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-slate-950 to-transparent"></div>
-      <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-slate-950 to-transparent"></div>
 
       {/* Login/Logout button */}
       <div className="absolute top-4 right-4 z-20">
@@ -57,6 +50,14 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout }) {
           Welcome to the home of competitive Beyblade in Ormoc. Let it rip!
         </p>
       </div>
+
+      {/* Scroll overlay rectangle */}
+      <motion.div
+        style={{
+          y: useTransform(scrollY, [0, 400], [0, -400])
+        }}
+        className="absolute top-full left-0 w-full h-screen bg-slate-950 z-0"
+      />
     </motion.div>
   );
 }
