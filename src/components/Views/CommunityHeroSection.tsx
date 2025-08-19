@@ -4,19 +4,19 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 export function CommunityHeroSection({ user, onLoginClick, onLogout, children }) {
   const { scrollY } = useScroll();
 
-  // Rectangle overlay moves faster than scroll
-  const overlayY = useTransform(scrollY, [0, 800], [0, -800]);
+  // Slower rectangle movement
+  const overlayY = useTransform(scrollY, [0, 1200], [0, -600]);
 
   // Dashboard content moves slightly slower for smooth "catch-up"
-  const contentY = useTransform(scrollY, [0, 800], [0, -400]);
+  const contentY = useTransform(scrollY, [0, 1200], [0, -300]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full min-h-[150vh] overflow-hidden">
       {/* Hero image */}
       <motion.img
         src="/community.jpg"
         alt="Ormoc Beyblade Community"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-screen object-cover"
       />
 
       {/* Dark overlay */}
@@ -44,7 +44,7 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout, children })
       {/* Hero content */}
       <motion.div
         style={{ y: contentY }}
-        className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4"
+        className="relative z-10 flex flex-col items-center justify-center h-screen text-center text-white px-4"
       >
         <h1 className="text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
           Ormoc Beyblade Community
