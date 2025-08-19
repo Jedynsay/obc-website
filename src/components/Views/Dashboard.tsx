@@ -1,68 +1,180 @@
-import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
-export function CommunityHeroSection({ user, onLoginClick, onLogout, children }) {
-  const { scrollY } = useScroll();
+import { HeroSection } from './HeroSection';
+import { QuickAccessCards } from './QuickAccessCards';
+import { CommunityHighlights } from './CommunityHighlights';
+import { SystemFooter } from './SystemFooter';
+import { LoginModal } from './LoginModal';
 
-  // Slower rectangle movement
-  const overlayY = useTransform(scrollY, [0, 1200], [0, -600]);
+interface Tournament {
+  id: string;
+  name: string;
+  tournament_date: string;
+  location: string;
+  current_participants: number;
+  max_participants: number;
+  status: string;
+}
 
-  // Dashboard content moves slightly slower for smooth "catch-up"
-  const contentY = useTransform(scrollY, [0, 1200], [0, -300]);
+interface DashboardStats {
+  totalTournaments: number;
+  activePlayers: number;
+  upcomingEvents: number;
+  completedMatches: number;
+}
+
+interface TopPlayer {
+  name: string;
+  wins: number;
+  tournaments: number;
+  winRate: number;
+}
+
+interface DashboardProps {
+  onViewChange?: (view: string) => void;
+}
+
+export function Dashboard({ onViewChange }: DashboardProps) {
+  const { user, logout } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalTournaments: 0,
+    activePlayers: 0,
+    upcomingEvents: 0,
+    completedMatches: 0
+  });
+  const [upcomingTournaments, setUpcomingTournaments] = useState<Tournament[]>([]);
+  const [topPlayers, setTopPlayers] = useState<TopPlayer[]>([]);
+  const [deckPresets, setDeckPresets] = useState<any[]>([]);
+  const [recentMatches, setRecentMatches] = useState<any[]>([]);
+  const [allTournaments, setAllTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTournamentFilter, setSelectedTournamentFilter] = useState<string>('all');
+
+  useEffect(() => {
+    fetchDashboardData();
+    if (user && !user.id.startsWith('guest-')) {
+      fetchDeckPresets();
+    }
+  }, [user]);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [tournamentsRes, usersRes, matchesRes] = await Promise.all([
+        supabase.from('tournaments').select('*'),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('match_results').select('*', { count: 'exact', head: true })
+      ]);
+
+      const tournaments = tournamentsRes.data || [];
+      setAllTournaments(tournaments);
+
+      const upcoming = tournaments.filter(t => t.status === 'upcoming').slice(0, 3);
+      setUpcomingTournaments(upcoming);
+
+      setStats({
+        totalTournaments: tournaments.length,
+        activePlayers: usersRes.count || 0,
+        upcomingEvents: tournaments.filter(t => t.status === 'upcoming').length,
+        completedMatches: matchesRes.count || 0
+      });
+
+      await fetchTopPlayers();
+      await fetchRecentMatches();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTopPlayers = async () => {
+    const { data: matches } = await supabase
+      .from('match_results')
+      .select('player1_name, player2_name, winner_name');
+
+    if (!matches) return;
+
+    const playerStats: { [key: string]: { wins: number; matches: number } } = {};
+
+    matches.forEach(match => {
+      [match.player1_name, match.player2_name].forEach(player => {
+        if (!player) return;
+        if (!playerStats[player]) {
+          playerStats[player] = { wins: 0, matches: 0 };
+        }
+        playerStats[player].matches++;
+        if (match.winner_name === player) {
+          playerStats[player].wins++;
+        }
+      });
+    });
+
+    const topPlayersData = Object.entries(playerStats)
+      .map(([name, stats]) => ({
+        name,
+        wins: stats.wins,
+        tournaments: Math.ceil(stats.matches / 10),
+        winRate: Math.round((stats.wins / stats.matches) * 100)
+      }))
+      .sort((a, b) => b.winRate - a.winRate)
+      .slice(0, 5);
+
+    setTopPlayers(topPlayersData);
+  };
+
+  const fetchRecentMatches = async () => {
+    let query = supabase
+      .from('match_results')
+      .select('player1_name, player2_name, player1_beyblade, player2_beyblade, winner_name, outcome, submitted_at, tournament_id')
+      .order('submitted_at', { ascending: false })
+      .limit(10);
+
+    if (selectedTournamentFilter !== 'all') {
+      query = query.eq('tournament_id', selectedTournamentFilter);
+    }
+
+    const { data: matches } = await query;
+    setRecentMatches(matches || []);
+  };
+
+  const fetchDeckPresets = async () => {
+    if (!user || user.id.startsWith('guest-')) return;
+
+    const { data } = await supabase
+      .from('deck_presets')
+      .select('*')
+      .eq('user_id', user.id);
+
+    setDeckPresets(data || []);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center text-slate-300">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          Letting it rip...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative w-full min-h-[150vh] overflow-hidden">
-      {/* Hero image */}
-      <motion.img
-        src="/community.jpg"
-        alt="Ormoc Beyblade Community"
-        className="absolute inset-0 w-full h-screen object-cover"
+    <div className="min-h-screen bg-slate-950 text-white">
+      <HeroSection user={user} onViewChange={onViewChange} onLoginClick={() => setShowLoginModal(true)} onLogout={logout} />
+      <QuickAccessCards stats={stats} upcomingTournaments={upcomingTournaments} deckPresets={deckPresets} onViewChange={onViewChange} />
+      <CommunityHighlights
+        topPlayers={topPlayers}
+        currentTournamentFilter={selectedTournamentFilter}
+        setTournamentFilter={setSelectedTournamentFilter}
+        tournaments={allTournaments}
+        recentMatches={recentMatches}
       />
-
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70"></div>
-
-      {/* Login/Logout button */}
-      <div className="absolute top-4 right-4 z-20">
-        {user ? (
-          <button
-            onClick={onLogout}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition"
-          >
-            Logout
-          </button>
-        ) : (
-          <button
-            onClick={onLoginClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition"
-          >
-            Login
-          </button>
-        )}
-      </div>
-
-      {/* Hero content */}
-      <motion.div
-        style={{ y: contentY }}
-        className="relative z-10 flex flex-col items-center justify-center h-screen text-center text-white px-4"
-      >
-        <h1 className="text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
-          Ormoc Beyblade Community
-        </h1>
-        <p className="text-lg md:text-xl max-w-2xl drop-shadow-md">
-          Welcome to the home of competitive Beyblade in Ormoc. Let it rip!
-        </p>
-      </motion.div>
-
-      {/* Scroll-cover rectangle + dashboard content */}
-      <motion.div
-        style={{ y: overlayY }}
-        className="absolute top-full left-0 w-full bg-slate-950 z-0"
-      >
-        <div className="relative z-10">
-          {children}
-        </div>
-      </motion.div>
+      <SystemFooter />
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
     </div>
   );
 }
