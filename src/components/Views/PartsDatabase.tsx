@@ -216,30 +216,54 @@ export function PartsDatabase() {
     return (part.role || '').toLowerCase() === activeRole;
   });
 
-  const renderPartCard = (part: Part) => {
-    return (
-      <div
-        key={part.id}
-        onClick={() => setSelectedPart(part)}
-        className="cursor-pointer bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition"
-      >
-        <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
-          <span className="text-gray-400 text-sm">2D/3D Preview</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold truncate break-words">{part.name}</h3>
-          {part.role && (
-            <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-              {part.role}
-            </span>
-          )}
-        </div>
-        {part.line && (
-          <p className="text-xs text-gray-500 mt-1 truncate">{part.line}</p>
+const renderPartCard = (part: Part) => {
+  // Determine table folder and primary key field
+  const tableFolder = `beypart_${part.category.toLowerCase()}`;
+  const primaryKeyField =
+    part.category === 'Blade'
+      ? 'Blades'
+      : part.category === 'Bit'
+      ? 'Bit'
+      : part.category === 'Ratchet'
+      ? 'Ratchet'
+      : part.category === 'Lockchip'
+      ? 'Lockchip'
+      : part.category === 'Assist Blade'
+      ? 'Assist Blade'
+      : '';
+
+  const imagePath = `/${tableFolder}/${part.data[primaryKeyField]}.png`;
+
+  return (
+    <div
+      key={part.id}
+      onClick={() => setSelectedPart(part)}
+      className="cursor-pointer bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition"
+    >
+      <div className="w-full h-24 bg-gray-100 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+        <img
+          src={imagePath}
+          alt={part.name}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/placeholder.png';
+          }}
+          className="object-contain w-full h-full"
+        />
+      </div>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold truncate break-words">{part.name}</h3>
+        {part.role && (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {part.role}
+          </span>
         )}
       </div>
-    );
-  };
+      {part.line && (
+        <p className="text-xs text-gray-500 mt-1 truncate">{part.line}</p>
+      )}
+    </div>
+  );
+};
 
   if (loading) {
     return (
