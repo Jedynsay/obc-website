@@ -1,8 +1,16 @@
 import React from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 export function CommunityHeroSection() {
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const scale = useTransform(scrollY, [0, 300], [1, 1.05]);
+
   return (
-    <div className="relative w-full h-[500px] overflow-hidden">
+    <motion.div
+      style={{ opacity, scale }}
+      className="relative w-full h-[500px] overflow-hidden"
+    >
       {/* Background Image */}
       <img
         src="/community.jpg"
@@ -18,12 +26,14 @@ export function CommunityHeroSection() {
       <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-slate-950 to-transparent"></div>
 
       {/* Hero content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
-        <h1 className="text-5xl font-bold mb-4">Ormoc Beyblade Community</h1>
-        <p className="text-lg max-w-xl">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+        <h1 className="text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
+          Ormoc Beyblade Community
+        </h1>
+        <p className="text-lg md:text-xl max-w-2xl drop-shadow-md">
           Welcome to the home of competitive Beyblade in Ormoc. Let it rip!
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
