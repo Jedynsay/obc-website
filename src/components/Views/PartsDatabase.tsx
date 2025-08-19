@@ -507,8 +507,31 @@ const renderPartCard = (part: Part) => {
                 </div>
 
                 <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">3D Viewer</h4>
-                  <p className="text-gray-600">Coming Soon</p>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Preview</h4>
+                  {selectedPart && (
+                    <img
+                      src={`/beypart_${selectedPart.category.toLowerCase()}/${
+                        selectedPart.data[
+                          selectedPart.category === 'Blade'
+                            ? 'Blades'
+                            : selectedPart.category === 'Bit'
+                            ? 'Bit'
+                            : selectedPart.category === 'Ratchet'
+                            ? 'Ratchet'
+                            : selectedPart.category === 'Lockchip'
+                            ? 'Lockchip'
+                            : selectedPart.category === 'Assist Blade'
+                            ? 'Assist Blade'
+                            : ''
+                        ]
+                      }.png`}
+                      alt={selectedPart.name}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder.png';
+                      }}
+                      className="mx-auto max-h-64 object-contain"
+                    />
+                  )}
                 </div>
 
                 <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
