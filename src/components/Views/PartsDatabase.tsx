@@ -251,6 +251,9 @@ const renderPartCard = (part: Part) => {
         <img
           src={imageUrl}
           alt={part.name}
+          width={128}      // force small web size
+          height={128}     // force small web size
+          loading="lazy"   // optional: lazy load for faster grid render
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             const fallback = document.createElement('div');
