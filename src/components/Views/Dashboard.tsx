@@ -131,35 +131,33 @@ export function Dashboard({ onViewChange }) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Full-page community hero */}
       <CommunityHeroSection
         user={user}
         onLoginClick={() => setShowLoginModal(true)}
         onLogout={logout}
-      />
-
-      {/* Main dashboard content */}
-      <div className="relative z-10 -mt-20">
-        <HeroSection
-          user={user}
-          onViewChange={onViewChange}
-          onLoginClick={() => setShowLoginModal(true)}
-          onLogout={logout}
-        />
-        <QuickAccessCards
-          stats={stats}
-          upcomingTournaments={upcomingTournaments}
-          deckPresets={deckPresets}
-          onViewChange={onViewChange}
-        />
-        <CommunityHighlights
-          topPlayers={topPlayers}
-          currentTournamentFilter={selectedTournamentFilter}
-          setTournamentFilter={setSelectedTournamentFilter}
-          tournaments={allTournaments}
-          recentMatches={recentMatches}
-        />
-      </div>
+      >
+        <div className="-mt-20">
+          <HeroSection
+            user={user}
+            onViewChange={onViewChange}
+            onLoginClick={() => setShowLoginModal(true)}
+            onLogout={logout}
+          />
+          <QuickAccessCards
+            stats={stats}
+            upcomingTournaments={upcomingTournaments}
+            deckPresets={deckPresets}
+            onViewChange={onViewChange}
+          />
+          <CommunityHighlights
+            topPlayers={topPlayers}
+            currentTournamentFilter={selectedTournamentFilter}
+            setTournamentFilter={setSelectedTournamentFilter}
+            tournaments={allTournaments}
+            recentMatches={recentMatches}
+          />
+        </div>
+      </CommunityHeroSection>
 
       <SystemFooter />
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
