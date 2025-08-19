@@ -32,11 +32,10 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout }) {
         )}
       </div>
 
-      {/* Centered overlay text */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-6">
-        <h1 className="text-5xl font-bold mb-4">OBC</h1>
-        <p className="text-lg">Welcome to the Community</p>
-        <p className="mt-2 text-sm text-slate-200">Scroll down to see tournaments, stats, and top players</p>
+      {/* Overlay text like before */}
+      <div className="absolute bottom-16 left-6 text-white">
+        <h1 className="text-4xl font-bold">Welcome to the Community</h1>
+        <p className="mt-2 text-lg">Scroll down to see tournaments, stats, and top players</p>
       </div>
     </section>
   );
