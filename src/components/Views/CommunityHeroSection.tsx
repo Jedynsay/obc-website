@@ -3,19 +3,23 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 
 export function CommunityHeroSection({ user, onLoginClick, onLogout }) {
   const { scrollY } = useScroll();
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  const scale = useTransform(scrollY, [0, 300], [1, 1.05]);
+
+  // Parallax: background moves slower than scroll
+  const bgY = useTransform(scrollY, [0, 500], [0, -100]); // background moves up slightly
+  const opacity = useTransform(scrollY, [0, 400], [1, 0.7]);
+  const scale = useTransform(scrollY, [0, 500], [1, 1.05]);
 
   return (
     <motion.div
       style={{ opacity, scale }}
-      className="relative w-full h-[500px] overflow-hidden"
+      className="relative w-full h-screen overflow-hidden"
     >
-      {/* Background Image */}
-      <img
+      {/* Background Image with parallax */}
+      <motion.img
         src="/community.jpg"
         alt="Ormoc Beyblade Community"
         className="absolute inset-0 w-full h-full object-cover"
+        style={{ y: bgY }}
       />
 
       {/* Dark overlay */}
