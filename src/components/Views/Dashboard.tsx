@@ -165,8 +165,30 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <HeroSection user={user} onViewChange={onViewChange} onLoginClick={() => setShowLoginModal(true)} onLogout={logout} />
-      <QuickAccessCards stats={stats} upcomingTournaments={upcomingTournaments} deckPresets={deckPresets} onViewChange={onViewChange} />
+      {/* Full-page community image hero */}
+      <CommunityHeroSection
+        user={user}
+        onLoginClick={() => setShowLoginModal(true)}
+        onLogout={logout}
+      />
+
+      {/* Hero Section below image */}
+      <HeroSection
+        user={user}
+        onViewChange={onViewChange}
+        onLoginClick={() => setShowLoginModal(true)}
+        onLogout={logout}
+      />
+
+      {/* Quick Access Cards */}
+      <QuickAccessCards
+        stats={stats}
+        upcomingTournaments={upcomingTournaments}
+        deckPresets={deckPresets}
+        onViewChange={onViewChange}
+      />
+
+      {/* Community Highlights */}
       <CommunityHighlights
         topPlayers={topPlayers}
         currentTournamentFilter={selectedTournamentFilter}
@@ -174,7 +196,10 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         tournaments={allTournaments}
         recentMatches={recentMatches}
       />
+
+      {/* Footer */}
       <SystemFooter />
+
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
     </div>
   );
