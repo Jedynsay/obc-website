@@ -5,12 +5,12 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout, children })
   const { scrollY } = useScroll();
 
   // Hero text parallax
-  const textY = useTransform(scrollY, [0, 500], [0, -100]);
+  const textY = useTransform(scrollY, [0, 500], [0, -50]);
   const textOpacity = useTransform(scrollY, [0, 500], [1, 0]);
 
   return (
-    <div className="relative w-full">
-      {/* Hero image fixed */}
+    <div className="w-full">
+      {/* Hero image */}
       <div className="relative w-full h-screen overflow-hidden">
         <img
           src="/community.jpg"
@@ -52,8 +52,8 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout, children })
         </motion.div>
       </div>
 
-      {/* Dashboard content scrolls normally */}
-      <div className="relative z-10 -mt-32">
+      {/* Dashboard content scrolls naturally below hero */}
+      <div className="w-full">
         {children}
       </div>
     </div>
