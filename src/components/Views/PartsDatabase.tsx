@@ -217,7 +217,7 @@ export function PartsDatabase() {
   });
 
 const renderPartCard = (part: Part) => {
-  const tableFolder = `beypart_${part.category.toLowerCase()}`;
+  const tableFolder = part.category.toLowerCase().replace(' ', '');
   const primaryKeyField =
     part.category === 'Blade'
       ? 'Blades'
@@ -231,7 +231,7 @@ const renderPartCard = (part: Part) => {
       ? 'Assist Blade'
       : '';
 
-  const imagePath = `/${tableFolder}/${part.data[primaryKeyField]}.png`;
+  const imageUrl = `https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${tableFolder}/${part.data[primaryKeyField]}.png`;
 
   return (
     <div
@@ -241,13 +241,11 @@ const renderPartCard = (part: Part) => {
     >
       <div className="w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
         <img
-          src={imagePath}
+          src={imageUrl}
           alt={part.name}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.replaceWith(
-              document.createElement('div')
-            );
+            target.replaceWith(document.createElement('div'));
             const fallback = document.createElement('div');
             fallback.textContent = 'Picture Not Available';
             fallback.className = 'text-gray-400 text-xs text-center';
@@ -511,32 +509,39 @@ const renderPartCard = (part: Part) => {
                       ))}
                   </div>
                 </div>
-
+                
                 <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Preview</h4>
                   {selectedPart && (
-                    <img
-                      src={`/beypart_${selectedPart.category.toLowerCase()}/${
-                        selectedPart.data[
-                          selectedPart.category === 'Blade'
-                            ? 'Blades'
-                            : selectedPart.category === 'Bit'
-                            ? 'Bit'
-                            : selectedPart.category === 'Ratchet'
-                            ? 'Ratchet'
-                            : selectedPart.category === 'Lockchip'
-                            ? 'Lockchip'
-                            : selectedPart.category === 'Assist Blade'
-                            ? 'Assist Blade'
-                            : ''
-                        ]
-                      }.png`}
-                      alt={selectedPart.name}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/placeholder.png';
-                      }}
-                      className="mx-auto max-h-64 object-contain"
-                    />
+                    <div className="w-full aspect-square flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden mx-auto max-h-64">
+                      <img
+                        src={`https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${selectedPart.category.toLowerCase().replace(' ', '')}/${
+                          selectedPart.data[
+                            selectedPart.category === 'Blade'
+                              ? 'Blades'
+                              : selectedPart.category === 'Bit'
+                              ? 'Bit'
+                              : selectedPart.category === 'Ratchet'
+                              ? 'Ratchet'
+                              : selectedPart.category === 'Lockchip'
+                              ? 'Lockchip'
+                              : selectedPart.category === 'Assist Blade'
+                              ? 'Assist Blade'
+                              : ''
+                          ]
+                        }.png`}
+                        alt={selectedPart.name}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.replaceWith(document.createElement('div'));
+                          const fallback = document.createElement('div');
+                          fallback.textContent = 'Picture Not Available';
+                          fallback.className = 'text-gray-400 text-sm text-center';
+                          target.parentNode?.appendChild(fallback);
+                        }}
+                        className="object-contain w-full h-full"
+                      />
+                    </div>
                   )}
                 </div>
 
