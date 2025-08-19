@@ -4,13 +4,13 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 export function CommunityHeroSection({ user, onLoginClick, onLogout, children }) {
   const { scrollY } = useScroll();
 
-  // Hero text parallax
+  // Parallax for hero text
   const textY = useTransform(scrollY, [0, 500], [0, -50]);
   const textOpacity = useTransform(scrollY, [0, 500], [1, 0]);
 
   return (
-    <div className="w-full">
-      {/* Hero image */}
+    <>
+      {/* Hero section */}
       <div className="relative w-full h-screen overflow-hidden">
         <img
           src="/community.jpg"
@@ -38,7 +38,7 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout, children })
           )}
         </div>
 
-        {/* Hero content */}
+        {/* Hero text */}
         <motion.div
           style={{ y: textY, opacity: textOpacity }}
           className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4"
@@ -52,10 +52,10 @@ export function CommunityHeroSection({ user, onLoginClick, onLogout, children })
         </motion.div>
       </div>
 
-      {/* Dashboard content scrolls naturally below hero */}
-      <div className="w-full">
+      {/* Dashboard content */}
+      <div className="relative w-full bg-slate-950">
         {children}
       </div>
-    </div>
+    </>
   );
 }
