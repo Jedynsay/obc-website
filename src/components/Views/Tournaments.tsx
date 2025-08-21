@@ -64,7 +64,7 @@ export function Tournaments() {
         {/* Filter Tabs */}
         <div className="mb-8">
           <div className="filter-tabs">
-            {['all', 'upcoming', 'active', 'completed'].map((tab) => (
+            {['upcoming', 'active', 'completed', 'all'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab as any)}
