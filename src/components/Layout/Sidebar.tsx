@@ -27,6 +27,7 @@ const menuItems: MenuItem[] = [
   { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
   { id: 'parts-database', label: 'Parts Database', icon: <Database size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
   { id: 'inventory', label: 'Inventory & Decks', icon: <Package size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
+  { id: 'team-manager', label: 'Team Manager', icon: <Users size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'] },
   { id: 'match-tracker', label: 'Match Tracker', icon: <Calendar size={20} />, roles: ['technical_officer', 'admin', 'developer'] },
   { id: 'tournament-manager', label: 'Tournament Manager', icon: <Settings size={20} />, roles: ['admin', 'developer'] },
   { id: 'user-management', label: 'User Management', icon: <Users size={20} />, roles: ['admin', 'developer'] },

@@ -62,10 +62,15 @@ export function CommunityHighlights({ topPlayers, currentTournamentFilter, setTo
                       </span>
                     </div>
                     <div className="text-xs text-slate-500 font-mono mt-1">
-                      {match.winner_name === match.player1_name 
-                        ? `${match.player1_beyblade || 'Unknown'} vs ${match.player2_beyblade || 'Unknown'}`
-                        : `${match.player2_beyblade || 'Unknown'} vs ${match.player1_beyblade || 'Unknown'}`
-                      }
+                      <div className="flex items-center space-x-2">
+                        <span className="text-green-400 font-semibold">
+                          {match.winner_name === match.player1_name ? match.player1_beyblade : match.player2_beyblade}
+                        </span>
+                        <span className="text-slate-600">vs</span>
+                        <span className="text-red-400">
+                          {match.winner_name === match.player1_name ? match.player2_beyblade : match.player1_beyblade}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

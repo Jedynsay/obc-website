@@ -115,7 +115,7 @@ export function Tournaments() {
                   <div className="flex items-center text-gray-600 font-inter">
                     <Users size={16} className="mr-2" />
                     {tournament.max_participants === 999999
-                      ? `${tournament.current_participants} participants`
+                      ? `${tournament.current_participants} participants (no limit)`
                       : `${tournament.current_participants}/${tournament.max_participants} participants`}
                   </div>
                   {tournament.prize_pool && (
@@ -134,12 +134,21 @@ export function Tournaments() {
                 <div className="mb-6">
                   <div className="flex justify-between text-gray-600 font-inter mb-2">
                     <span>Registration Progress</span>
-                    <span>{Math.round((tournament.current_participants / tournament.max_participants) * 100)}%</span>
+                    <span>
+                      {tournament.max_participants === 999999 
+                        ? `${tournament.current_participants} registered`
+                        : `${Math.round((tournament.current_participants / tournament.max_participants) * 100)}%`
+                      }
+                    </span>
                   </div>
                   <div className="progress-bar">
                     <div 
                       className="progress-fill"
-                      style={{ width: `${(tournament.current_participants / tournament.max_participants) * 100}%` }}
+                      style={{ 
+                        width: tournament.max_participants === 999999 
+                          ? '100%' 
+                          : `${Math.min((tournament.current_participants / tournament.max_participants) * 100, 100)}%` 
+                      }}
                     ></div>
                   </div>
                 </div>
@@ -147,10 +156,10 @@ export function Tournaments() {
                 {tournament.status === 'upcoming' && (
                   <button
                     onClick={() => setSelectedTournament(tournament.id)}
-                    disabled={tournament.current_participants >= tournament.max_participants}
+                    disabled={tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants}
                     className="primary-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {tournament.current_participants >= tournament.max_participants 
+                    {tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants 
                       ? 'Tournament Full' 
                       : 'Register for Tournament'}
                   </button>

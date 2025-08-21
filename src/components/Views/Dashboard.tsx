@@ -666,10 +666,14 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                       </div>
                       
                       <h3 className="text-3xl font-bold text-white mb-3">
-                        {topPlayers[currentPlayerIndex]?.name}
-                      </h3>
-                      <div className="flex items-center justify-center space-x-2 mb-8">
-                        <Star className="text-yellow-400" size={20} />
+                        <div className="text-xs font-mono bg-slate-800/50 rounded px-2 py-1 flex items-center justify-between">
+                          <span className="text-green-400 font-semibold">
+                            {match.winner_name === match.player1_name ? match.player1_beyblade : match.player2_beyblade}
+                          </span>
+                          <span className="text-slate-500 mx-2">vs</span>
+                          <span className="text-red-400">
+                            {match.winner_name === match.player1_name ? match.player2_beyblade : match.player1_beyblade}
+                          </span>
                         <span className="text-yellow-400 font-semibold text-lg">Community Champion</span>
                       </div>
                       

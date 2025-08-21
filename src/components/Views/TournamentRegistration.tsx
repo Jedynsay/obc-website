@@ -71,6 +71,14 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
             </div>
           )}
 
+          {/* Tournament Description */}
+          {tournament.description && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Tournament Details</h3>
+              <p className="text-gray-700">{tournament.description}</p>
+            </div>
+          )}
+
           {/* Player Info */}
           <PlayerInfoSection
             playerName={playerName}
