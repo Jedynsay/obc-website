@@ -334,7 +334,7 @@ export function PersonalStatsTab() {
               <div className="metric-label">Tournaments Played</div>
             </div>
             <div className="p-3 bg-orange-100 rounded-lg">
-              <Users size={24} className="text-orange-600" />
+              <User size={24} className="text-orange-600" />
             </div>
           </div>
         </div>
