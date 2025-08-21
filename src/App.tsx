@@ -14,6 +14,7 @@ import { DeckBuilder } from './components/Views/DeckBuilder';
 import { Settings } from './components/Views/Settings';
 import { PartsDatabase } from './components/Views/PartsDatabase';
 import { TeamManager } from './components/Views/TeamManager';
+import { CommunityManager } from './components/Views/CommunityManager';
 import { Menu } from 'lucide-react';
 
 function AppContent() {
@@ -32,6 +33,7 @@ function AppContent() {
       case 'analytics': return <Analytics />;
       case 'parts-database': return <PartsDatabase />;
       case 'team-manager': return <TeamManager />;
+      case 'community-manager': return <CommunityManager />;
       case 'match-tracker': return <MatchTracker />;
       case 'tournament-manager': return <TournamentManager />;
       case 'user-management': return <UserManagement />;
