@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Target, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { BarChart3, Target, TrendingUp, ChevronDown, ChevronUp, Eye, Search, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '../../../lib/supabase';
 import { parseBeybladeName, calculateWilsonScore, type AllPartsData, type PartStats, type BuildStats, type ParsedBeyblade } from '../../../utils/beybladeParser';
@@ -45,15 +45,23 @@ interface ComboStats {
   comboScore: number;
   finishDistribution: { [finish: string]: number };
   bladeLine: string;
+  allMatches: any[];
 }
 
-interface BladeLineMatchup {
-  attacker: string;
-  defender: string;
-  wins: number;
-  losses: number;
-  winRate: number;
-  totalMatches: number;
+interface ShowAllModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  data: any[];
+  columns: { key: string; label: string }[];
+  onRowClick?: (row: any) => void;
+}
+
+interface MatchDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  matches: any[];
 }
 
 const FINISH_POINTS = {
@@ -69,6 +77,134 @@ const FINISH_COLORS = {
   'Over Finish': '#EF4444',
   'Extreme Finish': '#8B5CF6'
 };
+
+function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: ShowAllModalProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredData = data.filter(row => 
+    columns.some(col => 
+      String(row[col.key] || '').toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">{title}</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="mb-4">
+            <div className="relative">
+              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="overflow-auto max-h-[60vh]">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  {columns.map(col => (
+                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {col.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredData.map((row, index) => (
+                  <tr 
+                    key={index} 
+                    className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                    onClick={() => onRowClick?.(row)}
+                  >
+                    {columns.map(col => (
+                      <td key={col.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {typeof row[col.key] === 'number' ? 
+                          (col.key.includes('Rate') || col.key.includes('Score') ? 
+                            row[col.key].toFixed(1) : row[col.key]) : 
+                          String(row[col.key] || '')}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MatchDetailsModal({ isOpen, onClose, title, matches }: MatchDetailsModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-green-500 to-blue-500 px-6 py-4 text-white">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">{title}</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 overflow-auto max-h-[60vh]">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {matches.map((match, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    Match {index + 1}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player1_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player2_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.points_awarded}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalysisSubTabProps) {
   const [partsData, setPartsData] = useState<AllPartsData>({
@@ -89,12 +225,32 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
   });
   
   const [comboStats, setComboStats] = useState<ComboStats[]>([]);
-  const [bladeLineMatchups, setBladeLineMatchups] = useState<BladeLineMatchup[]>([]);
   const [processedMatches, setProcessedMatches] = useState<ProcessedMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ 
     key: 'comboScore', 
     direction: 'desc' 
+  });
+  const [showAllModal, setShowAllModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    data: any[];
+    columns: { key: string; label: string }[];
+    onRowClick?: (row: any) => void;
+  }>({
+    isOpen: false,
+    title: '',
+    data: [],
+    columns: []
+  });
+  const [matchDetailsModal, setMatchDetailsModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    matches: any[];
+  }>({
+    isOpen: false,
+    title: '',
+    matches: []
   });
 
   useEffect(() => {
@@ -157,7 +313,6 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       };
 
       const comboStatsMap: { [key: string]: ComboStats } = {};
-      const bladeLineMatchupsMap: { [key: string]: BladeLineMatchup } = {};
 
       matches.forEach((match: MatchResult) => {
         if (!match.winner_name || !match.player1_name || !match.player2_name) return;
@@ -210,13 +365,15 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
               avgPointsPerMatch: 0,
               comboScore: 0,
               finishDistribution: {},
-              bladeLine: processedMatch.bladeLine
+              bladeLine: processedMatch.bladeLine,
+              allMatches: []
             };
           }
 
           const combo = comboStatsMap[comboKey];
           combo.totalMatches++;
           combo.finishDistribution[outcome] = (combo.finishDistribution[outcome] || 0) + 1;
+          combo.allMatches.push(match);
 
           if (processedMatch.isWin) {
             combo.wins++;
@@ -225,46 +382,6 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
             combo.losses++;
           }
         });
-
-        // Process blade line matchups
-        const p1Line = match.player1_blade_line || 'Unknown';
-        const p2Line = match.player2_blade_line || 'Unknown';
-        
-        const matchupKey1 = `${p1Line}_vs_${p2Line}`;
-        const matchupKey2 = `${p2Line}_vs_${p1Line}`;
-        
-        if (!bladeLineMatchupsMap[matchupKey1]) {
-          bladeLineMatchupsMap[matchupKey1] = {
-            attacker: p1Line,
-            defender: p2Line,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            totalMatches: 0
-          };
-        }
-        
-        if (!bladeLineMatchupsMap[matchupKey2]) {
-          bladeLineMatchupsMap[matchupKey2] = {
-            attacker: p2Line,
-            defender: p1Line,
-            wins: 0,
-            losses: 0,
-            winRate: 0,
-            totalMatches: 0
-          };
-        }
-
-        bladeLineMatchupsMap[matchupKey1].totalMatches++;
-        bladeLineMatchupsMap[matchupKey2].totalMatches++;
-
-        if (match.winner_name === match.player1_name) {
-          bladeLineMatchupsMap[matchupKey1].wins++;
-          bladeLineMatchupsMap[matchupKey2].losses++;
-        } else {
-          bladeLineMatchupsMap[matchupKey1].losses++;
-          bladeLineMatchupsMap[matchupKey2].wins++;
-        }
 
         // Update part stats
         const updateStats = (parsedParts: ParsedBeyblade, isWin: boolean) => {
@@ -314,14 +431,8 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         return combo;
       });
 
-      // Calculate blade line matchup win rates
-      Object.values(bladeLineMatchupsMap).forEach(matchup => {
-        matchup.winRate = matchup.totalMatches > 0 ? (matchup.wins / matchup.totalMatches) * 100 : 0;
-      });
-
       setPartStats(stats);
       setComboStats(comboStatsArray);
-      setBladeLineMatchups(Object.values(bladeLineMatchupsMap));
       setProcessedMatches(processed);
 
     } catch (error) {
@@ -337,6 +448,66 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       direction = 'desc';
     }
     setSortConfig({ key, direction });
+  };
+
+  const showAllCombos = () => {
+    setShowAllModal({
+      isOpen: true,
+      title: 'All Combo Performance Rankings',
+      data: sortedComboStats,
+      columns: [
+        { key: 'combo', label: 'Combo' },
+        { key: 'player', label: 'Player' },
+        { key: 'bladeLine', label: 'Blade Line' },
+        { key: 'totalMatches', label: 'Matches' },
+        { key: 'winRate', label: 'Win Rate (%)' },
+        { key: 'weightedWinRate', label: 'Weighted Win Rate (%)' },
+        { key: 'avgPointsPerMatch', label: 'Avg Points' },
+        { key: 'comboScore', label: 'Combo Score' }
+      ],
+      onRowClick: (row) => {
+        setMatchDetailsModal({
+          isOpen: true,
+          title: `All Matches for ${row.combo} by ${row.player}`,
+          matches: row.allMatches || []
+        });
+        setShowAllModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
+  const showAllParts = (partType: string) => {
+    const partData = Object.values(partStats[partType] || {})
+      .filter(part => part.usage > 0)
+      .sort((a, b) => b.wilson - a.wilson)
+      .map(part => ({
+        ...part,
+        allMatches: processedMatches.filter(match => 
+          match.parsedParts[partType as keyof ParsedBeyblade] === part.name
+        )
+      }));
+
+    setShowAllModal({
+      isOpen: true,
+      title: `All ${partType.charAt(0).toUpperCase() + partType.slice(1)} Performance`,
+      data: partData,
+      columns: [
+        { key: 'name', label: 'Name' },
+        { key: 'usage', label: 'Usage' },
+        { key: 'wins', label: 'Wins' },
+        { key: 'losses', label: 'Losses' },
+        { key: 'winRate', label: 'Win Rate (%)' },
+        { key: 'wilson', label: 'Wilson Score' }
+      ],
+      onRowClick: (row) => {
+        setMatchDetailsModal({
+          isOpen: true,
+          title: `All Matches using ${row.name}`,
+          matches: row.allMatches || []
+        });
+        setShowAllModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
   };
 
   const sortedComboStats = [...comboStats].sort((a, b) => {
@@ -391,7 +562,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
 
   // Prepare chart data
   const topCombosChartData = sortedComboStats.slice(0, 10).map(combo => ({
-    name: `${combo.combo.substring(0, 15)}...`,
+    name: combo.combo,
     score: combo.comboScore,
     winRate: combo.winRate,
     matches: combo.totalMatches
@@ -419,9 +590,16 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
           Top Combos by Score
         </h3>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={topCombosChartData}>
+          <BarChart data={topCombosChartData} margin={{ bottom: 80 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis 
+              dataKey="name" 
+              angle={-45}
+              textAnchor="end"
+              height={100}
+              interval={0}
+              fontSize={10}
+            />
             <YAxis />
             <Tooltip 
               formatter={(value, name) => [
@@ -461,7 +639,16 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
 
       {/* Combo Statistics Table */}
       <div className="chart-container">
-        <h3 className="chart-title">Combo Performance Rankings</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="chart-title">Combo Performance Rankings</h3>
+          <button
+            onClick={showAllCombos}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          >
+            <Eye size={16} />
+            <span>Show All</span>
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -518,87 +705,23 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         </div>
       </div>
 
-      {/* Blade Line Matchups */}
-      <div className="chart-container">
-        <h3 className="chart-title">Blade Line Matchup Matrix</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Attacker
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Defender
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Matches
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Wins
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Win Rate
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {bladeLineMatchups
-                .filter(matchup => matchup.totalMatches > 0)
-                .sort((a, b) => b.winRate - a.winRate)
-                .map((matchup, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        matchup.attacker === 'Basic' ? 'bg-blue-100 text-blue-800' :
-                        matchup.attacker === 'Unique' ? 'bg-purple-100 text-purple-800' :
-                        matchup.attacker === 'Custom' ? 'bg-orange-100 text-orange-800' :
-                        matchup.attacker === 'X-Over' ? 'bg-green-100 text-green-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {matchup.attacker}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        matchup.defender === 'Basic' ? 'bg-blue-100 text-blue-800' :
-                        matchup.defender === 'Unique' ? 'bg-purple-100 text-purple-800' :
-                        matchup.defender === 'Custom' ? 'bg-orange-100 text-orange-800' :
-                        matchup.defender === 'X-Over' ? 'bg-green-100 text-green-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {matchup.defender}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      {matchup.totalMatches}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      {matchup.wins}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                      <span className={`font-medium ${
-                        matchup.winRate >= 60 ? 'text-green-600' :
-                        matchup.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
-                      }`}>
-                        {matchup.winRate.toFixed(1)}%
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       {/* Part Statistics */}
       {(['blade', 'ratchet', 'bit', 'lockchip', 'mainBlade', 'assistBlade'] as const).map(partType => (
         <div key={partType} className="chart-container">
-          <h3 className="chart-title capitalize">
-            {partType === 'mainBlade' ? 'Main Blades' : 
-             partType === 'assistBlade' ? 'Assist Blades' : 
-             `${partType}s`} Performance
-          </h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="chart-title capitalize">
+              {partType === 'mainBlade' ? 'Main Blades' : 
+               partType === 'assistBlade' ? 'Assist Blades' : 
+               `${partType}s`} Performance
+            </h3>
+            <button
+              onClick={() => showAllParts(partType)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <Eye size={16} />
+              <span>Show All</span>
+            </button>
+          </div>
           
           {Object.keys(partStats[partType] || {}).length === 0 ? (
             <div className="text-center py-8">
@@ -631,6 +754,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
                   {Object.values(partStats[partType] || {})
                     .filter(part => part.usage > 0)
                     .sort((a, b) => b.wilson - a.wilson)
+                    .slice(0, 10)
                     .map((part, index) => (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -661,6 +785,23 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
           )}
         </div>
       ))}
+
+      {/* Modals */}
+      <ShowAllModal
+        isOpen={showAllModal.isOpen}
+        onClose={() => setShowAllModal(prev => ({ ...prev, isOpen: false }))}
+        title={showAllModal.title}
+        data={showAllModal.data}
+        columns={showAllModal.columns}
+        onRowClick={showAllModal.onRowClick}
+      />
+
+      <MatchDetailsModal
+        isOpen={matchDetailsModal.isOpen}
+        onClose={() => setMatchDetailsModal(prev => ({ ...prev, isOpen: false }))}
+        title={matchDetailsModal.title}
+        matches={matchDetailsModal.matches}
+      />
     </div>
   );
 }
