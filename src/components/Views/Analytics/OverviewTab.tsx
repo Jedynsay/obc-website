@@ -476,14 +476,24 @@ export function OverviewTab() {
         <div className="chart-container">
           <h3 className="chart-title">Top Global Combos by Score</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={globalCombos.slice(0, 8).map(combo => ({
-              name: combo.combo.length > 15 ? combo.combo.substring(0, 15) + '...' : combo.combo,
-              score: combo.comboScore,
-              winRate: combo.winRate,
-              matches: combo.totalMatches
-            }))}>
+            <BarChart 
+              data={globalCombos.slice(0, 8).map(combo => ({
+                name: combo.combo,
+                score: combo.comboScore,
+                winRate: combo.winRate,
+                matches: combo.totalMatches
+              }))}
+              margin={{ bottom: 80 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis 
+                dataKey="name" 
+                angle={-45}
+                textAnchor="end"
+                height={100}
+                interval={0}
+                fontSize={10}
+              />
               <YAxis />
               <Tooltip 
                 formatter={(value, name) => [
@@ -499,7 +509,30 @@ export function OverviewTab() {
 
       {/* Global Combo Rankings Table */}
       <div className="chart-container">
-        <h3 className="chart-title">Global Combo Rankings</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="chart-title">Global Combo Rankings</h3>
+          <button
+            onClick={() => {
+              // Show all global combos
+              const allCombosData = globalCombos.map(combo => ({
+                rank: globalCombos.indexOf(combo) + 1,
+                combo: combo.combo,
+                player: combo.player,
+                bladeLine: combo.bladeLine,
+                totalMatches: combo.totalMatches,
+                winRate: combo.winRate,
+                weightedWinRate: combo.weightedWinRate * 100,
+                comboScore: combo.comboScore
+              }));
+              
+              // This would need to be implemented with a modal similar to the other components
+              alert('Show All functionality for global combos coming soon!');
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          >
+            <span>Show All</span>
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
