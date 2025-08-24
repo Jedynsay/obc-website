@@ -30,22 +30,14 @@ export function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      console.log('🔍 USER MANAGEMENT: Fetching profiles...');
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ USER MANAGEMENT: Error fetching profiles:', error);
         throw error;
       }
-      
-      console.log('📊 USER MANAGEMENT: Raw profiles data:', {
-        count: data?.length || 0,
-        sample: data?.slice(0, 3) || [],
-        allProfiles: data || []
-      });
       
       const formattedUsers = (data || []).map(profile => ({
         id: profile.id,
@@ -53,19 +45,11 @@ export function UserManagement() {
         email: profile.email || '',
         role: profile.role,
         joinedDate: profile.created_at,
-        status: 'active', // profiles don't have status, default to active
-        lastLogin: null // profiles don't track last login
+        status: 'active',
+        lastLogin: null
       }));
       
-      console.log('🔄 USER MANAGEMENT: Formatted profiles as users:', {
-        count: formattedUsers.length,
-        sample: formattedUsers.slice(0, 3),
-        roles: formattedUsers.map(u => u.role),
-        statuses: formattedUsers.map(u => u.status)
-      });
-      
       setUsers(formattedUsers);
-      console.log('✅ USER MANAGEMENT: Profiles loaded successfully as users');
     } catch (error) {
       console.error('Error fetching profiles:', error);
     } finally {
@@ -112,7 +96,6 @@ export function UserManagement() {
     }
 
     try {
-      // Use the database function to properly delete both profile and auth user
       const { data, error } = await supabase.rpc('delete_user_completely', {
         user_id_to_delete: userId
       });
