@@ -510,7 +510,7 @@ export function TournamentManager() {
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                         className="input-field w-full pr-10"
-                        placeholder="Enter tournament password (required for match tracking)"
+                        placeholder="Enter tournament password."
                       />
                       <button
                         type="button"
