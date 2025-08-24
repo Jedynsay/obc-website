@@ -110,7 +110,6 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
             {isOpen && (
               <div>
                 <h1 className="text-xl font-space-grotesk font-bold text-gray-900">OBC Portal</h1>
-                <p className="text-xs text-gray-500 font-inter">Beyblade Community</p>
               </div>
             )}
           </div>
