@@ -112,6 +112,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('📝 SIGNUP ATTEMPT - Username:', username, 'Email:', email);
       
+      // Check if username already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .single();
+
+      if (existingProfile) {
+        console.error('❌ SIGNUP FAILED - Username already exists:', username);
+        return false;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
