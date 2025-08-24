@@ -18,13 +18,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false); // Start with false, no loading
 
   useEffect(() => {
-    // Check for existing session
     const checkSession = async () => {
       setLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          // Get user profile
           const { data: profile } = await supabase
             .from('profiles')
             .select('*')
@@ -43,19 +41,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error('Session check error:', error);
+        // Clear any invalid session data
+        await supabase.auth.signOut();
       } finally {
         setLoading(false);
       }
     };
 
     checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_OUT' || !session) {
+          setUser(null);
+        } else if (event === 'SIGNED_IN' && session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .limit(1);
+
+          if (profile && profile.length > 0) {
+            setUser({
+              id: profile[0].id,
+              username: profile[0].username,
+              email: profile[0].email || '',
+              role: profile[0].role || 'user',
+              joinedDate: profile[0].created_at
+            });
+          }
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      console.log('🔐 LOGIN ATTEMPT - Username:', username);
-      
-      // Find user by username to get their email
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -63,36 +87,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .limit(1);
 
       if (profileError) {
-        console.error('❌ LOGIN FAILED - Database error:', profileError);
         return false;
       }
 
       if (!profiles || profiles.length === 0) {
-        console.error('❌ LOGIN FAILED - No profile found for username:', username);
         return false;
       }
 
       const profile = profiles[0];
       
       if (!profile.email) {
-        console.error('❌ LOGIN FAILED - Profile has no email:', profile);
         return false;
       }
 
-      console.log('✅ Profile found - Email:', profile.email, 'Role:', profile.role);
-      
-      // Use the email from profile to authenticate
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: profile.email,
         password
       });
       
       if (authError) {
-        console.error('❌ SUPABASE AUTH ERROR:', authError.message);
         return false;
       }
 
-      // Set user data from profile
       setUser({
         id: profile.id,
         username: profile.username,
@@ -110,9 +126,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (username: string, email: string, password: string, role: User['role']): Promise<boolean> => {
     try {
-      console.log('📝 SIGNUP ATTEMPT - Username:', username, 'Email:', email);
-      
-      // Check if username already exists
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('username')
@@ -120,7 +133,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (existingProfile) {
-        console.error('❌ SIGNUP FAILED - Username already exists:', username);
         return false;
       }
 
@@ -135,18 +147,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        console.error('❌ SUPABASE SIGNUP ERROR:', error.message, 'Code:', error.status);
         return false;
       }
       
-      console.log('✅ SUPABASE SIGNUP SUCCESS:', {
-        user_id: data.user?.id,
-        email: data.user?.email,
-        email_confirmed: data.user?.email_confirmed_at,
-        user_metadata: data.user?.user_metadata
-      });
-      
-      // Create profile entry if user was created successfully
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -158,10 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
 
         if (profileError) {
-          console.error('❌ PROFILE CREATION ERROR:', profileError.message);
-          // Don't return false here as the user was created successfully
-        } else {
-          console.log('✅ PROFILE CREATED SUCCESSFULLY');
+          console.error('Profile creation error:', profileError.message);
         }
       }
       
@@ -174,25 +174,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async (): Promise<void> => {
     try {
-      console.log('🚪 LOGOUT: Starting logout process...');
-      
-      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('❌ LOGOUT: Supabase signout error:', error);
-      } else {
-        console.log('✅ LOGOUT: Supabase signout successful');
+        console.error('Logout error:', error);
       }
       
-      // Clear user state regardless of Supabase response
       setUser(null);
-      console.log('✅ LOGOUT: User state cleared - Back to guest mode');
-      
-      // Force a page refresh to ensure clean state
       window.location.reload();
     } catch (error) {
-      console.error('❌ LOGOUT: Unexpected error:', error);
-      // Still clear user state even if there's an error
+      console.error('Logout error:', error);
       setUser(null);
       window.location.reload();
     }
