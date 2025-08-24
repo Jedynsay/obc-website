@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BarChart3, TrendingUp, Trophy, Users, Calendar, Target, User, Database } from 'lucide-react';
 import { OverviewTab } from './Analytics/OverviewTab';
 import { PersonalStatsTab } from './Analytics/PersonalStatsTab';
 import { TournamentAnalysisTab } from './Analytics/TournamentAnalysisTab';
+import { CommunityAnalyticsTab } from './Analytics/CommunityAnalyticsTab'; // New tab component
 import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase';
 
 export function Analytics() {
   const { user } = useAuth();
-  const [currentTab, setCurrentTab] = useState<'overview' | 'personal' | 'tournament'>('overview');
+  const [currentTab, setCurrentTab] = useState<'overview' | 'personal' | 'tournament' | 'community'>('overview');
   const [isTransitioning, setIsTransitioning] = useState(false);
   
-  const handleTabChange = (tab: 'overview' | 'personal' | 'tournament') => {
+  const handleTabChange = (tab: 'overview' | 'personal' | 'tournament' | 'community') => {
     if (tab === currentTab) return;
     
     setIsTransitioning(true);
@@ -44,35 +44,36 @@ export function Analytics() {
                 <BarChart3 size={32} className="mr-3 text-blue-600" />
                 Tournament Analytics
               </h1>
-              <p className="page-subtitle">Comprehensive tournament and player statistics</p>
+              <p className="page-subtitle">Comprehensive tournament, player, and community statistics</p>
             </div>
-            <div className="filter-tabs">
+            <div className="filter-tabs flex gap-2">
               <button
                 onClick={() => handleTabChange('overview')}
-                className={`filter-tab ${
-                  currentTab === 'overview' ? 'filter-tab-active' : 'filter-tab-inactive'
-                }`}
+                className={`filter-tab ${currentTab === 'overview' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
               >
                 <Trophy size={16} className="mr-2" />
                 Overview
               </button>
               <button
                 onClick={() => handleTabChange('personal')}
-                className={`filter-tab ${
-                  currentTab === 'personal' ? 'filter-tab-active' : 'filter-tab-inactive'
-                }`}
+                className={`filter-tab ${currentTab === 'personal' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
               >
                 <User size={16} className="mr-2" />
                 Personal Stats
               </button>
               <button
                 onClick={() => handleTabChange('tournament')}
-                className={`filter-tab ${
-                  currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'
-                }`}
+                className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
               >
                 <Database size={16} className="mr-2" />
                 Tournament Analysis
+              </button>
+              <button
+                onClick={() => handleTabChange('community')}
+                className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+              >
+                <Users size={16} className="mr-2" />
+                Community Analytics
               </button>
             </div>
           </div>
@@ -82,6 +83,7 @@ export function Analytics() {
         {currentTab === 'overview' && <OverviewTab />}
         {currentTab === 'personal' && <PersonalStatsTab />}
         {currentTab === 'tournament' && <TournamentAnalysisTab />}
+        {currentTab === 'community' && <CommunityAnalyticsTab />}
       </div>
     </div>
   );
