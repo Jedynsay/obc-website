@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Target, TrendingUp, ChevronDown, ChevronUp, Eye, Search, X } from 'lucide-react';
+import { BarChart3, Target, TrendingUp, ChevronDown, ChevronUp, Eye, Search, X, Filter } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '../../../lib/supabase';
 import { parseBeybladeName, calculateWilsonScore, type AllPartsData, type PartStats, type BuildStats, type ParsedBeyblade } from '../../../utils/beybladeParser';
@@ -227,6 +227,12 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
   const [comboStats, setComboStats] = useState<ComboStats[]>([]);
   const [processedMatches, setProcessedMatches] = useState<ProcessedMatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Part search functionality
+  const [selectedPartType, setSelectedPartType] = useState<string>('');
+  const [selectedPartName, setSelectedPartName] = useState<string>('');
+  const [partCombos, setPartCombos] = useState<ComboStats[]>([]);
+  
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ 
     key: 'comboScore', 
     direction: 'desc' 
@@ -434,6 +440,11 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       setPartStats(stats);
       setComboStats(comboStatsArray);
       setProcessedMatches(processed);
+      
+      // Generate part combos if part is selected
+      if (selectedPartType && selectedPartName) {
+        generatePartCombos();
+      }
 
     } catch (error) {
       console.error('Error processing tournament data:', error);
@@ -441,6 +452,33 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       setIsLoading(false);
     }
   };
+
+  const generatePartCombos = () => {
+    if (!selectedPartType || !selectedPartName) return;
+    
+    const combosWithPart = comboStats.filter(combo => {
+      // Find matches for this combo to check if it uses the selected part
+      const comboMatches = processedMatches.filter(match => 
+        match.beyblade === combo.combo && match.player === combo.player
+      );
+      
+      return comboMatches.some(match => {
+        const partValue = match.parsedParts[selectedPartType as keyof ParsedBeyblade];
+        return partValue === selectedPartName;
+      });
+    });
+    
+    setPartCombos(combosWithPart.sort((a, b) => b.comboScore - a.comboScore));
+  };
+
+  // Update part combos when selection changes
+  React.useEffect(() => {
+    if (selectedPartType && selectedPartName && comboStats.length > 0) {
+      generatePartCombos();
+    } else {
+      setPartCombos([]);
+    }
+  }, [selectedPartType, selectedPartName, comboStats]);
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -583,58 +621,183 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
 
   return (
     <div className="space-y-8">
-      {/* Top Combos Chart */}
-      <div className="chart-container">
-        <h3 className="chart-title flex items-center">
-          <Target size={24} className="mr-2 text-blue-600" />
-          Top Combos by Score
-        </h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={topCombosChartData} margin={{ bottom: 80 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="name" 
-              angle={-45}
-              textAnchor="end"
-              height={100}
-              interval={0}
-              fontSize={10}
-            />
-            <YAxis />
-            <Tooltip 
-              formatter={(value, name) => [
-                typeof value === 'number' ? value.toFixed(2) : value,
-                name === 'score' ? 'Combo Score' : name === 'winRate' ? 'Win Rate (%)' : 'Matches'
-              ]}
-            />
-            <Legend />
-            <Bar dataKey="score" fill="#3B82F6" name="Combo Score" />
-          </BarChart>
-        </ResponsiveContainer>
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Top Combos Chart */}
+        <div className="chart-container">
+          <h3 className="chart-title flex items-center">
+            <Target size={24} className="mr-2 text-blue-600" />
+            Top Combos by Score
+          </h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={topCombosChartData} margin={{ bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="name" 
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                interval={0}
+                fontSize={9}
+              />
+              <YAxis />
+              <Tooltip 
+                formatter={(value, name) => [
+                  typeof value === 'number' ? value.toFixed(2) : value,
+                  name === 'score' ? 'Combo Score' : name === 'winRate' ? 'Win Rate (%)' : 'Matches'
+                ]}
+              />
+              <Bar dataKey="score" fill="#3B82F6" name="Combo Score" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Finish Distribution */}
+        <div className="chart-container">
+          <h3 className="chart-title">Finish Type Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={finishDistributionData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {finishDistributionData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      {/* Finish Distribution */}
+      {/* Part Analysis Section */}
       <div className="chart-container">
-        <h3 className="chart-title">Finish Type Distribution</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <PieChart>
-            <Pie
-              data={finishDistributionData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              outerRadius={120}
-              fill="#8884d8"
-              dataKey="value"
+        <h3 className="chart-title flex items-center">
+          <Search size={24} className="mr-2 text-purple-600" />
+          Analysis by Part
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Part Type</label>
+            <select
+              value={selectedPartType}
+              onChange={(e) => {
+                setSelectedPartType(e.target.value);
+                setSelectedPartName('');
+              }}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              {finishDistributionData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
+              <option value="">Select Part Type</option>
+              <option value="blade">Blade</option>
+              <option value="mainBlade">Main Blade</option>
+              <option value="ratchet">Ratchet</option>
+              <option value="bit">Bit</option>
+              <option value="lockchip">Lockchip</option>
+              <option value="assistBlade">Assist Blade</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Part Name</label>
+            <select
+              value={selectedPartName}
+              onChange={(e) => setSelectedPartName(e.target.value)}
+              disabled={!selectedPartType}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
+            >
+              <option value="">Select Part Name</option>
+              {selectedPartType && Object.values(partStats[selectedPartType] || {})
+                .filter(part => part.usage > 0)
+                .sort((a, b) => b.wilson - a.wilson)
+                .map(part => (
+                  <option key={part.name} value={part.name}>{part.name}</option>
+                ))}
+            </select>
+          </div>
+        </div>
+        
+        {/* Part Combos Table */}
+        {selectedPartType && selectedPartName && partCombos.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">
+              Combos using {selectedPartName} ({selectedPartType})
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-purple-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blade Line</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Matches</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Score</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {partCombos.map((combo, index) => (
+                    <tr key={index} className="hover:bg-purple-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {combo.combo}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {combo.player}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          combo.bladeLine === 'Basic' ? 'bg-blue-100 text-blue-800' :
+                          combo.bladeLine === 'Unique' ? 'bg-purple-100 text-purple-800' :
+                          combo.bladeLine === 'Custom' ? 'bg-orange-100 text-orange-800' :
+                          combo.bladeLine === 'X-Over' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {combo.bladeLine}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {combo.totalMatches}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                        <span className={`font-medium ${
+                          combo.winRate >= 60 ? 'text-green-600' :
+                          combo.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                          {combo.winRate.toFixed(1)}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-purple-600 text-center">
+                        {combo.comboScore.toFixed(1)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <button
+                          onClick={() => {
+                            setMatchDetailsModal({
+                              isOpen: true,
+                              title: `All Matches for ${combo.combo} by ${combo.player}`,
+                              matches: combo.allMatches || []
+                            });
+                          }}
+                          className="text-purple-600 hover:text-purple-800 text-sm font-medium"
+                        >
+                          View Matches
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Combo Statistics Table */}
@@ -705,86 +868,158 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         </div>
       </div>
 
-      {/* Part Statistics */}
-      {(['blade', 'ratchet', 'bit', 'lockchip', 'mainBlade', 'assistBlade'] as const).map(partType => (
-        <div key={partType} className="chart-container">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="chart-title capitalize">
-              {partType === 'mainBlade' ? 'Main Blades' : 
-               partType === 'assistBlade' ? 'Assist Blades' : 
-               `${partType}s`} Performance
-            </h3>
-            <button
-              onClick={() => showAllParts(partType)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-            >
-              <Eye size={16} />
-              <span>Show All</span>
-            </button>
-          </div>
-          
-          {Object.keys(partStats[partType] || {}).length === 0 ? (
-            <div className="text-center py-8">
-              <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-500">No {partType} data available</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Usage
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Wins
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Win Rate
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Wilson Score
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {Object.values(partStats[partType] || {})
-                    .filter(part => part.usage > 0)
-                    .sort((a, b) => b.wilson - a.wilson)
-                    .slice(0, 10)
-                    .map((part, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {part.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                          {part.usage}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                          {part.wins}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                          <span className={`font-medium ${
-                            part.winRate >= 60 ? 'text-green-600' :
-                            part.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
-                          }`}>
-                            {part.winRate.toFixed(1)}%
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                          {part.wilson.toFixed(3)}
-                        </td>
+      {/* Part Statistics - Organized in Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Blades and Main Blades */}
+        <div className="space-y-6">
+          {(['blade', 'mainBlade'] as const).map(partType => (
+            <div key={partType} className="chart-container">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="chart-title capitalize">
+                  {partType === 'mainBlade' ? 'Main Blades' : 'Blades'} Performance
+                </h3>
+                <button
+                  onClick={() => showAllParts(partType)}
+                  className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 text-sm"
+                >
+                  <Eye size={14} />
+                  <span>Show All</span>
+                </button>
+              </div>
+              
+              {Object.keys(partStats[partType] || {}).length === 0 ? (
+                <div className="text-center py-6">
+                  <BarChart3 size={32} className="mx-auto text-gray-400 mb-2" />
+                  <p className="text-gray-500 text-sm">No {partType} data available</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Usage
+                        </th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Win Rate
+                        </th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Wilson
+                        </th>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {Object.values(partStats[partType] || {})
+                        .filter(part => part.usage > 0)
+                        .sort((a, b) => b.wilson - a.wilson)
+                        .slice(0, 8)
+                        .map((part, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {part.name}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
+                              {part.usage}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                              <span className={`font-medium ${
+                                part.winRate >= 60 ? 'text-green-600' :
+                                part.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                              }`}>
+                                {part.winRate.toFixed(1)}%
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
+                              {part.wilson.toFixed(3)}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-          )}
+          ))}
         </div>
-      ))}
+        
+        {/* Other Parts */}
+        <div className="space-y-6">
+          {(['ratchet', 'bit', 'lockchip', 'assistBlade'] as const).map(partType => (
+            <div key={partType} className="chart-container">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="chart-title capitalize">
+                  {partType === 'assistBlade' ? 'Assist Blades' : `${partType}s`} Performance
+                </h3>
+                <button
+                  onClick={() => showAllParts(partType)}
+                  className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 text-sm"
+                >
+                  <Eye size={14} />
+                  <span>Show All</span>
+                </button>
+              </div>
+              
+              {Object.keys(partStats[partType] || {}).length === 0 ? (
+                <div className="text-center py-6">
+                  <BarChart3 size={32} className="mx-auto text-gray-400 mb-2" />
+                  <p className="text-gray-500 text-sm">No {partType} data available</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Usage
+                        </th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Win Rate
+                        </th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Wilson
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {Object.values(partStats[partType] || {})
+                        .filter(part => part.usage > 0)
+                        .sort((a, b) => b.wilson - a.wilson)
+                        .slice(0, 8)
+                        .map((part, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {part.name}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
+                              {part.usage}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-center">
+                              <span className={`font-medium ${
+                                part.winRate >= 60 ? 'text-green-600' :
+                                part.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                              }`}>
+                                {part.winRate.toFixed(1)}%
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 text-center">
+                              {part.wilson.toFixed(3)}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Modals */}
       <ShowAllModal
