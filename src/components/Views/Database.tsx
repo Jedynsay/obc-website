@@ -60,7 +60,6 @@ export function DatabaseView() {
 
   const fetchTableCounts = async () => {
     try {
-      console.log('🔍 DATABASE: Fetching table counts...');
       const [profilesRes, tournamentsRes, matchResultsRes, registrationsRes] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('tournaments').select('*', { count: 'exact', head: true }),
@@ -106,7 +105,6 @@ export function DatabaseView() {
         .order('name');
       
       setTournaments(tournamentData || []);
-      console.log('✅ DATABASE: Table counts loaded successfully');
     } catch (error) {
       console.error('Error fetching table counts:', error);
     }
@@ -115,13 +113,11 @@ export function DatabaseView() {
   const fetchTableData = async (tableName: string, tournamentId?: string) => {
     setLoading(true);
     setError(null);
-    console.log('🔍 DATABASE: Fetching table data for:', { tableName, tournamentId });
     
     try {
       let data: any[] = [];
       
       if (tableName === 'registrations' && tournamentId) {
-        // Fetch registrations with their beyblades for a specific tournament
         const { data: registrationData, error } = await supabase
           .from('tournament_registration_details')
           .select('*')
@@ -130,7 +126,6 @@ export function DatabaseView() {
 
         if (error) throw error;
 
-        // Group by registration_id
         const groupedData: { [key: string]: RegistrationWithBeyblades } = {};
         
         registrationData?.forEach((row: any) => {
@@ -164,7 +159,6 @@ export function DatabaseView() {
 
         data = Object.values(groupedData);
       } else if (tableName === 'registrations' && !tournamentId) {
-        // Show tournament selection instead of registrations
         data = tournaments;
       } else {
         let supabaseTableName = tableName;
@@ -194,7 +188,6 @@ export function DatabaseView() {
         data = fetchedData || [];
       }
 
-      // Sort data alphabetically by the first text field
       if (tableName !== 'registrations' || tournamentId) {
         data.sort((a, b) => {
           const aValue = Object.values(a).find(val => typeof val === 'string') as string || '';
@@ -204,10 +197,6 @@ export function DatabaseView() {
       }
 
       setTableData(data);
-      console.log(`✅ DATABASE: Table data loaded for ${tableName}:`, {
-        finalCount: data.length,
-        hasData: data.length > 0
-      });
     } catch (error) {
       console.error('Error fetching table data:', error);
       setError(`Failed to load ${tableName} data. Please try again.`);
