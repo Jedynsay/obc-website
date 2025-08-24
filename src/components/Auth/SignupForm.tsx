@@ -25,7 +25,6 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
     setError('');
     setSuccess(false);
 
-    // Validation
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       setLoading(false);
@@ -49,7 +48,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
       setLoading(false);
       return;
     }
-    // Additional username validation
+    
     if (!/^[a-zA-Z0-9_-]+$/.test(username.trim())) {
       setError('Username can only contain letters, numbers, hyphens, and underscores.');
       setLoading(false);
