@@ -188,11 +188,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
       // Optional: rely on state change instead of reload
       // If you really need reload:
-      setTimeout(() => window.location.reload(), 100);
+      setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error('❌ LOGOUT: Unexpected error:', error);
       setUser(null);
-      setTimeout(() => window.location.reload(), 100);
+      setTimeout(() => window.location.reload(), 500);
     }
   };
 
