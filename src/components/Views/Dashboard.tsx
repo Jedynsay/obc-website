@@ -851,7 +851,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-green-400 font-medium text-sm">System Online</span>
                 </div>
-                <div className="text-slate-400 text-sm">Portal v0.4.0</div>
+                <div className="text-slate-400 text-sm">Portal v0.5.3</div>
               </div>
             </div>
           </div>
