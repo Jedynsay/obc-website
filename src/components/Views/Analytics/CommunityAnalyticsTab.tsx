@@ -1,7 +1,7 @@
 import React from 'react';
 import { Users, BarChart3, TrendingUp, Target } from 'lucide-react';
 
-export function CommunityAnalytics() {
+export function CommunityAnalyticsTab() {
   return (
     <div className="page-container">
       <div className="content-wrapper">
