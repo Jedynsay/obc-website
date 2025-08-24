@@ -3,7 +3,6 @@ import { Plus, Edit, Trash2, Save, X, Calendar, MapPin, Users, Trophy, Eye, EyeO
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
-import { PhilippineLocationPicker } from './PhilippineLocationPicker';
 
 interface Tournament {
   id: string;
@@ -427,9 +426,12 @@ export function TournamentManager() {
 
                   <div>
                     <label className="form-label">Location *</label>
-                    <PhilippineLocationPicker
+                    <input
+                      type="text"
                       value={formData.location}
-                      onChange={(location) => setFormData({...formData, location})}
+                      onChange={(e) => setFormData({...formData, location: e.target.value})}
+                      className="input-field w-full"
+                      placeholder="Enter tournament location"
                     />
                   </div>
 
@@ -510,7 +512,7 @@ export function TournamentManager() {
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                         className="input-field w-full pr-10"
-                        placeholder="Enter tournament password."
+                        placeholder="Enter tournament password (required for match tracking)"
                       />
                       <button
                         type="button"
