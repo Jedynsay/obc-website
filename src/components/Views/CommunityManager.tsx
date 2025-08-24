@@ -98,7 +98,6 @@ export function CommunityManager() {
             </div>
 
             <div className="mt-8 text-pink-600 text-sm">
-              From Ormoc to the world — every community will soon have its place here. 
               This feature is in active development.
             </div>
           </div>
