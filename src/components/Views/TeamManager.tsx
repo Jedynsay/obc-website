@@ -27,7 +27,6 @@ export function TeamManager() {
             
             <p className="text-purple-800 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
               Create competitive teams, manage rosters, and coordinate team tournaments. 
-              Perfect for organizing group battles and team-based competitions.
             </p>
 
             {/* Feature Preview */}
@@ -79,6 +78,10 @@ export function TeamManager() {
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
                   Role-based permissions
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                  Showing off team name in your name tag
                 </div>
               </div>
             </div>
