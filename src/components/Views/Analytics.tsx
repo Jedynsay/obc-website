@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, Trophy, Users, Calendar, Target, User, Database } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../context/AuthContext';
 import { OverviewTab } from './Analytics/OverviewTab';
 import { PersonalStatsTab } from './Analytics/PersonalStatsTab';
 import { TournamentAnalysisTab } from './Analytics/TournamentAnalysisTab';
+import { useAuth } from '../../context/AuthContext';
 
 export function Analytics() {
   const { user } = useAuth();
