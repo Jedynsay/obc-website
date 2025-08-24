@@ -10,7 +10,7 @@ export function CommunityManager() {
             <Heart size={32} className="mr-3 text-pink-600" />
             Community Manager
           </h1>
-          <p className="page-subtitle">Foster community engagement and build connections</p>
+          <p className="page-subtitle">Give every community its own space to grow and connect</p>
         </div>
 
         {/* Coming Soon Card */}
@@ -26,42 +26,44 @@ export function CommunityManager() {
             </div>
             
             <p className="text-pink-800 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-              Foster community engagement, manage events, and build connections within the Beyblade community. 
-              Perfect for organizing social activities and community outreach programs.
+              Soon, the Community Manager will let any Beyblade community build their own hub within the app —
+              not just Ormoc. Each community will be able to host tournaments, track stats, 
+              and celebrate milestones while staying connected to the larger network. 
+              Perfect for growing local groups and strengthening bonds between bladers everywhere.
             </p>
 
             {/* Feature Preview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-pink-200">
                 <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Calendar size={24} className="text-pink-600" />
+                  <Users size={24} className="text-pink-600" />
                 </div>
-                <h3 className="font-bold text-pink-900 mb-2">Event Planning</h3>
-                <p className="text-pink-700 text-sm">Organize meetups, workshops, and social gatherings</p>
+                <h3 className="font-bold text-pink-900 mb-2">Local Hubs</h3>
+                <p className="text-pink-700 text-sm">Communities can set up their own space in the app</p>
               </div>
               
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-pink-200">
                 <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Star size={24} className="text-rose-600" />
+                  <Calendar size={24} className="text-rose-600" />
                 </div>
-                <h3 className="font-bold text-pink-900 mb-2">Member Recognition</h3>
-                <p className="text-pink-700 text-sm">Highlight achievements and celebrate milestones</p>
+                <h3 className="font-bold text-pink-900 mb-2">Tournaments</h3>
+                <p className="text-pink-700 text-sm">Run and track events within each community</p>
               </div>
               
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-pink-200">
                 <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Megaphone size={24} className="text-pink-600" />
+                  <Star size={24} className="text-pink-600" />
                 </div>
-                <h3 className="font-bold text-pink-900 mb-2">Community Outreach</h3>
-                <p className="text-pink-700 text-sm">Connect with new players and grow the community</p>
+                <h3 className="font-bold text-pink-900 mb-2">Member Recognition</h3>
+                <p className="text-pink-700 text-sm">Spotlight achievements and community milestones</p>
               </div>
 
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-pink-200">
                 <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <TrendingUp size={24} className="text-rose-600" />
                 </div>
-                <h3 className="font-bold text-pink-900 mb-2">Growth Analytics</h3>
-                <p className="text-pink-700 text-sm">Track community growth and engagement metrics</p>
+                <h3 className="font-bold text-pink-900 mb-2">Community Stats</h3>
+                <p className="text-pink-700 text-sm">Track growth, matches, and engagement</p>
               </div>
             </div>
 
@@ -70,33 +72,34 @@ export function CommunityManager() {
               <div className="space-y-2 text-sm text-pink-800 text-left">
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-pink-500 rounded-full mr-3"></span>
-                  Community event planning and management
+                  Create and manage your own community hub
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-pink-500 rounded-full mr-3"></span>
-                  Member spotlight and achievements system
+                  Community-specific tournaments and leaderboards
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-pink-500 rounded-full mr-3"></span>
-                  Community feedback and suggestion box
+                  Local community stats and growth analytics
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-pink-500 rounded-full mr-3"></span>
-                  Social media integration and sharing
+                  Recognition for members and organizers
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-pink-500 rounded-full mr-3"></span>
-                  Community growth and engagement analytics
+                  Community feedback and suggestion system
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-pink-500 rounded-full mr-3"></span>
-                  Welcome program for new members
+                  Tools to welcome and onboard new members
                 </div>
               </div>
             </div>
 
             <div className="mt-8 text-pink-600 text-sm">
-              Building stronger communities together! This feature is in active development.
+              From Ormoc to the world — every community will soon have its place here. 
+              This feature is in active development.
             </div>
           </div>
         </div>
