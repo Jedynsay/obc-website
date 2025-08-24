@@ -4,6 +4,7 @@ import { OverviewTab } from './Analytics/OverviewTab';
 import { PersonalStatsTab } from './Analytics/PersonalStatsTab';
 import { TournamentAnalysisTab } from './Analytics/TournamentAnalysisTab';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 export function Analytics() {
   const { user } = useAuth();
