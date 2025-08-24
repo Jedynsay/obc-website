@@ -843,7 +843,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               <div className="text-center md:text-left">
                 <h4 className="text-white font-bold text-lg mb-2">Ormoc Beyblade Club</h4>
                 <p className="text-slate-400">Building the future of competitive Beyblade in Ormoc</p>
-                <p className="text-slate-500 text-sm mt-1">Created by Jedynsay • Powered by Supabase</p>
+                <p className="text-slate-500 text-sm mt-1">Created by Jedynsay</p>
               </div>
               
               <div className="flex items-center space-x-6">
