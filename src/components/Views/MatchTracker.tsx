@@ -151,7 +151,6 @@ const MatchTracker = () => {
 
       if (error) throw error;
 
-      // Transform to expected format
       const playerDataMap: PlayerData = {};
       const playerBeybladeDataMap: PlayerBeybladeData = {};
       data?.forEach(registration => {
@@ -170,7 +169,6 @@ const MatchTracker = () => {
       setPlayerData(playerDataMap);
       setPlayerBeybladeData(playerBeybladeDataMap);
       
-      // Reset match tracker state when tournament changes
       resetMatchTracker();
     } catch (error) {
       console.error('Error fetching player data:', error);
