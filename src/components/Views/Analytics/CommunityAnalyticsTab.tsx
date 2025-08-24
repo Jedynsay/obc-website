@@ -5,13 +5,6 @@ export function CommunityAnalyticsTab() {
   return (
     <div className="page-container">
       <div className="content-wrapper">
-        <div className="page-header">
-          <h1 className="page-title flex items-center">
-            <Users size={32} className="mr-3 text-green-600" />
-            Community Analytics
-          </h1>
-          <p className="page-subtitle">Track and grow communities across the platform</p>
-        </div>
 
         {/* Coming Soon Card */}
         <div className="max-w-4xl mx-auto mb-12">
