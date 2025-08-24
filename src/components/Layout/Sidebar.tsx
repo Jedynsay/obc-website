@@ -175,6 +175,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
                   Created by Jedynsay
                 </h3>
               </div>
+              <p className="text-xs text-gray-600 font-inter mb-2">Powered by Supabase</p>
             </div>
           </div>
         )}
