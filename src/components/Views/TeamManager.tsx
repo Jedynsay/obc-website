@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Plus, Settings, Crown, UserPlus, UserMinus, Shield, MessageSquare, Heart, Star } from 'lucide-react';
+import { Users, Shield, BarChart3, Tag } from 'lucide-react';
 
 export function TeamManager() {
   return (
@@ -10,7 +10,7 @@ export function TeamManager() {
             <Users size={32} className="mr-3 text-purple-600" />
             Team Manager
           </h1>
-          <p className="page-subtitle">Create and manage competitive teams</p>
+          <p className="page-subtitle">Build your team and compete together</p>
         </div>
 
         {/* Team Manager Coming Soon Card */}
@@ -26,33 +26,35 @@ export function TeamManager() {
             </div>
             
             <p className="text-purple-800 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-              Create competitive teams, manage rosters, and coordinate team tournaments. 
+              Compete not just as players, but as teams. The Team Manager will bring 
+              team-based tournaments, performance analytics, and name tag customization 
+              so every blader can proudly represent their squad.
             </p>
 
             {/* Feature Preview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-purple-200">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Crown size={24} className="text-purple-600" />
+                  <Shield size={24} className="text-purple-600" />
                 </div>
-                <h3 className="font-bold text-purple-900 mb-2">Team Creation</h3>
-                <p className="text-purple-700 text-sm">Create teams with custom names, logos, and member roles</p>
+                <h3 className="font-bold text-purple-900 mb-2">Team Tournaments</h3>
+                <p className="text-purple-700 text-sm">Organize and battle in team vs team competitions</p>
               </div>
               
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-purple-200">
                 <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <UserPlus size={24} className="text-indigo-600" />
+                  <BarChart3 size={24} className="text-indigo-600" />
                 </div>
-                <h3 className="font-bold text-purple-900 mb-2">Member Management</h3>
-                <p className="text-purple-700 text-sm">Add, remove, and assign roles to team members</p>
+                <h3 className="font-bold text-purple-900 mb-2">Team Analytics</h3>
+                <p className="text-purple-700 text-sm">Track your team’s performance and stats</p>
               </div>
               
               <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-purple-200">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Shield size={24} className="text-purple-600" />
+                  <Tag size={24} className="text-purple-600" />
                 </div>
-                <h3 className="font-bold text-purple-900 mb-2">Team Tournaments</h3>
-                <p className="text-purple-700 text-sm">Organize and participate in team-based competitions</p>
+                <h3 className="font-bold text-purple-900 mb-2">Name Tags</h3>
+                <p className="text-purple-700 text-sm">Show off your team name on your profile</p>
               </div>
             </div>
 
@@ -61,15 +63,7 @@ export function TeamManager() {
               <div className="space-y-2 text-sm text-purple-800 text-left">
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                  Team creation and customization
-                </div>
-                <div className="flex items-center">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                  Member invitation system
-                </div>
-                <div className="flex items-center">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                  Team-based tournament registration
+                  Team vs team tournaments
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
@@ -77,17 +71,13 @@ export function TeamManager() {
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                  Role-based permissions
-                </div>
-                <div className="flex items-center">
-                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
-                  Showing off team name in your name tag
+                  Name tag integration for players
                 </div>
               </div>
             </div>
 
             <div className="mt-8 text-purple-600 text-sm">
-              Stay tuned for updates! This feature is in active development.
+              Team play is coming soon — get ready to represent your squad!
             </div>
           </div>
         </div>
