@@ -28,7 +28,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
     const success = await login(username, password);
     if (success) {
-      // Login successful - close modal and reset form
       setUsername('');
       setPassword('');
       setError('');
