@@ -83,6 +83,7 @@ export function TournamentManager() {
   }, [selectedTournament, currentView]);
 
   const fetchTournaments = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('tournaments')
@@ -93,6 +94,7 @@ export function TournamentManager() {
       setTournaments(data || []);
     } catch (error) {
       console.error('Error fetching tournaments:', error);
+      setTournaments([]);
     } finally {
       setLoading(false);
     }
@@ -512,7 +514,7 @@ export function TournamentManager() {
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                         className="input-field w-full pr-10"
-                        placeholder="Enter tournament password"
+                        placeholder="Enter tournament password (required for match tracking)"
                       />
                       <button
                         type="button"
