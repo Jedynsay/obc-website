@@ -401,124 +401,247 @@ export function TournamentManager() {
             {(isCreating || editingId) && (
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  {isCreating ? 'Create New Tournament' : 'Edit Tournament'}
+                  {isCreating ? "Create New Tournament" : "Edit Tournament"}
                 </h2>
-                
+            
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Tournament Name */}
                   <div>
-                    <label className="form-label">Tournament Name *</label>
+                    <label htmlFor="tournamentName" className="form-label">
+                      Tournament Name *
+                    </label>
                     <input
+                      id="tournamentName"
                       type="text"
+                      required
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       className="input-field w-full"
                       placeholder="Enter tournament name"
                     />
                   </div>
-
+            
+                  {/* Tournament Date */}
                   <div>
-                    <label className="form-label">Tournament Date *</label>
+                    <label htmlFor="tournamentDate" className="form-label">
+                      Tournament Date *
+                    </label>
                     <input
+                      id="tournamentDate"
                       type="date"
+                      required
                       value={formData.tournament_date}
-                      onChange={(e) => setFormData({...formData, tournament_date: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, tournament_date: e.target.value })
+                      }
                       className="input-field w-full"
                     />
                   </div>
-
+            
+                  {/* Location */}
                   <div>
-                    <label className="form-label">Location *</label>
+                    <label htmlFor="tournamentLocation" className="form-label">
+                      Location *
+                    </label>
                     <input
+                      id="tournamentLocation"
                       type="text"
+                      required
                       value={formData.location}
-                      onChange={(e) => setFormData({...formData, location: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, location: e.target.value })
+                      }
                       className="input-field w-full"
                       placeholder="Enter tournament location"
                     />
                   </div>
-
+            
+                  {/* Registration Deadline */}
                   <div>
-                    <label className="form-label">Registration Deadline *</label>
+                    <label htmlFor="registrationDeadline" className="form-label">
+                      Registration Deadline *
+                    </label>
                     <input
+                      id="registrationDeadline"
                       type="date"
+                      required
                       value={formData.registration_deadline}
-                      onChange={(e) => setFormData({...formData, registration_deadline: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          registration_deadline: e.target.value,
+                        })
+                      }
                       className="input-field w-full"
                     />
                   </div>
-
+            
+                  {/* Max Participants + Unlimited Toggle */}
                   <div>
-                    <label className="form-label">Max Participants</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={formData.max_participants}
-                      onChange={(e) => setFormData({...formData, max_participants: parseInt(e.target.value) || 16})}
-                      className="input-field w-full"
-                    />
+                    <label htmlFor="maxParticipants" className="form-label">
+                      Max Participants
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        id="maxParticipants"
+                        type="number"
+                        min="1"
+                        disabled={formData.unlimited_participants}
+                        value={
+                          formData.unlimited_participants
+                            ? ""
+                            : formData.max_participants ?? ""
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            max_participants:
+                              e.target.value === ""
+                                ? undefined
+                                : parseInt(e.target.value),
+                          })
+                        }
+                        className="input-field w-full"
+                      />
+                    </div>
+                    <div className="mt-2 flex items-center space-x-2">
+                      <input
+                        id="unlimitedParticipants"
+                        type="checkbox"
+                        checked={formData.unlimited_participants || false}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            unlimited_participants: e.target.checked,
+                            max_participants: e.target.checked
+                              ? 999999
+                              : formData.max_participants ?? undefined,
+                          })
+                        }
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="unlimitedParticipants"
+                        className="text-sm text-gray-700"
+                      >
+                        Unlimited Participants
+                      </label>
+                    </div>
                   </div>
-
+            
+                  {/* Beyblades per Player */}
                   <div>
-                    <label className="form-label">Beyblades per Player</label>
+                    <label htmlFor="beybladesPerPlayer" className="form-label">
+                      Beyblades per Player
+                    </label>
                     <input
+                      id="beybladesPerPlayer"
                       type="number"
                       min="1"
                       max="5"
-                      value={formData.beyblades_per_player}
-                      onChange={(e) => setFormData({...formData, beyblades_per_player: parseInt(e.target.value) || 3})}
+                      required
+                      value={formData.beyblades_per_player ?? ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          beyblades_per_player:
+                            e.target.value === ""
+                              ? undefined
+                              : parseInt(e.target.value),
+                        })
+                      }
                       className="input-field w-full"
                     />
                   </div>
-
+            
+                  {/* Tournament Type */}
                   <div>
-                    <label className="form-label">Tournament Type</label>
+                    <label htmlFor="tournamentType" className="form-label">
+                      Tournament Type
+                    </label>
                     <select
+                      id="tournamentType"
                       value={formData.tournament_type}
-                      onChange={(e) => setFormData({...formData, tournament_type: e.target.value as 'ranked' | 'casual'})}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          tournament_type: e.target.value as "ranked" | "casual",
+                        })
+                      }
                       className="select-field w-full"
                     >
                       <option value="casual">Casual</option>
                       <option value="ranked">Ranked</option>
                     </select>
                   </div>
-
+            
+                  {/* Entry Fee */}
                   <div>
                     <label className="form-label">Entry Fee</label>
                     <div className="flex items-center space-x-2">
                       <input
+                        id="freeTournament"
                         type="checkbox"
                         checked={formData.is_free}
-                        onChange={(e) => setFormData({...formData, is_free: e.target.checked, entry_fee: e.target.checked ? 0 : formData.entry_fee})}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            is_free: e.target.checked,
+                            entry_fee: e.target.checked ? 0 : formData.entry_fee ?? 0,
+                          })
+                        }
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-700">Free Tournament</span>
+                      <label htmlFor="freeTournament" className="text-sm text-gray-700">
+                        Free Tournament
+                      </label>
                     </div>
                     {!formData.is_free && (
                       <input
                         type="number"
                         min="0"
                         step="0.01"
-                        value={formData.entry_fee}
-                        onChange={(e) => setFormData({...formData, entry_fee: parseFloat(e.target.value) || 0})}
+                        value={formData.entry_fee ?? ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            entry_fee:
+                              e.target.value === ""
+                                ? undefined
+                                : parseFloat(e.target.value),
+                          })
+                        }
                         className="input-field w-full mt-2"
                         placeholder="0.00"
                       />
                     )}
                   </div>
-
+            
+                  {/* Password */}
                   <div className="md:col-span-2">
-                    <label className="form-label">Tournament Password *</label>
+                    <label htmlFor="tournamentPassword" className="form-label">
+                      Tournament Password *
+                    </label>
                     <div className="relative">
                       <input
+                        id="tournamentPassword"
                         type={showPassword ? "text" : "password"}
+                        required
                         value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
                         className="input-field w-full pr-10"
                         placeholder="Enter tournament password"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowPassword(!showPassword);
+                        }}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -528,32 +651,46 @@ export function TournamentManager() {
                       This password will be required for match tracking access
                     </p>
                   </div>
-
+            
+                  {/* Description */}
                   <div className="md:col-span-2">
-                    <label className="form-label">Description</label>
+                    <label htmlFor="tournamentDescription" className="form-label">
+                      Description
+                    </label>
                     <textarea
+                      id="tournamentDescription"
                       value={formData.description}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
                       className="input-field w-full"
                       rows={3}
                       placeholder="Tournament description (optional)"
                     />
                   </div>
-
+            
+                  {/* Prize Pool */}
                   <div className="md:col-span-2">
-                    <label className="form-label">Prize Pool</label>
+                    <label htmlFor="prizePool" className="form-label">
+                      Prize Pool
+                    </label>
                     <input
+                      id="prizePool"
                       type="text"
                       value={formData.prize_pool}
-                      onChange={(e) => setFormData({...formData, prize_pool: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, prize_pool: e.target.value })
+                      }
                       className="input-field w-full"
                       placeholder="e.g., ₱500 cash prize"
                     />
                   </div>
                 </div>
-
+            
+                {/* Action Buttons */}
                 <div className="flex justify-end space-x-3 mt-6">
                   <button
+                    type="button"
                     onClick={cancelEdit}
                     className="secondary-button flex items-center space-x-2"
                   >
@@ -561,6 +698,7 @@ export function TournamentManager() {
                     <span>Cancel</span>
                   </button>
                   <button
+                    type="button"
                     onClick={saveTournament}
                     className="primary-button flex items-center space-x-2"
                   >
@@ -570,6 +708,7 @@ export function TournamentManager() {
                 </div>
               </div>
             )}
+
 
             {/* Tournaments List */}
             {tournaments.length === 0 ? (
