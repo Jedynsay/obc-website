@@ -373,7 +373,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                   <div className="flex items-center space-x-2">
                     <UserCheck size={16} className="text-blue-600" />
                     <span className="text-sm font-medium text-blue-900">
-                      Registering for myself ({user.username})
+                      Register for self? Player name entry should be same as your account username to view your own personal stats. ({user.username})
                     </span>
                   </div>
                 </label>
