@@ -102,6 +102,11 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       matches.forEach(match => {
         const { player1_name, player2_name, winner_name } = match;
         
+        // Use normalized names for consistent tracking
+        const normalizedPlayer1 = match.normalized_player1_name || match.player1_name.toLowerCase();
+        const normalizedPlayer2 = match.normalized_player2_name || match.player2_name.toLowerCase();
+        const normalizedWinner = match.normalized_winner_name || match.winner_name.toLowerCase();
+        
         // Initialize players if not exists
         if (!playerStats[player1_name]) {
           playerStats[player1_name] = { wins: 0, total: 0, tournaments: new Set() };
