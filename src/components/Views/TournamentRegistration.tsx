@@ -361,6 +361,10 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
               <h3 className="text-lg font-semibold text-blue-900">Player Information</h3>
             </div>
 
+                  <label htmlFor="paymentMode" className="block text-sm font-medium text-gray-700 mb-1">
+                  Register your account to see personal stats across multiple tournaments
+                  </label>
+
             {user && !user.id.startsWith('guest-') && (
               <div className="mb-4 p-3 bg-white rounded-lg border border-blue-200">
                 <label className="flex items-center space-x-3 cursor-pointer">
@@ -420,9 +424,6 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
               </div>
 
             </div>
-                              <label htmlFor="paymentMode" className="block text-sm font-medium text-gray-700 mb-1">
-                  Register your account to see personal stats across multiple tournaments
-                  </label>
           </div>
 
           {/* Deck Presets Section */}
