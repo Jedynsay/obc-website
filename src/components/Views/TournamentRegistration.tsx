@@ -489,7 +489,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                   {/* Custom Line Toggle for this Beyblade */}
                   <div className="flex items-center space-x-2">
                     <span className={`text-xs font-medium ${!beyblade.isCustomLine ? 'text-purple-900' : 'text-purple-600'}`}>
-                      Standard
+                      Standard Line
                     </span>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -507,7 +507,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                       </div>
                     </label>
                     <span className={`text-xs font-medium ${beyblade.isCustomLine ? 'text-purple-900' : 'text-purple-600'}`}>
-                      Custom
+                      Custom Line
                     </span>
                   </div>
                   {beyblades.length > 1 && (
