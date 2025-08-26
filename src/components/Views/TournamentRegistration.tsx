@@ -18,7 +18,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   const [paymentMode, setPaymentMode] = useState<'free' | 'cash' | 'gcash' | 'bank_transfer'>(
     tournament.is_free ? 'free' : 'cash'
   );
-  const [beyblades, setBeyblades] = useState([{ id: '1', bladeLine: '', parts: {} }]);
+  const [beyblades, setBeyblades] = useState([{ id: '1', isCustomLine: false, parts: {} }]);
   const [deckPresets, setDeckPresets] = useState<any[]>([]);
   const [selectedPreset, setSelectedPreset] = useState('');
   const [registeringForSelf, setRegisteringForSelf] = useState(false);
@@ -112,25 +112,20 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   };
 
   const getRequiredParts = (bladeLine: string): string[] => {
-    switch (bladeLine) {
-      case 'Basic':
-      case 'Unique':
-      case 'X-Over':
-        return ['Blade', 'Ratchet', 'Bit'];
-      case 'Custom':
-        return ['Lockchip', 'Main Blade', 'Assist Blade', 'Ratchet', 'Bit'];
-      default:
-        return [];
-    }
+    return bladeLine === 'Custom'
+      ? ['Lockchip', 'Main Blade', 'Assist Blade', 'Ratchet', 'Bit']
+      : ['Blade', 'Ratchet', 'Bit'];
   };
 
-  const getPartOptions = (bladeLine: string, partType: string) => {
+  const getPartOptions = (partType: string) => {
     let options: any[] = [];
     switch (partType) {
       case 'Blade':
-        options = partsData.blades.filter(blade => blade.Line === bladeLine);
+        // Filter out Custom line blades for standard builds
+        options = partsData.blades.filter(blade => blade.Line !== 'Custom');
         break;
       case 'Main Blade':
+        // Only Custom line blades for custom builds
         options = partsData.blades.filter(blade => blade.Line === 'Custom');
         break;
       case 'Ratchet':
@@ -168,9 +163,9 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   };
 
   const generateBeybladeName = (beyblade: any) => {
-    const requiredParts = getRequiredParts(beyblade.bladeLine);
+    const requiredParts = getRequiredParts(beyblade.isCustomLine ? 'Custom' : 'Basic');
     if (!requiredParts.every(p => beyblade.parts[p])) return '';
-    if (beyblade.bladeLine === 'Custom') {
+    if (beyblade.isCustomLine) {
       const { Lockchip, 'Main Blade': MainBlade, 'Assist Blade': AssistBlade, Ratchet, Bit } = beyblade.parts;
       return `${Lockchip?.Lockchip || ''}${MainBlade?.Blades || ''} ${AssistBlade?.['Assist Blade'] || ''}${Ratchet?.Ratchet || ''}${Bit?.Shortcut || ''}`;
     } else {
@@ -198,7 +193,8 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   const updateBeyblade = (id: string, field: string, value: any) => {
     setBeyblades(beyblades.map(b => {
       if (b.id === id) {
-        if (field === 'bladeLine') {
+        if (field === 'isCustomLine') {
+          // Clear parts when switching blade line type
           return { ...b, [field]: value, parts: {} };
         }
         return { ...b, [field]: value };
@@ -226,11 +222,16 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   const loadPreset = (presetId: string) => {
     const preset = deckPresets.find(p => p.id === presetId);
     if (!preset) return;
+    
+    // Determine if preset uses custom line by checking first beyblade
+    const firstBey = preset.beyblades[0];
+    const hasCustomParts = firstBey && (firstBey.parts.Lockchip || firstBey.parts['Main Blade'] || firstBey.parts['Assist Blade']);
+    
     const presetBeyblades = preset.beyblades
       .slice(0, tournament.beyblades_per_player)
       .map((bey: any, index: number) => ({
         id: (index + 1).toString(),
-        bladeLine: bey.blade_line,
+        isCustomLine: hasCustomParts,
         parts: bey.parts
       }));
     setBeyblades(presetBeyblades);
@@ -242,8 +243,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
     const normalizedName = playerName.toLowerCase().trim();
     if (existingPlayerNames.includes(normalizedName)) return false;
     return beyblades.every(bey => {
-      if (!bey.bladeLine) return false;
-      const requiredParts = getRequiredParts(bey.bladeLine);
+      const requiredParts = getRequiredParts(bey.isCustomLine ? 'Custom' : 'Basic');
       return requiredParts.every(partType => bey.parts[partType]);
     });
   };
@@ -279,12 +279,14 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
 
       for (const beyblade of beyblades) {
         const beyName = generateBeybladeName(beyblade);
+        const bladeLine = beyblade.isCustomLine ? 'Custom' : 'Basic';
+        
         const { data: beyData, error: beyError } = await supabase
           .from('tournament_beyblades')
           .insert({
             registration_id: registration.id,
             beyblade_name: beyName,
-            blade_line: beyblade.bladeLine
+            blade_line: bladeLine
           })
           .select()
           .single();
@@ -477,51 +479,57 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
             </div>
           )}
 
+          {/* Custom Line Toggle */}
           {/* Beyblade Configuration Cards */}
           {beyblades.map((beyblade, index) => (
             <div key={beyblade.id} className="border border-gray-200 rounded-lg p-4 sm:p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Beyblade #{index + 1}</h3>
-                {beyblades.length > 1 && (
-                  <button onClick={() => removeBeyblade(beyblade.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-full">
-                    <Trash2 size={16} />
-                  </button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Blade Line *
-                  </label>
-                  <select
-                    value={beyblade.bladeLine}
-                    onChange={(e) => updateBeyblade(beyblade.id, 'bladeLine', e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Blade Line</option>
-                    <option value="Basic">Basic</option>
-                    <option value="Unique">Unique</option>
-                    <option value="Custom">Custom</option>
-                    <option value="X-Over">X-Over</option>
-                  </select>
-                </div>
-
-                {beyblade.bladeLine && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Generated Name
+                <div className="flex items-center space-x-2">
+                  {/* Custom Line Toggle for this Beyblade */}
+                  <div className="flex items-center space-x-2">
+                    <span className={`text-xs font-medium ${!beyblade.isCustomLine ? 'text-purple-900' : 'text-purple-600'}`}>
+                      Standard
+                    </span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={beyblade.isCustomLine}
+                        onChange={(e) => updateBeyblade(beyblade.id, 'isCustomLine', e.target.checked)}
+                        className="sr-only"
+                      />
+                      <div className={`w-8 h-4 rounded-full transition-colors ${
+                        beyblade.isCustomLine ? 'bg-purple-600' : 'bg-gray-300'
+                      }`}>
+                        <div className={`w-3 h-3 bg-white rounded-full shadow transform transition-transform ${
+                          beyblade.isCustomLine ? 'translate-x-4' : 'translate-x-0'
+                        } mt-0.5 ml-0.5`}></div>
+                      </div>
                     </label>
-                    <div className="border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-sm font-mono">
-                      {generateBeybladeName(beyblade) || 'Select all parts to generate name'}
-                    </div>
+                    <span className={`text-xs font-medium ${beyblade.isCustomLine ? 'text-purple-900' : 'text-purple-600'}`}>
+                      Custom
+                    </span>
                   </div>
-                )}
+                  {beyblades.length > 1 && (
+                    <button onClick={() => removeBeyblade(beyblade.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-full">
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {beyblade.bladeLine && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Generated Name
+                </label>
+                <div className="border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-sm font-mono">
+                  {generateBeybladeName(beyblade) || 'Select all parts to generate name'}
+                </div>
+              </div>
+
+              <div className="mb-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {getRequiredParts(beyblade.bladeLine).map((partType) => (
+                  {getRequiredParts(beyblade.isCustomLine ? 'Custom' : 'Basic').map((partType) => (
                     <div key={partType}>
                       <label className="block text-sm font-medium mb-1">
                         {partType} *
@@ -532,7 +540,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                         className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">Select {partType}</option>
-                        {getPartOptions(beyblade.bladeLine, partType).map((part: any, idx) => (
+                        {getPartOptions(partType).map((part: any, idx) => (
                           <option key={idx} value={JSON.stringify(part)}>
                             {getPartDisplayName(part, partType)}
                           </option>
@@ -541,9 +549,9 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
 
-              {beyblade.bladeLine && Object.keys(beyblade.parts).length > 0 && (
+              {Object.keys(beyblade.parts).length > 0 && (
                 <StatBar stats={calculateStats(beyblade.parts)} />
               )}
             </div>
@@ -551,7 +559,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
 
           {beyblades.length < tournament.beyblades_per_player && (
             <button
-              onClick={() => setBeyblades([...beyblades, { id: Date.now().toString(), bladeLine: '', parts: {} }])}
+              onClick={() => setBeyblades([...beyblades, { id: Date.now().toString(), isCustomLine: false, parts: {} }])}
               className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-600 hover:border-blue-400 hover:text-blue-600 flex items-center justify-center space-x-2"
             >
               <Plus size={20} />
