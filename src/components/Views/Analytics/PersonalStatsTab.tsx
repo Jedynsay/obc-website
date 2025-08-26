@@ -4,6 +4,40 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../context/AuthContext';
 
+interface DevPlayerSelectorProps {
+  selectedPlayer: string;
+  onPlayerChange: (player: string) => void;
+  availablePlayers: string[];
+}
+
+function DevPlayerSelector({ selectedPlayer, onPlayerChange, availablePlayers }: DevPlayerSelectorProps) {
+  return (
+    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">
+      <div className="flex items-center mb-3">
+        <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center mr-2">
+          <span className="text-white text-xs font-bold">D</span>
+        </div>
+        <h3 className="text-lg font-bold text-red-900">Developer Mode</h3>
+      </div>
+      <div className="max-w-md">
+        <label className="block text-sm font-medium text-red-800 mb-2">
+          View Personal Stats for Player:
+        </label>
+        <select
+          value={selectedPlayer}
+          onChange={(e) => onPlayerChange(e.target.value)}
+          className="w-full border border-red-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          <option value="">-- Select Player --</option>
+          {availablePlayers.map(player => (
+            <option key={player} value={player}>{player}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
+
 interface PersonalCombo {
   combo: string;
   wins: number;
@@ -54,6 +88,8 @@ const FINISH_COLORS = {
 
 export function PersonalStatsTab() {
   const { user } = useAuth();
+  const [devSelectedPlayer, setDevSelectedPlayer] = useState<string>('');
+  const [availablePlayers, setAvailablePlayers] = useState<string[]>([]);
   const [personalCombos, setPersonalCombos] = useState<PersonalCombo[]>([]);
   const [bladeLinePerformance, setBladeLinePerformance] = useState<BladeLinePerformance[]>([]);
   const [tournamentHistory, setTournamentHistory] = useState<TournamentPerformance[]>([]);
@@ -62,16 +98,40 @@ export function PersonalStatsTab() {
   const [loading, setLoading] = useState(true);
   const [selectedCombo, setSelectedCombo] = useState<string>('');
 
+  const isDeveloper = user?.role === 'developer';
+  const targetPlayer = isDeveloper && devSelectedPlayer ? devSelectedPlayer : user?.username;
+
   useEffect(() => {
-    if (user && !user.id.startsWith('guest-')) {
-      fetchPersonalStats();
+    if (isDeveloper) {
+      fetchAvailablePlayers();
+    }
+    if (targetPlayer) {
+      fetchPersonalStats(targetPlayer);
     } else {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, devSelectedPlayer]);
 
-  const fetchPersonalStats = async () => {
-    if (!user || user.id.startsWith('guest-')) {
+  const fetchAvailablePlayers = async () => {
+    try {
+      const { data: matches } = await supabase
+        .from('match_results')
+        .select('player1_name, player2_name');
+      
+      const playerSet = new Set<string>();
+      matches?.forEach(match => {
+        if (match.player1_name) playerSet.add(match.player1_name);
+        if (match.player2_name) playerSet.add(match.player2_name);
+      });
+      
+      setAvailablePlayers(Array.from(playerSet).sort());
+    } catch (error) {
+      console.error('Error fetching available players:', error);
+    }
+  };
+
+  const fetchPersonalStats = async (playerName: string) => {
+    if (!playerName) {
       setLoading(false);
       return;
     }
@@ -81,7 +141,7 @@ export function PersonalStatsTab() {
       const { data: userMatches, error: matchError } = await supabase
         .from('match_results')
         .select('*')
-        .or(`player1_name.eq.${user.username},player2_name.eq.${user.username}`);
+        .or(`normalized_player1_name.eq.${playerName.toLowerCase()},normalized_player2_name.eq.${playerName.toLowerCase()}`);
 
       if (matchError) throw matchError;
 
@@ -105,8 +165,9 @@ export function PersonalStatsTab() {
       }, {} as { [id: string]: { name: string; date: string } });
 
       // Process personal data
-      const comboStats: { [combo: string]: PersonalCombo } = {};
-      const bladeLineStats: { [line: string]: BladeLinePerformance } = {};
+        const normalizedPlayerName = playerName.toLowerCase();
+        const isPlayer1 = match.normalized_player1_name === normalizedPlayerName;
+        const isWinner = match.normalized_winner_name === normalizedPlayerName;
       const tournamentStats: { [id: string]: TournamentPerformance } = {};
       const finishCounts: { [finish: string]: number } = {};
       const pointsPerFinishMap: { [finish: string]: number } = {};
@@ -114,8 +175,8 @@ export function PersonalStatsTab() {
       matches.forEach(match => {
         if (!match.winner_name) return;
 
-        const isPlayer1 = match.player1_name === user.username;
-        const isWinner = match.winner_name === user.username;
+        const isPlayer1 = match.player1_name === playerName;
+        const isWinner = match.winner_name === playerName;
         const userBeyblade = isPlayer1 ? match.player1_beyblade : match.player2_beyblade;
         const userBladeLine = isPlayer1 ? match.player1_blade_line : match.player2_blade_line;
         const outcome = match.outcome?.split(' (')[0] || 'Unknown';
@@ -262,21 +323,34 @@ export function PersonalStatsTab() {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading your personal stats...</p>
+        <p className="text-gray-600">Loading personal stats...</p>
       </div>
     );
   }
 
-  if (personalCombos.length === 0) {
+  if (!targetPlayer || personalCombos.length === 0) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Trophy size={32} className="text-gray-400" />
+      <div className="space-y-6">
+        {isDeveloper && (
+          <DevPlayerSelector
+            selectedPlayer={devSelectedPlayer}
+            onPlayerChange={setDevSelectedPlayer}
+            availablePlayers={availablePlayers}
+          />
+        )}
+        
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trophy size={32} className="text-gray-400" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">No Match History</h3>
+          <p className="text-gray-600">
+            {isDeveloper && devSelectedPlayer 
+              ? `${devSelectedPlayer} hasn't participated in any recorded matches yet.`
+              : "You haven't participated in any recorded matches yet. Join a tournament to start building your statistics!"
+            }
+          </p>
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">No Match History</h3>
-        <p className="text-gray-600">
-          You haven't participated in any recorded matches yet. Join a tournament to start building your statistics!
-        </p>
       </div>
     );
   }
@@ -285,6 +359,15 @@ export function PersonalStatsTab() {
 
   return (
     <div className="space-y-8">
+      {/* Developer Player Selector */}
+      {isDeveloper && (
+        <DevPlayerSelector
+          selectedPlayer={devSelectedPlayer}
+          onPlayerChange={setDevSelectedPlayer}
+          availablePlayers={availablePlayers}
+        />
+      )}
+      
       {/* Personal Performance Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="metric-card">
@@ -402,25 +485,25 @@ export function PersonalStatsTab() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Combo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Blade Line
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Matches
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Weighted Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Avg Points
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Combo Score
                 </th>
               </tr>
@@ -528,22 +611,22 @@ export function PersonalStatsTab() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Blade Line
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Matches
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Wins
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Avg Points
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Risk/Reward
                 </th>
               </tr>
@@ -596,25 +679,25 @@ export function PersonalStatsTab() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Tournament
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Date
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Matches
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Wins
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Total Points
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Avg Points
                 </th>
               </tr>
@@ -658,7 +741,9 @@ export function PersonalStatsTab() {
       {/* MVP Combo Spotlight */}
       {personalCombos.length > 0 && (
         <div className="chart-container">
-          <h3 className="chart-title">Your MVP Combo</h3>
+          <h3 className="chart-title">
+            {isDeveloper && devSelectedPlayer ? `${devSelectedPlayer}'s MVP Combo` : 'Your MVP Combo'}
+          </h3>
           <div className="text-center py-8">
             <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trophy size={40} className="text-white" />
