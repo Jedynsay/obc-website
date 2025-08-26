@@ -3,6 +3,7 @@ import { X, Plus, User, UserCheck, Layers, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
 import { StatBar } from './StatBar';
+import { supabase } from '../../lib/supabase';
 
 interface TournamentRegistrationProps {
   tournament: any;
