@@ -364,7 +364,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
             {(!user || user.id.startsWith('guest-')) && (
               <div className="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-300">
                 <p className="text-sm font-medium text-yellow-800">
-                  Register your account to see personal stats across multiple tournaments.
+                  Register your account to see personal stats across multiple tournaments. Tournament entry player name should be the same as account username to view personal stats.
                 </p>
               </div>
             )}
