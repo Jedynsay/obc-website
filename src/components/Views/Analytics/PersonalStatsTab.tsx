@@ -165,9 +165,9 @@ export function PersonalStatsTab() {
       }, {} as { [id: string]: { name: string; date: string } });
 
       // Process personal data
-        const isPlayer1 = match.player1_name === playerName;
-        const isWinner = match.winner_name === playerName;
       const tournamentStats: { [id: string]: TournamentPerformance } = {};
+      const comboStats: { [combo: string]: PersonalCombo } = {};
+      const bladeLineStats: { [bladeLine: string]: BladeLinePerformance } = {};
       const finishCounts: { [finish: string]: number } = {};
       const pointsPerFinishMap: { [finish: string]: number } = {};
 
@@ -447,18 +447,32 @@ export function PersonalStatsTab() {
           </ResponsiveContainer>
         </div>
 
-        {/* Points Per Finish Type */}
+        {/* Points Per Finish Type with Values */}
         <div className="chart-container">
           <h3 className="chart-title">Points Per Finish Type</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={pointsPerFinish}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="finish" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="points" fill="#3B82F6" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={pointsPerFinish}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="finish" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="points" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 mb-4">Points Breakdown</h4>
+              <div className="space-y-3">
+                {pointsPerFinish.map((finish) => (
+                  <div key={finish.finish} className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">{finish.finish}:</span>
+                    <span className="text-lg font-bold text-blue-600">{finish.points}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -603,73 +617,6 @@ export function PersonalStatsTab() {
         )}
       </div>
 
-      {/* Blade Line Performance */}
-      <div className="chart-container">
-        <h3 className="chart-title">Performance by Blade Line</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                  Blade Line
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                  Matches
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                  Wins
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                  Win Rate
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                  Avg Points
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                  Risk/Reward
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {bladeLinePerformance.map((bladeLine, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      bladeLine.bladeLine === 'Basic' ? 'bg-blue-100 text-blue-800' :
-                      bladeLine.bladeLine === 'Unique' ? 'bg-purple-100 text-purple-800' :
-                      bladeLine.bladeLine === 'Custom' ? 'bg-orange-100 text-orange-800' :
-                      bladeLine.bladeLine === 'X-Over' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {bladeLine.bladeLine}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {bladeLine.matches}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {bladeLine.wins}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                    <span className={`font-medium ${
-                      bladeLine.winRate >= 60 ? 'text-green-600' :
-                      bladeLine.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
-                    }`}>
-                      {bladeLine.winRate.toFixed(1)}%
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {bladeLine.avgPoints.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {bladeLine.riskReward.toFixed(1)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
       {/* Tournament History */}
       <div className="chart-container">

@@ -699,7 +699,7 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Phase</th>
+                      <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Match</th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Matches</th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
@@ -731,7 +731,7 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
 
       {/* Head-to-Head */}
