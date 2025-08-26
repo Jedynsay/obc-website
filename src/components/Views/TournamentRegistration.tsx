@@ -630,3 +630,5 @@ export default function TournamentRegistration({ tournament, onClose }: Tourname
     </div>
   );
 }
+
+export default TournamentRegistration;
