@@ -360,11 +360,12 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
               <User className="text-blue-600 mr-2" size={20} />
               <h3 className="text-lg font-semibold text-blue-900">Player Information</h3>
             </div>
-           <div className="flex items-center mb-4">
-                  <label htmlFor="paymentMode" className="block text-sm font-medium text-gray-700 mb-1">
+            
+            <div className="flex items-center mb-4">
+              <label htmlFor="paymentMode" className="block text-sm font-medium text-gray-700 mb-1">
                   Register your account to see personal stats across multiple tournaments
-                  </label>
-                         </div>
+              </label>
+            </div>
 
             {user && !user.id.startsWith('guest-') && (
               <div className="mb-4 p-3 bg-white rounded-lg border border-blue-200">
