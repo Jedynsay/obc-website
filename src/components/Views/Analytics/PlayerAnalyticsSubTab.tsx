@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Trophy, Target, TrendingUp, Eye, Search, X } from 'lucide-react';
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { supabase } from '../../../lib/supabase';
 
 interface PlayerAnalyticsSubTabProps {
@@ -64,70 +64,53 @@ const FINISH_POINTS = {
 
 const FINISH_TYPES = ['Spin Finish', 'Burst Finish', 'Over Finish', 'Extreme Finish'];
 
+/* -------------------- ShowAllModal -------------------- */
 function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: ShowAllModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
-
   const filteredData = data.filter(row => 
-    columns.some(col => 
-      String(row[col.key] || '').toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    columns.some(col => String(row[col.key] || '').toLowerCase().includes(searchTerm.toLowerCase()))
   );
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">{title}</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors"
-            >
-              <X size={24} />
-            </button>
-          </div>
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white flex justify-between items-center">
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full">
+            <X size={24} />
+          </button>
         </div>
-
         <div className="p-6">
-          <div className="mb-4">
-            <div className="relative">
-              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+          <div className="mb-4 relative">
+            <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-
           <div className="overflow-auto max-h-[60vh]">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
                   {columns.map(col => (
-                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {col.label}
-                    </th>
+                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{col.label}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredData.map((row, index) => (
-                  <tr 
-                    key={index} 
-                    className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
-                    onClick={() => onRowClick?.(row)}
-                  >
+                  <tr key={index} className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick?.(row)}>
                     {columns.map(col => (
-                      <td key={col.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {typeof row[col.key] === 'number' ? 
-                          (col.key.includes('Rate') || col.key.includes('Score') ? 
-                            row[col.key].toFixed(1) : row[col.key]) : 
-                          String(row[col.key] || '')}
+                      <td key={col.key} className="px-6 py-4 text-sm text-gray-900">
+                        {typeof row[col.key] === 'number'
+                          ? (col.key.includes('Rate') || col.key.includes('Score'))
+                            ? row[col.key].toFixed(1)
+                            : row[col.key]
+                          : String(row[col.key] || '')}
                       </td>
                     ))}
                   </tr>
@@ -141,47 +124,39 @@ function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: Sho
   );
 }
 
+/* -------------------- MatchDetailsModal -------------------- */
 function MatchDetailsModal({ isOpen, onClose, title, matches }: MatchDetailsModalProps) {
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        <div className="bg-gradient-to-r from-green-500 to-blue-500 px-6 py-4 text-white">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">{title}</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors"
-            >
-              <X size={24} />
-            </button>
-          </div>
+        <div className="bg-gradient-to-r from-green-500 to-blue-500 px-6 py-4 text-white flex justify-between items-center">
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full">
+            <X size={24} />
+          </button>
         </div>
-
         <div className="p-6 overflow-auto max-h-[60vh]">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Result</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Player 1</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Player 2</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Winner</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Finish Type</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Points</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {matches.map((match, index) => (
                 <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    Match {index + 1}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player1_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player2_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.points_awarded}</td>
+                  <td className="px-6 py-4 text-sm font-medium">Match {index + 1}</td>
+                  <td className="px-6 py-4 text-sm">{match.player1_name}</td>
+                  <td className="px-6 py-4 text-sm">{match.player2_name}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-green-600">{match.winner_name}</td>
+                  <td className="px-6 py-4 text-sm">{match.outcome}</td>
+                  <td className="px-6 py-4 text-sm">{match.points_awarded}</td>
                 </tr>
               ))}
             </tbody>
@@ -192,37 +167,29 @@ function MatchDetailsModal({ isOpen, onClose, title, matches }: MatchDetailsModa
   );
 }
 
+/* -------------------- Main Component -------------------- */
 export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerAnalyticsSubTabProps) {
   const [players, setPlayers] = useState<{ [name: string]: PlayerData }>({});
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
   const [headToHead, setHeadToHead] = useState<HeadToHeadData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAllModal, setShowAllModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    data: any[];
-    columns: { key: string; label: string }[];
-    onRowClick?: (row: any) => void;
-  }>({
+
+  // Modals
+  const [showAllModal, setShowAllModal] = useState({
     isOpen: false,
     title: '',
-    data: [],
-    columns: []
+    data: [] as any[],
+    columns: [] as { key: string; label: string }[],
+    onRowClick: undefined as ((row: any) => void) | undefined,
   });
-  const [matchDetailsModal, setMatchDetailsModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    matches: any[];
-  }>({
+  const [matchDetailsModal, setMatchDetailsModal] = useState({
     isOpen: false,
     title: '',
-    matches: []
+    matches: [] as any[],
   });
 
   useEffect(() => {
-    if (tournamentId) {
-      fetchPlayerAnalytics();
-    }
+    if (tournamentId) fetchPlayerAnalytics();
   }, [tournamentId]);
 
   const calculateWeightedWinRate = (wins: number, totalMatches: number): number => {
@@ -238,26 +205,22 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
         .eq('tournament_id', tournamentId);
 
       if (error) throw error;
-
       const allMatches = matches || [];
-      
       if (allMatches.length === 0) {
         setIsLoading(false);
         return;
       }
 
-      // Process player data
       const playersMap: { [name: string]: PlayerData } = {};
       const h2hMap: { [key: string]: HeadToHeadData } = {};
 
+      /* ----- Process Matches ----- */
       allMatches.forEach(match => {
         if (!match.winner_name || !match.player1_name || !match.player2_name) return;
-
         const outcome = match.outcome?.split(' (')[0] || 'Unknown';
         const points = match.points_awarded || FINISH_POINTS[outcome as keyof typeof FINISH_POINTS] || 0;
         const phase = match.phase_number || 1;
 
-        // Initialize players
         [match.player1_name, match.player2_name].forEach(playerName => {
           if (!playersMap[playerName]) {
             playersMap[playerName] = {
@@ -284,206 +247,182 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
           }
         });
 
-        // Store all matches for each player
+        // Store all matches
         playersMap[match.player1_name].allMatches.push(match);
         playersMap[match.player2_name].allMatches.push(match);
 
-        // Update player stats
         const winner = playersMap[match.winner_name];
         const loser = playersMap[match.winner_name === match.player1_name ? match.player2_name : match.player1_name];
         const winnerBeyblade = match.winner_name === match.player1_name ? match.player1_beyblade : match.player2_beyblade;
         const loserBeyblade = match.winner_name === match.player1_name ? match.player2_beyblade : match.player1_beyblade;
 
+        // Winner stats
         winner.matches++;
         winner.wins++;
         winner.totalPoints += points;
         winner.finishDistribution[outcome] = (winner.finishDistribution[outcome] || 0) + 1;
-        
-        // Track wins by finish for each beyblade
-        if (!winner.winsByFinish[winnerBeyblade]) {
-          winner.winsByFinish[winnerBeyblade] = {};
-        }
+        if (!winner.winsByFinish[winnerBeyblade]) winner.winsByFinish[winnerBeyblade] = {};
         winner.winsByFinish[winnerBeyblade][outcome] = (winner.winsByFinish[winnerBeyblade][outcome] || 0) + 1;
-        
-        // Track points gained by beyblade
         winner.pointsGainedByBey[winnerBeyblade] = (winner.pointsGainedByBey[winnerBeyblade] || 0) + points;
-        
-        if (!winner.phasePerformance[phase]) {
-          winner.phasePerformance[phase] = { wins: 0, matches: 0, points: 0 };
-        }
+        if (!winner.phasePerformance[phase]) winner.phasePerformance[phase] = { wins: 0, matches: 0, points: 0 };
         winner.phasePerformance[phase].wins++;
         winner.phasePerformance[phase].matches++;
         winner.phasePerformance[phase].points += points;
 
+        // Loser stats
         loser.matches++;
         loser.losses++;
         loser.finishDistribution[outcome] = (loser.finishDistribution[outcome] || 0) + 1;
-        
-        // Track losses by finish for each beyblade
-        if (!loser.lossesByFinish[loserBeyblade]) {
-          loser.lossesByFinish[loserBeyblade] = {};
-        }
+        if (!loser.lossesByFinish[loserBeyblade]) loser.lossesByFinish[loserBeyblade] = {};
         loser.lossesByFinish[loserBeyblade][outcome] = (loser.lossesByFinish[loserBeyblade][outcome] || 0) + 1;
-        
-        // Track points given by beyblade
         loser.pointsGivenByBey[loserBeyblade] = (loser.pointsGivenByBey[loserBeyblade] || 0) + points;
-        
-        if (!loser.phasePerformance[phase]) {
-          loser.phasePerformance[phase] = { wins: 0, matches: 0, points: 0 };
-        }
+        if (!loser.phasePerformance[phase]) loser.phasePerformance[phase] = { wins: 0, matches: 0, points: 0 };
         loser.phasePerformance[phase].matches++;
 
-        // Head-to-head tracking
+        // Head-to-head
         const h2hKey = [match.player1_name, match.player2_name].sort().join('_vs_');
         if (!h2hMap[h2hKey]) {
-          h2hMap[h2hKey] = {
-            player1: match.player1_name,
-            player2: match.player2_name,
-            p1Wins: 0,
-            p2Wins: 0,
-            totalMatches: 0,
-            p1WinRate: 0
-          };
+          h2hMap[h2hKey] = { player1: match.player1_name, player2: match.player2_name, p1Wins: 0, p2Wins: 0, totalMatches: 0, p1WinRate: 0 };
         }
-        
         h2hMap[h2hKey].totalMatches++;
-        if (match.winner_name === match.player1_name) {
-          h2hMap[h2hKey].p1Wins++;
-        } else {
-          h2hMap[h2hKey].p2Wins++;
-        }
+        if (match.winner_name === match.player1_name) h2hMap[h2hKey].p1Wins++;
+        else h2hMap[h2hKey].p2Wins++;
       });
 
-      // Calculate final stats for each player
+      /* ----- Finalize Player Stats ----- */
       Object.values(playersMap).forEach(player => {
         player.winRate = player.matches > 0 ? (player.wins / player.matches) * 100 : 0;
         player.weightedWinRate = calculateWeightedWinRate(player.wins, player.matches);
         player.avgPointsPerMatch = player.matches > 0 ? player.totalPoints / player.matches : 0;
-        
-        // Find most common finishes
+
+        // MVP Beyblade
+        if (Object.keys(player.pointsGainedByBey).length > 0) {
+          const [bestBey, bestScore] = Object.entries(player.pointsGainedByBey).reduce((a, b) => (a[1] > b[1] ? a : b));
+          player.mvpCombo = bestBey;
+          player.mvpComboScore = bestScore;
+        }
+
+        // Most common finishes
         const winFinishes = Object.entries(player.finishDistribution);
-        player.mostCommonWinFinish = winFinishes.length > 0 
-          ? winFinishes.reduce((a, b) => a[1] > b[1] ? a : b)[0] 
-          : 'N/A';
-        player.mostCommonLoseFinish = player.mostCommonWinFinish; // Simplified for now
+        player.mostCommonWinFinish = winFinishes.length > 0 ? winFinishes.reduce((a, b) => (a[1] > b[1] ? a : b))[0] : 'N/A';
+        player.mostCommonLoseFinish = player.mostCommonWinFinish; // simplified
       });
 
-      // Calculate head-to-head win rates
+      // Head-to-head win rates
       Object.values(h2hMap).forEach(h2h => {
         h2h.p1WinRate = h2h.totalMatches > 0 ? (h2h.p1Wins / h2h.totalMatches) * 100 : 0;
       });
 
       setPlayers(playersMap);
       setHeadToHead(Object.values(h2hMap).filter(h2h => h2h.totalMatches > 0));
-      
-      // Auto-select first player
-      const playerNames = Object.keys(playersMap);
-      if (playerNames.length > 0 && !selectedPlayer) {
-        setSelectedPlayer(playerNames[0]);
-      }
 
+      const playerNames = Object.keys(playersMap);
+      if (playerNames.length > 0 && !selectedPlayer) setSelectedPlayer(playerNames[0]);
     } catch (error) {
       console.error('Error fetching player analytics:', error);
     } finally {
       setIsLoading(false);
     }
   };
+  /* -------------------- UI Helpers -------------------- */
+  const playerNames = Object.keys(players);
+  const selectedPlayerData = selectedPlayer ? players[selectedPlayer] : undefined;
 
   const showAllPlayers = () => {
-    const playerData = Object.values(players).map(player => ({
-      name: player.name,
-      matches: player.matches,
-      winRate: player.winRate,
-      weightedWinRate: player.weightedWinRate * 100,
-      totalPoints: player.totalPoints,
-      avgPointsPerMatch: player.avgPointsPerMatch,
-      mostCommonWinFinish: player.mostCommonWinFinish
+    const data = Object.values(players).map(p => ({
+      Player: p.name,
+      Matches: p.matches,
+      Wins: p.wins,
+      Losses: p.losses,
+      'Win Rate (%)': Number(p.winRate.toFixed(1)),
+      'Weighted Win Rate (%)': Number((p.weightedWinRate * 100).toFixed(1)),
+      'Total Points': p.totalPoints,
+      'Avg Pts/Match': Number(p.avgPointsPerMatch.toFixed(2)),
+      'MVP Beyblade': p.mvpCombo || '—',
+      'MVP Points': p.mvpComboScore || 0,
     }));
 
     setShowAllModal({
       isOpen: true,
-      title: 'All Tournament Players',
-      data: playerData,
+      title: 'All Players (Sortable/Filterable)',
+      data,
       columns: [
-        { key: 'name', label: 'Player' },
-        { key: 'matches', label: 'Matches' },
-        { key: 'winRate', label: 'Win Rate (%)' },
-        { key: 'weightedWinRate', label: 'Weighted Win Rate (%)' },
-        { key: 'totalPoints', label: 'Total Points' },
-        { key: 'avgPointsPerMatch', label: 'Avg Points/Match' },
-        { key: 'mostCommonWinFinish', label: 'Most Common Win' }
+        { key: 'Player', label: 'Player' },
+        { key: 'Matches', label: 'Matches' },
+        { key: 'Wins', label: 'Wins' },
+        { key: 'Losses', label: 'Losses' },
+        { key: 'Win Rate (%)', label: 'Win Rate (%)' },
+        { key: 'Weighted Win Rate (%)', label: 'Weighted Win Rate (%)' },
+        { key: 'Total Points', label: 'Total Points' },
+        { key: 'Avg Pts/Match', label: 'Avg Pts/Match' },
+        { key: 'MVP Beyblade', label: 'MVP Beyblade' },
+        { key: 'MVP Points', label: 'MVP Points' },
       ],
       onRowClick: (row) => {
-        const playerMatches = players[row.name]?.allMatches || [];
-        setMatchDetailsModal({
-          isOpen: true,
-          title: `All Matches for ${row.name}`,
-          matches: playerMatches
-        });
-        setShowAllModal(prev => ({ ...prev, isOpen: false }));
+        setSelectedPlayer(row.Player);
+        setShowAllModal(m => ({ ...m, isOpen: false }));
       }
     });
   };
 
   const showAllHeadToHead = () => {
+    const data = headToHead.map(h => ({
+      Matchup: `${h.player1} vs ${h.player2}`,
+      'Total Matches': h.totalMatches,
+      'Player 1 Wins': h.p1Wins,
+      'Player 2 Wins': h.p2Wins,
+      'P1 Win Rate (%)': Number(h.p1WinRate.toFixed(1)),
+    }));
+
     setShowAllModal({
       isOpen: true,
       title: 'All Head-to-Head Matchups',
-      data: headToHead,
+      data,
       columns: [
-        { key: 'player1', label: 'Player 1' },
-        { key: 'player2', label: 'Player 2' },
-        { key: 'totalMatches', label: 'Total Matches' },
-        { key: 'p1Wins', label: 'Player 1 Wins' },
-        { key: 'p2Wins', label: 'Player 2 Wins' },
-        { key: 'p1WinRate', label: 'Player 1 Win Rate (%)' }
+        { key: 'Matchup', label: 'Matchup' },
+        { key: 'Total Matches', label: 'Total Matches' },
+        { key: 'Player 1 Wins', label: 'Player 1 Wins' },
+        { key: 'Player 2 Wins', label: 'Player 2 Wins' },
+        { key: 'P1 Win Rate (%)', label: 'P1 Win Rate (%)' },
       ],
-      onRowClick: (row) => {
-        const matchupMatches = Object.values(players).flatMap(player => 
-          player.allMatches.filter(match => 
-            (match.player1_name === row.player1 && match.player2_name === row.player2) ||
-            (match.player1_name === row.player2 && match.player2_name === row.player1)
-          )
-        );
-        setMatchDetailsModal({
-          isOpen: true,
-          title: `${row.player1} vs ${row.player2} Matches`,
-          matches: matchupMatches
-        });
-        setShowAllModal(prev => ({ ...prev, isOpen: false }));
-      }
     });
   };
 
-  if (loading || isLoading) {
-    return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Processing player analytics...</p>
-      </div>
-    );
-  }
+  const openMatchDetailsForPlayer = (playerName: string) => {
+    const p = players[playerName];
+    if (!p) return;
+    setMatchDetailsModal({
+      isOpen: true,
+      title: `${playerName} — Match Details`,
+      matches: p.allMatches || [],
+    });
+  };
 
-  const playerNames = Object.keys(players);
-  
-  if (playerNames.length === 0) {
+  /* -------------------- Render -------------------- */
+  if (isLoading || loading) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <div className="text-center">
-          <Users size={48} className="mx-auto text-yellow-500 mb-4" />
-          <h3 className="text-lg font-semibold text-yellow-800 mb-2">No Player Data Available</h3>
-          <p className="text-yellow-700">
-            This tournament has no completed matches yet. Player analytics require match results to generate statistics.
-          </p>
+      <div className="p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-gray-200 rounded-lg" />
+          <div className="h-40 bg-gray-200 rounded-lg" />
+          <div className="h-64 bg-gray-200 rounded-lg" />
         </div>
       </div>
     );
   }
 
-  const selectedPlayerData = selectedPlayer ? players[selectedPlayer] : null;
+  if (playerNames.length === 0) {
+    return (
+      <div className="p-6">
+        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+          <p className="text-gray-600">No match data found for this tournament yet.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 p-6">
       {/* Player Selection */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
@@ -509,11 +448,11 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
         </div>
       </div>
 
-      {/* Player Overview Table */}
-      <div className="chart-container">
+      {/* Tournament Rankings */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="chart-title flex items-center">
-            <Trophy size={24} className="mr-2 text-yellow-600" />
+          <h2 className="text-lg font-bold flex items-center">
+            <Trophy size={20} className="mr-2 text-yellow-600" />
             Tournament Player Rankings
           </h2>
           <button
@@ -528,27 +467,13 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Player
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Matches
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Win Rate
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Weighted Win Rate
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total Points
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Avg Points/Match
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Most Common Win
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Matches</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Weighted Win Rate</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Points</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Points/Match</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Most Common Win</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -556,11 +481,9 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                 .sort((a, b) => b.weightedWinRate - a.weightedWinRate)
                 .slice(0, 10)
                 .map((player, index) => (
-                  <tr 
-                    key={player.name} 
-                    className={`hover:bg-gray-50 cursor-pointer ${
-                      selectedPlayer === player.name ? 'bg-blue-50' : ''
-                    }`}
+                  <tr
+                    key={player.name}
+                    className={`hover:bg-gray-50 cursor-pointer ${selectedPlayer === player.name ? 'bg-blue-50' : ''}`}
                     onClick={() => setSelectedPlayer(player.name)}
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -571,10 +494,8 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                         {player.name}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      {player.matches}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <td className="px-6 py-4 text-sm text-center">{player.matches}</td>
+                    <td className="px-6 py-4 text-sm text-center">
                       <span className={`font-medium ${
                         player.winRate >= 60 ? 'text-green-600' :
                         player.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
@@ -582,18 +503,12 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                         {player.winRate.toFixed(1)}%
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600 text-center">
+                    <td className="px-6 py-4 text-sm font-bold text-blue-600 text-center">
                       {(player.weightedWinRate * 100).toFixed(1)}%
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-medium">
-                      {player.totalPoints}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                      {player.avgPointsPerMatch.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {player.mostCommonWinFinish}
-                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-center">{player.totalPoints}</td>
+                    <td className="px-6 py-4 text-sm text-center">{player.avgPointsPerMatch.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-sm">{player.mostCommonWinFinish}</td>
                   </tr>
                 ))}
             </tbody>
@@ -601,68 +516,90 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
         </div>
       </div>
 
-      {/* Selected Player Detailed Analysis */}
+      {/* Player Detailed Performance (with MVP) */}
       {selectedPlayerData && (
-        <div className="space-y-6">
-          {/* Player Performance Metrics */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900 flex items-center">
               <Target size={24} className="mr-2 text-blue-600" />
-              {selectedPlayerData.name} - Detailed Performance
+              {selectedPlayerData.name} — Detailed Performance
             </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">{selectedPlayerData.matches}</div>
-                <div className="text-sm text-gray-600">Total Matches</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">{selectedPlayerData.winRate.toFixed(1)}%</div>
-                <div className="text-sm text-gray-600">Win Rate</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">{selectedPlayerData.totalPoints}</div>
-                <div className="text-sm text-gray-600">Total Points</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-orange-600">{selectedPlayerData.avgPointsPerMatch.toFixed(2)}</div>
-                <div className="text-sm text-gray-600">Avg Points/Match</div>
-              </div>
-            </div>
+            <button
+              className="text-sm text-blue-600 hover:text-blue-700 underline"
+              onClick={() => openMatchDetailsForPlayer(selectedPlayerData.name)}
+            >
+              View Match Details
+            </button>
           </div>
 
-          {/* Wins per Finish Table */}
-          <div className="chart-container">
-            <h3 className="chart-title">Wins per Finish</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            {/* Total Matches */}
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600">{selectedPlayerData.matches}</div>
+              <div className="text-sm text-gray-600">Total Matches</div>
+            </div>
+
+            {/* Win Rate */}
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-600">{selectedPlayerData.winRate.toFixed(1)}%</div>
+              <div className="text-sm text-gray-600">Win Rate</div>
+            </div>
+
+            {/* Total Points */}
+            <div className="text-center">
+              <div className="text-3xl font-bold text-purple-600">{selectedPlayerData.totalPoints}</div>
+              <div className="text-sm text-gray-600">Total Points</div>
+            </div>
+
+            {/* Avg Points/Match */}
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-600">{selectedPlayerData.avgPointsPerMatch.toFixed(2)}</div>
+              <div className="text-sm text-gray-600">Avg Points/Match</div>
+            </div>
+
+            {/* Most Valuable Beyblade */}
+            <div className="text-center">
+              <div className="text-xl font-bold text-indigo-600">{selectedPlayerData.mvpCombo || 'N/A'}</div>
+              <div className="text-sm text-gray-600">Most Valuable Beyblade</div>
+              {selectedPlayerData.mvpCombo && (
+                <div className="text-lg font-bold text-indigo-700 mt-1">
+                  {selectedPlayerData.mvpComboScore} pts
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Wins & Losses per Finish (side-by-side) */}
+      {selectedPlayerData && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Wins per Finish */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Wins per Finish</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-green-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Beyblade
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beyblade</th>
                     {FINISH_TYPES.map(finish => (
                       <th key={finish} className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         {finish.split(' ')[0]}
                       </th>
                     ))}
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total Points Gained
-                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Points Gained</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {Object.keys(selectedPlayerData.winsByFinish).map(beyblade => (
                     <tr key={beyblade} className="hover:bg-green-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {beyblade}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{beyblade}</td>
                       {FINISH_TYPES.map(finish => (
-                        <td key={finish} className="px-6 py-4 whitespace-nowrap text-sm text-center font-medium text-green-600">
+                        <td key={finish} className="px-6 py-4 text-sm text-center font-medium text-green-600">
                           {selectedPlayerData.winsByFinish[beyblade]?.[finish] || 0}
                         </td>
                       ))}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-bold text-green-700">
+                      <td className="px-6 py-4 text-sm text-center font-bold text-green-700">
                         {selectedPlayerData.pointsGainedByBey[beyblade] || 0}
                       </td>
                     </tr>
@@ -672,38 +609,32 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
             </div>
           </div>
 
-          {/* Losses per Finish Table */}
-          <div className="chart-container">
-            <h3 className="chart-title">Losses per Finish</h3>
+          {/* Losses per Finish */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Losses per Finish</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-red-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Beyblade
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beyblade</th>
                     {FINISH_TYPES.map(finish => (
                       <th key={finish} className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         {finish.split(' ')[0]}
                       </th>
                     ))}
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total Points Given
-                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Points Given</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {Object.keys(selectedPlayerData.lossesByFinish).map(beyblade => (
                     <tr key={beyblade} className="hover:bg-red-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {beyblade}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{beyblade}</td>
                       {FINISH_TYPES.map(finish => (
-                        <td key={finish} className="px-6 py-4 whitespace-nowrap text-sm text-center font-medium text-red-600">
+                        <td key={finish} className="px-6 py-4 text-sm text-center font-medium text-red-600">
                           {selectedPlayerData.lossesByFinish[beyblade]?.[finish] || 0}
                         </td>
                       ))}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-bold text-red-700">
+                      <td className="px-6 py-4 text-sm text-center font-bold text-red-700">
                         {selectedPlayerData.pointsGivenByBey[beyblade] || 0}
                       </td>
                     </tr>
@@ -712,54 +643,44 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
               </table>
             </div>
           </div>
+        </div>
+      )}
 
+      {/* Charts (Radar + Phase Performance) */}
+      {selectedPlayerData && (
+        <div className="space-y-6">
           {/* Finish Type Radar Chart */}
-          <div className="chart-container">
-            <h3 className="chart-title">Points Per Finish Type</h3>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Points per Finish Type</h3>
             <ResponsiveContainer width="100%" height={400}>
-              <RadarChart data={Object.entries(selectedPlayerData.finishDistribution).map(([finish, count]) => ({
-                finish,
-                points: count * (FINISH_POINTS[finish as keyof typeof FINISH_POINTS] || 0),
-                count
-              }))}>
+              <RadarChart
+                data={Object.entries(selectedPlayerData.finishDistribution).map(([finish, count]) => ({
+                  finish,
+                  points: count * (FINISH_POINTS[finish as keyof typeof FINISH_POINTS] || 0),
+                  count,
+                }))}
+              >
                 <PolarGrid />
                 <PolarAngleAxis dataKey="finish" />
                 <PolarRadiusAxis />
-                <Radar
-                  name="Points"
-                  dataKey="points"
-                  stroke="#3B82F6"
-                  fill="#3B82F6"
-                  fillOpacity={0.3}
-                />
-                <Tooltip />
+                <Radar name="Points" dataKey="points" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
 
           {/* Phase Performance */}
           {Object.keys(selectedPlayerData.phasePerformance).length > 0 && (
-            <div className="chart-container">
-              <h3 className="chart-title">Phase Performance</h3>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Phase Performance</h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Phase
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Matches
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Wins
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Win Rate
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Avg Points
-                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Phase</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Matches</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Wins</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Points</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -767,24 +688,17 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                       .sort(([a], [b]) => parseInt(a) - parseInt(b))
                       .map(([phase, stats]) => (
                         <tr key={phase} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
-                            Phase {phase}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                            {stats.matches}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-medium">
-                            {stats.wins}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 text-center">Phase {phase}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 text-center">{stats.matches}</td>
+                          <td className="px-6 py-4 text-sm text-green-600 text-center font-medium">{stats.wins}</td>
+                          <td className="px-6 py-4 text-sm text-center">
                             <span className={`font-medium ${
-                              stats.matches > 0 && (stats.wins / stats.matches) * 100 >= 50 
-                                ? 'text-green-600' : 'text-red-600'
+                              stats.matches > 0 && (stats.wins / stats.matches) * 100 >= 50 ? 'text-green-600' : 'text-red-600'
                             }`}>
                               {stats.matches > 0 ? ((stats.wins / stats.matches) * 100).toFixed(1) : '0.0'}%
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          <td className="px-6 py-4 text-sm text-gray-900 text-center">
                             {stats.matches > 0 ? (stats.points / stats.matches).toFixed(2) : '0.00'}
                           </td>
                         </tr>
@@ -797,12 +711,12 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
         </div>
       )}
 
-      {/* Head-to-Head Statistics */}
+      {/* Head-to-Head */}
       {headToHead.length > 0 && (
-        <div className="chart-container">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="chart-title flex items-center">
-              <TrendingUp size={24} className="mr-2 text-green-600" />
+            <h2 className="text-lg font-bold flex items-center">
+              <TrendingUp size={20} className="mr-2 text-green-600" />
               Head-to-Head Matchups
             </h2>
             <button
@@ -817,21 +731,11 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Matchup
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Matches
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Player 1 Wins
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Player 2 Wins
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Player 1 Win Rate
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matchup</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Matches</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1 Wins</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2 Wins</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1 Win Rate</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -840,22 +744,12 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                   .slice(0, 10)
                   .map((h2h, index) => (
                     <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {h2h.player1} vs {h2h.player2}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                        {h2h.totalMatches}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-medium">
-                        {h2h.p1Wins}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-center font-medium">
-                        {h2h.p2Wins}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                        <span className={`font-medium ${
-                          h2h.p1WinRate >= 50 ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{h2h.player1} vs {h2h.player2}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 text-center">{h2h.totalMatches}</td>
+                      <td className="px-6 py-4 text-sm text-green-600 text-center font-medium">{h2h.p1Wins}</td>
+                      <td className="px-6 py-4 text-sm text-red-600 text-center font-medium">{h2h.p2Wins}</td>
+                      <td className="px-6 py-4 text-sm text-center">
+                        <span className={`font-medium ${h2h.p1WinRate >= 50 ? 'text-green-600' : 'text-red-600'}`}>
                           {h2h.p1WinRate.toFixed(1)}%
                         </span>
                       </td>
@@ -870,7 +764,7 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
       {/* Modals */}
       <ShowAllModal
         isOpen={showAllModal.isOpen}
-        onClose={() => setShowAllModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setShowAllModal(m => ({ ...m, isOpen: false }))}
         title={showAllModal.title}
         data={showAllModal.data}
         columns={showAllModal.columns}
@@ -879,7 +773,7 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
 
       <MatchDetailsModal
         isOpen={matchDetailsModal.isOpen}
-        onClose={() => setMatchDetailsModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setMatchDetailsModal(m => ({ ...m, isOpen: false }))}
         title={matchDetailsModal.title}
         matches={matchDetailsModal.matches}
       />
