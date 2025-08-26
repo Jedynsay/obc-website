@@ -329,13 +329,18 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         const outcome = match.outcome?.split(' (')[0] || 'Unknown';
         const points = match.points_awarded || FINISH_POINTS[outcome as keyof typeof FINISH_POINTS] || 0;
 
+        // Use normalized names for consistent player tracking
+        const normalizedPlayer1 = match.normalized_player1_name || match.player1_name.toLowerCase();
+        const normalizedPlayer2 = match.normalized_player2_name || match.player2_name.toLowerCase();
+        const normalizedWinner = match.normalized_winner_name || match.winner_name.toLowerCase();
+        
         // Create processed matches
         const p1Match: ProcessedMatch = {
           player: match.player1_name,
           opponent: match.player2_name,
           beyblade: match.player1_beyblade,
           opponentBeyblade: match.player2_beyblade,
-          isWin: match.winner_name === match.player1_name,
+          isWin: normalizedWinner === normalizedPlayer1,
           outcome,
           parsedParts: p1Parts,
           bladeLine: match.player1_blade_line || 'Unknown'
@@ -346,7 +351,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
           opponent: match.player1_name,
           beyblade: match.player2_beyblade,
           opponentBeyblade: match.player1_beyblade,
-          isWin: match.winner_name === match.player2_name,
+          isWin: normalizedWinner === normalizedPlayer2,
           outcome,
           parsedParts: p2Parts,
           bladeLine: match.player2_blade_line || 'Unknown'
@@ -734,13 +739,13 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-purple-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blade Line</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Matches</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Score</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Combo</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Player</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Blade Line</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Matches</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Win Rate</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Combo Score</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -897,16 +902,16 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Name
                         </th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Usage
                         </th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Win Rate
                         </th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Wilson
                         </th>
                       </tr>
@@ -972,16 +977,16 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Name
                         </th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Usage
                         </th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Win Rate
                         </th>
-                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                           Wilson
                         </th>
                       </tr>
