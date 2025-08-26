@@ -1,8 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Users, Target, TrendingUp, Zap, Shield, Clock } from 'lucide-react';
+import { Trophy, Users, Target, TrendingUp, Zap, Shield, Clock, Crown, Search, X } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../context/AuthContext';
+
+interface ShowAllModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  data: any[];
+  columns: { key: string; label: string }[];
+  onRowClick?: (row: any) => void;
+}
+
+function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: ShowAllModalProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredData = data.filter(row => 
+    columns.some(col => 
+      String(row[col.key] || '').toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">{title}</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="mb-4">
+            <div className="relative">
+              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="overflow-auto max-h-[60vh]">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50 sticky top-0">
+                <tr>
+                  {columns.map(col => (
+                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {col.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredData.map((row, index) => (
+                  <tr 
+                    key={index} 
+                    className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                    onClick={() => onRowClick?.(row)}
+                  >
+                    {columns.map(col => (
+                      <td key={col.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {typeof row[col.key] === 'number' ? 
+                          (col.key.includes('Rate') || col.key.includes('Score') ? 
+                            row[col.key].toFixed(1) : row[col.key]) : 
+                          String(row[col.key] || '')}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface GlobalStats {
   totalMatches: number;
@@ -68,6 +154,18 @@ const FINISH_COLORS = {
 
 export function OverviewTab() {
   const { user } = useAuth();
+  const [showAllModal, setShowAllModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    data: any[];
+    columns: { key: string; label: string }[];
+    onRowClick?: (row: any) => void;
+  }>({
+    isOpen: false,
+    title: '',
+    data: [],
+    columns: []
+  });
   const [globalStats, setGlobalStats] = useState<GlobalStats>({
     totalMatches: 0,
     totalPlayers: 0,
@@ -82,6 +180,7 @@ export function OverviewTab() {
   const [personalOverview, setPersonalOverview] = useState<PersonalOverview | null>(null);
   const [headToHeadRecords, setHeadToHeadRecords] = useState<HeadToHeadRecord[]>([]);
   const [finishDistribution, setFinishDistribution] = useState<any[]>([]);
+  const [playerStats, setPlayerStats] = useState<{ [name: string]: { wins: number; matches: number; points: number } }>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -94,13 +193,19 @@ export function OverviewTab() {
   const fetchGlobalData = async () => {
     try {
       // Fetch all matches across all tournaments
-      const { data: allMatches, error: matchError } = await supabase
+      let { data: allMatches, error: matchError } = await supabase
         .from('match_results')
-        .select('*');
+        .select(`
+          *,
+          tournaments!inner(is_practice)
+        `);
 
       if (matchError) throw matchError;
 
-      const matches = allMatches || [];
+      // Filter out practice tournament matches
+      const matches = (allMatches || []).filter(match => 
+        !match.tournaments?.is_practice
+      );
       
       if (matches.length === 0) {
         setLoading(false);
@@ -108,7 +213,7 @@ export function OverviewTab() {
       }
 
       // Calculate global stats
-      const playerStats: { [name: string]: { wins: number; matches: number; points: number } } = {};
+      const playerStatsMap: { [name: string]: { wins: number; matches: number; points: number } } = {};
       const comboStats: { [key: string]: GlobalCombo } = {};
       const finishCounts: { [finish: string]: number } = {};
       let totalPoints = 0;
@@ -124,15 +229,21 @@ export function OverviewTab() {
         finishCounts[outcome] = (finishCounts[outcome] || 0) + 1;
 
         // Process both players
-        [match.player1_name, match.player2_name].forEach(playerName => {
-          if (!playerStats[playerName]) {
-            playerStats[playerName] = { wins: 0, matches: 0, points: 0 };
-          }
-          playerStats[playerName].matches++;
+        const normalizedPlayer1 = match.normalized_player1_name || match.player1_name.toLowerCase();
+        const normalizedPlayer2 = match.normalized_player2_name || match.player2_name.toLowerCase();
+        const normalizedWinner = match.normalized_winner_name || match.winner_name.toLowerCase();
+        
+        [normalizedPlayer1, normalizedPlayer2].forEach((normalizedName, index) => {
+          const displayName = index === 0 ? match.player1_name : match.player2_name;
           
-          if (match.winner_name === playerName) {
-            playerStats[playerName].wins++;
-            playerStats[playerName].points += points;
+          if (!playerStatsMap[displayName]) {
+            playerStatsMap[displayName] = { wins: 0, matches: 0, points: 0 };
+          }
+          playerStatsMap[displayName].matches++;
+          
+          if (normalizedWinner === normalizedName) {
+            playerStatsMap[displayName].wins++;
+            playerStatsMap[displayName].points += points;
           }
         });
 
@@ -180,7 +291,7 @@ export function OverviewTab() {
       });
 
       // Find top player
-      const topPlayerEntry = Object.entries(playerStats)
+      const topPlayerEntry = Object.entries(playerStatsMap)
         .filter(([_, stats]) => stats.matches >= 5) // Minimum matches for consideration
         .sort((a, b) => {
           const aWinRate = a[1].wins / a[1].matches;
@@ -198,7 +309,7 @@ export function OverviewTab() {
 
       setGlobalStats({
         totalMatches: matches.length,
-        totalPlayers: Object.keys(playerStats).length,
+        totalPlayers: Object.keys(playerStatsMap).length,
         totalTournaments: tournamentCount || 0,
         avgPointsPerMatch: matches.length > 0 ? totalPoints / matches.length : 0,
         mostCommonFinish,
@@ -207,6 +318,9 @@ export function OverviewTab() {
       });
 
       setGlobalCombos(Object.values(comboStats).sort((a, b) => b.comboScore - a.comboScore));
+      
+      // Store player stats for global rankings
+      setPlayerStats(playerStatsMap);
 
       // Prepare finish distribution for chart
       const finishData = Object.entries(finishCounts).map(([finish, count]) => ({
@@ -228,14 +342,20 @@ export function OverviewTab() {
 
     try {
       // Fetch user's matches across all tournaments
-      const { data: userMatches, error } = await supabase
+      let { data: userMatches, error } = await supabase
         .from('match_results')
-        .select('*')
-        .or(`player1_name.eq.${user.username},player2_name.eq.${user.username}`);
+        .select(`
+          *,
+          tournaments!inner(is_practice)
+        `)
+        .or(`normalized_player1_name.eq.${user.username.toLowerCase()},normalized_player2_name.eq.${user.username.toLowerCase()}`);
 
       if (error) throw error;
 
-      const matches = userMatches || [];
+      // Filter out practice tournament matches
+      const matches = (userMatches || []).filter(match => 
+        !match.tournaments?.is_practice
+      );
       
       if (matches.length === 0) {
         setPersonalOverview(null);
@@ -511,97 +631,137 @@ export function OverviewTab() {
       <div className="chart-container">
         <div className="flex justify-between items-center mb-4">
           <h3 className="chart-title">Global Combo Rankings</h3>
-          <button
-            onClick={() => {
-              // Show all global combos
-              const allCombosData = globalCombos.map(combo => ({
-                rank: globalCombos.indexOf(combo) + 1,
-                combo: combo.combo,
-                player: combo.player,
-                bladeLine: combo.bladeLine,
-                totalMatches: combo.totalMatches,
-                winRate: combo.winRate,
-                weightedWinRate: combo.weightedWinRate * 100,
-                comboScore: combo.comboScore
-              }));
-              
-              // This would need to be implemented with a modal similar to the other components
-              alert('Show All functionality for global combos coming soon!');
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <span>Show All</span>
-          </button>
         </div>
+        
+        {/* Group combos by name and calculate aggregate stats */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Rank
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                   Combo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Player
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                  Users
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Blade Line
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                  Total Matches
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Matches
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                  Global Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Win Rate
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                  Avg Points
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Weighted Win Rate
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Combo Score
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                  Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {globalCombos.slice(0, 20).map((combo, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+              {(() => {
+                // Group combos by name and calculate aggregate stats
+                const comboGroups: { [comboName: string]: {
+                  combo: string;
+                  players: string[];
+                  totalMatches: number;
+                  totalWins: number;
+                  totalPoints: number;
+                  winRate: number;
+                  avgPoints: number;
+                  playerData: any[];
+                }} = {};
+                
+                globalCombos.forEach(combo => {
+                  if (!comboGroups[combo.combo]) {
+                    comboGroups[combo.combo] = {
+                      combo: combo.combo,
+                      players: [],
+                      totalMatches: 0,
+                      totalWins: 0,
+                      totalPoints: 0,
+                      winRate: 0,
+                      avgPoints: 0,
+                      playerData: []
+                    };
+                  }
+                  
+                  const group = comboGroups[combo.combo];
+                  group.players.push(combo.player);
+                  group.totalMatches += combo.totalMatches;
+                  group.totalWins += combo.wins;
+                  group.totalPoints += combo.totalPoints;
+                  group.playerData.push(combo);
+                });
+                
+                // Calculate final stats for each group
+                Object.values(comboGroups).forEach(group => {
+                  group.winRate = group.totalMatches > 0 ? (group.totalWins / group.totalMatches) * 100 : 0;
+                  group.avgPoints = group.totalMatches > 0 ? group.totalPoints / group.totalMatches : 0;
+                });
+                
+                return Object.values(comboGroups)
+                  .sort((a, b) => b.winRate - a.winRate)
+                  .slice(0, 20);
+              })().map((comboGroup, index) => (
+                <tr key={index} className="hover:bg-gray-50 cursor-pointer">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                     #{index + 1}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {combo.combo}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {combo.player}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      combo.bladeLine === 'Basic' ? 'bg-blue-100 text-blue-800' :
-                      combo.bladeLine === 'Unique' ? 'bg-purple-100 text-purple-800' :
-                      combo.bladeLine === 'Custom' ? 'bg-orange-100 text-orange-800' :
-                      combo.bladeLine === 'X-Over' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {combo.bladeLine}
-                    </span>
+                    {comboGroup.combo}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {combo.totalMatches}
+                    {comboGroup.players.length}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    {comboGroup.totalMatches}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <span className={`font-medium ${
-                      combo.winRate >= 60 ? 'text-green-600' :
-                      combo.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                      comboGroup.winRate >= 60 ? 'text-green-600' :
+                      comboGroup.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
                     }`}>
-                      {combo.winRate.toFixed(1)}%
+                      {comboGroup.winRate.toFixed(1)}%
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 text-center">
-                    {(combo.weightedWinRate * 100).toFixed(1)}%
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    {comboGroup.avgPoints.toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 text-center">
-                    {combo.comboScore.toFixed(1)}
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      onClick={() => {
+                        // Show modal with players who used this combo
+                        const modalData = comboGroup.playerData.map(playerCombo => ({
+                          player: playerCombo.player,
+                          matches: playerCombo.totalMatches,
+                          wins: playerCombo.wins,
+                          winRate: playerCombo.winRate,
+                          avgPoints: playerCombo.avgPointsPerMatch,
+                          bladeLine: playerCombo.bladeLine
+                        }));
+                        
+                        setShowAllModal({
+                          isOpen: true,
+                          title: `Players using ${comboGroup.combo}`,
+                          data: modalData,
+                          columns: [
+                            { key: 'player', label: 'Player' },
+                            { key: 'matches', label: 'Matches' },
+                            { key: 'wins', label: 'Wins' },
+                            { key: 'winRate', label: 'Win Rate (%)' },
+                            { key: 'avgPoints', label: 'Avg Points' },
+                            { key: 'bladeLine', label: 'Blade Line' }
+                          ]
+                        });
+                      }}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      View Players
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -680,14 +840,132 @@ export function OverviewTab() {
 
       {/* Global Player Rankings */}
       <div className="chart-container">
-        <h3 className="chart-title">Global Player Rankings</h3>
-        <div className="text-center py-8">
-          <Trophy size={48} className="mx-auto text-gray-400 mb-4" />
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Top Player</h4>
-          <p className="text-2xl font-bold text-blue-600">{globalStats.topPlayer}</p>
-          <p className="text-gray-600">Win Rate: {globalStats.topPlayerWinRate.toFixed(1)}%</p>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="chart-title">Global Player Rankings</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Top 10 Table */}
+          <div className="lg:col-span-2">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                      Rank
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                      Player
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                      Matches
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                      Wins
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                      Win Rate
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                      Tournaments
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {Object.entries(playerStats || {})
+                    .filter(([_, stats]) => stats.matches >= 3) // Minimum matches for ranking
+                    .sort((a, b) => {
+                      const aWinRate = a[1].wins / a[1].matches;
+                      const bWinRate = b[1].wins / b[1].matches;
+                      if (bWinRate !== aWinRate) return bWinRate - aWinRate;
+                      return b[1].wins - a[1].wins; // Tiebreaker: total wins
+                    })
+                    .slice(0, 10)
+                    .map(([playerName, stats], index) => (
+                      <tr key={playerName} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                          <div className="flex items-center">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3 ${
+                              index === 0 ? 'bg-yellow-500' :
+                              index === 1 ? 'bg-gray-400' :
+                              index === 2 ? 'bg-orange-600' : 'bg-blue-500'
+                            }`}>
+                              {index + 1}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {playerName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {stats.matches}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-medium">
+                          {stats.wins}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                          <span className={`font-medium ${
+                            (stats.wins / stats.matches) * 100 >= 60 ? 'text-green-600' :
+                            (stats.wins / stats.matches) * 100 >= 40 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {((stats.wins / stats.matches) * 100).toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                          {Math.ceil(stats.matches / 10)}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          {/* Top Player Spotlight Card */}
+          <div className="lg:col-span-1">
+            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-6 text-center">
+              <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Trophy size={40} className="text-white" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
+                <Crown size={16} className="text-black" />
+              </div>
+              <h4 className="text-xl font-bold text-yellow-900 mb-2">Global Champion</h4>
+              <p className="text-2xl font-bold text-yellow-800 mb-1">{globalStats.topPlayer}</p>
+              <p className="text-yellow-700 text-sm mb-4">Win Rate: {globalStats.topPlayerWinRate.toFixed(1)}%</p>
+              
+              <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-yellow-200">
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <div className="text-lg font-bold text-yellow-800">
+                      {Object.entries(playerStats || {})
+                        .find(([name]) => name === globalStats.topPlayer)?.[1]?.wins || 0}
+                    </div>
+                    <div className="text-xs text-yellow-700">Total Wins</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-yellow-800">
+                      {Object.entries(playerStats || {})
+                        .find(([name]) => name === globalStats.topPlayer)?.[1]?.matches || 0}
+                    </div>
+                    <div className="text-xs text-yellow-700">Total Matches</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <ShowAllModal
+        isOpen={showAllModal.isOpen}
+        onClose={() => setShowAllModal(prev => ({ ...prev, isOpen: false }))}
+        title={showAllModal.title}
+        data={showAllModal.data}
+        columns={showAllModal.columns}
+        onRowClick={showAllModal.onRowClick}
+      />
     </div>
   );
 }
