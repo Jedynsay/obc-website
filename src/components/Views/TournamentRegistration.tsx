@@ -418,7 +418,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                 </select>
 
                   <label htmlFor="paymentMode" className="block text-sm font-medium text-gray-700 mb-1">
-                  Register you account to see personal stats across multiple tournaments
+                  Register your account to see personal stats across multiple tournaments
                   </label>
               </div>
             </div>
