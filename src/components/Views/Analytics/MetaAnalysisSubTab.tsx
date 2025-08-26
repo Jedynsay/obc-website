@@ -177,25 +177,86 @@ function MatchDetailsModal({ isOpen, onClose, title, matches }: MatchDetailsModa
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Used</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent Beyblade</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {matches.map((match, index) => (
                 <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    Match {index + 1}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">
+                    {match.player1_beyblade}
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{match.player1_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player2_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player2_beyblade}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
+                </tr>
+              ))}
+              {matches.map((match, index) => (
+                <tr key={`p2-${index}`} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">
+                    {match.player2_beyblade}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{match.player2_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player1_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player1_beyblade}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PartMatchDetailsModal({ isOpen, onClose, title, matches, partName }: MatchDetailsModalProps & { partName: string }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-4 text-white">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">{title}</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 overflow-auto max-h-[60vh]">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Used</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Against</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {matches.map((match, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player1_beyblade}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player2_beyblade}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player1_name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player2_name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.points_awarded}</td>
                 </tr>
               ))}
             </tbody>
@@ -493,29 +554,30 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
     setSortConfig({ key, direction });
   };
 
-  const showAllCombos = () => {
-    setShowAllModal({
+  const showPartMatchDetails = (partName: string, partType: string) => {
+    const partMatches = processedMatches.filter(match => 
+      match.parsedParts[partType as keyof ParsedBeyblade] === partName
+    );
+    
+    const enhancedMatches = partMatches.map(processedMatch => {
+      // Find the original match data
+      const originalMatch = processedMatch.allMatches?.[0] || {};
+      return {
+        combo_used: processedMatch.beyblade,
+        combo_against: processedMatch.opponentBeyblade,
+        player1_name: processedMatch.player,
+        player2_name: processedMatch.opponent,
+        winner_name: originalMatch.winner_name,
+        outcome: processedMatch.outcome,
+        player1_beyblade: processedMatch.beyblade,
+        player2_beyblade: processedMatch.opponentBeyblade
+      };
+    });
+    
+    setMatchDetailsModal({
       isOpen: true,
-      title: 'All Combo Performance Rankings',
-      data: sortedComboStats,
-      columns: [
-        { key: 'combo', label: 'Combo' },
-        { key: 'player', label: 'Player' },
-        { key: 'bladeLine', label: 'Blade Line' },
-        { key: 'totalMatches', label: 'Matches' },
-        { key: 'winRate', label: 'Win Rate (%)' },
-        { key: 'weightedWinRate', label: 'Weighted Win Rate (%)' },
-        { key: 'avgPointsPerMatch', label: 'Avg Points' },
-        { key: 'comboScore', label: 'Combo Score' }
-      ],
-      onRowClick: (row) => {
-        setMatchDetailsModal({
-          isOpen: true,
-          title: `All Matches for ${row.combo} by ${row.player}`,
-          matches: row.allMatches || []
-        });
-        setShowAllModal(prev => ({ ...prev, isOpen: false }));
-      }
+      title: `All Matches using ${partName}`,
+      matches: enhancedMatches
     });
   };
 
@@ -543,9 +605,33 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         { key: 'wilson', label: 'Wilson Score' }
       ],
       onRowClick: (row) => {
+        setShowAllModal(prev => ({ ...prev, isOpen: false }));
+        setTimeout(() => {
+          showPartMatchDetails(row.name, partType);
+        }, 100);
+      }
+    });
+  };
+
+  const showAllCombos = () => {
+    setShowAllModal({
+      isOpen: true,
+      title: 'All Combo Performance Rankings',
+      data: sortedComboStats,
+      columns: [
+        { key: 'combo', label: 'Combo' },
+        { key: 'player', label: 'Player' },
+        { key: 'bladeLine', label: 'Blade Line' },
+        { key: 'totalMatches', label: 'Matches' },
+        { key: 'winRate', label: 'Win Rate (%)' },
+        { key: 'weightedWinRate', label: 'Weighted Win Rate (%)' },
+        { key: 'avgPointsPerMatch', label: 'Avg Points' },
+        { key: 'comboScore', label: 'Combo Score' }
+      ],
+      onRowClick: (row) => {
         setMatchDetailsModal({
           isOpen: true,
-          title: `All Matches using ${row.name}`,
+          title: `All Matches for ${row.combo} by ${row.player}`,
           matches: row.allMatches || []
         });
         setShowAllModal(prev => ({ ...prev, isOpen: false }));
