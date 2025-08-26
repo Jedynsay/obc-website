@@ -165,9 +165,8 @@ export function PersonalStatsTab() {
       }, {} as { [id: string]: { name: string; date: string } });
 
       // Process personal data
-        const normalizedPlayerName = playerName.toLowerCase();
-        const isPlayer1 = match.normalized_player1_name === normalizedPlayerName;
-        const isWinner = match.normalized_winner_name === normalizedPlayerName;
+        const isPlayer1 = match.player1_name === playerName;
+        const isWinner = match.winner_name === playerName;
       const tournamentStats: { [id: string]: TournamentPerformance } = {};
       const finishCounts: { [finish: string]: number } = {};
       const pointsPerFinishMap: { [finish: string]: number } = {};

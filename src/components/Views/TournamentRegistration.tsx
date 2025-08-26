@@ -16,7 +16,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   
   const [playerName, setPlayerName] = useState('');
   const [paymentMode, setPaymentMode] = useState<'free' | 'cash' | 'gcash' | 'bank_transfer'>(
-    tournament.is_free ? 'free' : 'cash'
+    tournament?.is_free ? 'free' : 'cash'
   );
   const [beyblades, setBeyblades] = useState([{ id: '1', isCustomLine: false, parts: {} }]);
   const [deckPresets, setDeckPresets] = useState<any[]>([]);
@@ -411,7 +411,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                   onChange={(e) => setPaymentMode(e.target.value as any)}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {tournament.is_free && <option value="free">Free Entry</option>}
+                  {tournament?.is_free && <option value="free">Free Entry</option>}
                   <option value="cash">Cash</option>
                   <option value="gcash">GCash</option>
                   <option value="bank_transfer">Bank Transfer</option>
