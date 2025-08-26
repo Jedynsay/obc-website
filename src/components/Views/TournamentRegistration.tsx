@@ -417,10 +417,10 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                   <option value="bank_transfer">Bank Transfer</option>
                 </select>
 
+              </div>
                   <label htmlFor="paymentMode" className="block text-sm font-medium text-gray-700 mb-1">
                   Register your account to see personal stats across multiple tournaments
                   </label>
-              </div>
             </div>
           </div>
 
