@@ -254,6 +254,18 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
       return;
     }
 
+    // Check if registration is open
+    if (!tournament.registration_open) {
+      await alert('Registration Closed', 'Registration for this tournament has been closed by the administrators.');
+      return;
+    }
+
+    // Check if tournament is full (for non-unlimited tournaments)
+    if (tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants) {
+      await alert('Tournament Full', 'This tournament has reached its maximum number of participants.');
+      return;
+    }
+
     try {
       const tournamentData = await supabase
         .from('tournaments')
