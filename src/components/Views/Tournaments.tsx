@@ -156,10 +156,15 @@ export function Tournaments() {
                 {tournament.status === 'upcoming' && (
                   <button
                     onClick={() => setSelectedTournament(tournament.id)}
-                    disabled={tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants}
+                    disabled={
+                      !tournament.registration_open ||
+                      (tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants)
+                    }
                     className="primary-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants 
+                    {!tournament.registration_open 
+                      ? 'Registration Closed'
+                      : tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants 
                       ? 'Tournament Full' 
                       : 'Register for Tournament'}
                   </button>
