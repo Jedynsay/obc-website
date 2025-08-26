@@ -142,21 +142,30 @@ function MatchDetailsModal({ isOpen, onClose, title, matches }: MatchDetailsModa
               <tr>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Result</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Player 1</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Player 1 Beyblade</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Player 2</th>
+                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Player 2 Beyblade</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Winner</th>
                 <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Finish Type</th>
-                <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Points</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {matches.map((match, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr key={index} className={`hover:bg-gray-50 ${
+                  match.winner_name === match.player1_name ? 'bg-blue-50' :
+                  match.winner_name === match.player2_name ? 'bg-red-50' : ''
+                }`}>
                   <td className="px-6 py-4 text-sm font-medium">Match {index + 1}</td>
-                  <td className="px-6 py-4 text-sm">{match.player1_name}</td>
-                  <td className="px-6 py-4 text-sm">{match.player2_name}</td>
+                  <td className={`px-6 py-4 text-sm font-medium ${
+                    match.winner_name === match.player1_name ? 'text-blue-700' : 'text-gray-600'
+                  }`}>{match.player1_name}</td>
+                  <td className="px-6 py-4 text-sm font-mono text-xs">{match.player1_beyblade}</td>
+                  <td className={`px-6 py-4 text-sm font-medium ${
+                    match.winner_name === match.player2_name ? 'text-red-700' : 'text-gray-600'
+                  }`}>{match.player2_name}</td>
+                  <td className="px-6 py-4 text-sm font-mono text-xs">{match.player2_beyblade}</td>
                   <td className="px-6 py-4 text-sm font-medium text-green-600">{match.winner_name}</td>
                   <td className="px-6 py-4 text-sm">{match.outcome}</td>
-                  <td className="px-6 py-4 text-sm">{match.points_awarded}</td>
                 </tr>
               ))}
             </tbody>
@@ -221,10 +230,17 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
         const points = match.points_awarded || FINISH_POINTS[outcome as keyof typeof FINISH_POINTS] || 0;
         const phase = match.phase_number || 1;
 
-        [match.player1_name, match.player2_name].forEach(playerName => {
-          if (!playersMap[playerName]) {
-            playersMap[playerName] = {
-              name: playerName,
+        // Use normalized names for consistent player tracking
+        const normalizedPlayer1 = match.normalized_player1_name || match.player1_name.toLowerCase();
+        const normalizedPlayer2 = match.normalized_player2_name || match.player2_name.toLowerCase();
+        const normalizedWinner = match.normalized_winner_name || match.winner_name.toLowerCase();
+        
+        [normalizedPlayer1, normalizedPlayer2].forEach((normalizedName, index) => {
+          const displayName = index === 0 ? match.player1_name : match.player2_name;
+          
+          if (!playersMap[displayName]) {
+            playersMap[displayName] = {
+              name: displayName,
               matches: 0,
               wins: 0,
               losses: 0,
@@ -248,14 +264,17 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
         });
 
         // Store all matches
-        playersMap[match.player1_name].allMatches.push(match);
-        playersMap[match.player2_name].allMatches.push(match);
+        if (playersMap[match.player1_name]) playersMap[match.player1_name].allMatches.push(match);
+        if (playersMap[match.player2_name]) playersMap[match.player2_name].allMatches.push(match);
 
         const winner = playersMap[match.winner_name];
-        const loser = playersMap[match.winner_name === match.player1_name ? match.player2_name : match.player1_name];
+        const loserName = normalizedWinner === normalizedPlayer1 ? match.player2_name : match.player1_name;
+        const loser = playersMap[loserName];
         const winnerBeyblade = match.winner_name === match.player1_name ? match.player1_beyblade : match.player2_beyblade;
         const loserBeyblade = match.winner_name === match.player1_name ? match.player2_beyblade : match.player1_beyblade;
 
+        if (!winner || !loser) return; // Skip if players not found
+        
         // Winner stats
         winner.matches++;
         winner.wins++;
@@ -448,76 +467,79 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
         </div>
       </div>
 
-      {/* Tournament Rankings */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold flex items-center">
-            <Trophy size={20} className="mr-2 text-yellow-600" />
-            Tournament Player Rankings
-          </h2>
-          <button
-            onClick={showAllPlayers}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <Eye size={16} />
-            <span>Show All</span>
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Matches</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Win Rate</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Weighted Win Rate</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Points</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Points/Match</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Most Common Win</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {Object.values(players)
-                .sort((a, b) => b.weightedWinRate - a.weightedWinRate)
-                .slice(0, 10)
-                .map((player, index) => (
-                  <tr
-                    key={player.name}
-                    className={`hover:bg-gray-50 cursor-pointer ${selectedPlayer === player.name ? 'bg-blue-50' : ''}`}
-                    onClick={() => setSelectedPlayer(player.name)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">
-                          {index + 1}
-                        </div>
-                        {player.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-center">{player.matches}</td>
-                    <td className="px-6 py-4 text-sm text-center">
-                      <span className={`font-medium ${
-                        player.winRate >= 60 ? 'text-green-600' :
-                        player.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
-                      }`}>
-                        {player.winRate.toFixed(1)}%
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-bold text-blue-600 text-center">
-                      {(player.weightedWinRate * 100).toFixed(1)}%
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-center">{player.totalPoints}</td>
-                    <td className="px-6 py-4 text-sm text-center">{player.avgPointsPerMatch.toFixed(2)}</td>
-                    <td className="px-6 py-4 text-sm">{player.mostCommonWinFinish}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Tournament Player Rankings moved above Player Selection */}
 
       {/* Player Detailed Performance (with MVP) */}
       {selectedPlayerData && (
+        <>
+          {/* Move Tournament Player Rankings above Player Selection */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold flex items-center">
+                <Trophy size={20} className="mr-2 text-yellow-600" />
+                Tournament Player Rankings
+              </h2>
+              <button
+                onClick={showAllPlayers}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              >
+                <Eye size={16} />
+                <span>Show All</span>
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Player</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Matches</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Win Rate</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Weighted Win Rate</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Total Points</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Avg Points/Match</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Most Common Win</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {Object.values(players)
+                    .sort((a, b) => b.weightedWinRate - a.weightedWinRate)
+                    .slice(0, 10)
+                    .map((player, index) => (
+                      <tr
+                        key={player.name}
+                        className={`hover:bg-gray-50 cursor-pointer ${selectedPlayer === player.name ? 'bg-blue-50' : ''}`}
+                        onClick={() => setSelectedPlayer(player.name)}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">
+                              {index + 1}
+                            </div>
+                            {player.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-center">{player.matches}</td>
+                        <td className="px-6 py-4 text-sm text-center">
+                          <span className={`font-medium ${
+                            player.winRate >= 60 ? 'text-green-600' :
+                            player.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {player.winRate.toFixed(1)}%
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-blue-600 text-center">
+                          {(player.weightedWinRate * 100).toFixed(1)}%
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-center">{player.totalPoints}</td>
+                        <td className="px-6 py-4 text-sm text-center">{player.avgPointsPerMatch.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-sm">{player.mostCommonWinFinish}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-gray-900 flex items-center">
@@ -569,6 +591,7 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
             </div>
           </div>
         </div>
+        </>
       )}
 
       {/* Wins & Losses per Finish (side-by-side) */}
