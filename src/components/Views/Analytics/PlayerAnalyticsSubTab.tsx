@@ -731,7 +731,7 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Head-to-Head */}
