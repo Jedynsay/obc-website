@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../../context/AuthContext"
 import { supabase } from "../../lib/supabase"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trophy, ArrowRight, LogIn, LogOut, Settings, X, Crown, Activity, Bell } from "lucide-react"
+import { Trophy, ArrowRight, X, Crown, Activity } from "lucide-react"
 import { LoginForm } from "../Auth/LoginForm"
 
 interface Tournament {
@@ -223,7 +223,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      <header className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 sticky top-0 z-50">
+      {/* <header className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -296,7 +296,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
 
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <motion.div
@@ -305,7 +305,11 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           transition={{ duration: 1.5 }}
           className="absolute inset-0"
         >
-          <img src="/community.jpg" alt="Beyblade Community" className="w-full h-full object-cover" />
+          <img
+            src="/beyblade-tournament-arena-with-spinning-tops-and-c.png"
+            alt="Beyblade Community"
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-900"></div>
         </motion.div>
 
