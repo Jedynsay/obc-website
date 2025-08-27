@@ -306,7 +306,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           className="absolute inset-0"
         >
           <img
-            src="/beyblade-tournament-arena-with-spinning-tops-and-c.png"
+            src="/community.jpg"
             alt="Beyblade Community"
             className="w-full h-full object-cover"
           />
