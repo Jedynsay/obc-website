@@ -930,7 +930,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               <div className="relative pointer-events-auto bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
                 <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
                 <button
-                  onClick={() => setShowLoginModal(false)}
+                  onClick={() => setShowLoginModaloginModal(false)}
                   className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
                 >
                   <X size={16} />
