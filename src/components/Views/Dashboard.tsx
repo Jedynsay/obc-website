@@ -305,7 +305,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           transition={{ duration: 1.5 }}
           className="absolute inset-0"
         >
-          <img src="/community.png" alt="Beyblade Community" className="w-full h-full object-cover" />
+          <img src="/community.jpg" alt="Beyblade Community" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-900"></div>
         </motion.div>
 
