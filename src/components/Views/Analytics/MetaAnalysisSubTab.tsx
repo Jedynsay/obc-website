@@ -90,9 +90,9 @@ function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: Sho
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-gray-700">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">{title}</h2>
             <button
@@ -104,7 +104,7 @@ function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: Sho
           </div>
         </div>
 
-        <div className="p-6 bg-gray-800">
+        <div className="p-6">
           <div className="mb-4">
             <div className="relative">
               <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -113,31 +113,31 @@ function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: Sho
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           <div className="overflow-auto max-h-[60vh]">
-            <table className="min-w-full divide-y divide-gray-700">
-              <thead className="bg-gray-700 sticky top-0">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50 sticky top-0">
                 <tr>
                   {columns.map(col => (
-                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {col.label}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-gray-800 divide-y divide-gray-700">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {filteredData.map((row, index) => (
                   <tr 
                     key={index} 
-                    className={`hover:bg-gray-700 ${onRowClick ? 'cursor-pointer' : ''}`}
+                    className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
                     onClick={() => onRowClick?.(row)}
                   >
                     {columns.map(col => (
-                      <td key={col.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      <td key={col.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {typeof row[col.key] === 'number' ? 
                           (col.key.includes('Rate') || col.key.includes('Score') ? 
                             row[col.key].toFixed(1) : row[col.key]) : 
@@ -159,9 +159,9 @@ function MatchDetailsModal({ isOpen, onClose, title, matches }: MatchDetailsModa
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-gray-700">
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-green-500 to-blue-500 px-6 py-4 text-white">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">{title}</h2>
             <button
@@ -173,31 +173,41 @@ function MatchDetailsModal({ isOpen, onClose, title, matches }: MatchDetailsModa
           </div>
         </div>
 
-        <div className="p-6 overflow-auto max-h-[60vh] bg-gray-800">
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead className="bg-gray-700">
+        <div className="p-6 overflow-auto max-h-[60vh]">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Combo Used</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Combo Against</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Player</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Opponent</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Winner</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Finish Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Used</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent Beyblade</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
               </tr>
             </thead>
-            <tbody className="bg-gray-800 divide-y divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {matches.map((match, index) => (
-                <tr key={index} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs text-gray-300">
-                    {match.combo_used}
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">
+                    {match.player1_beyblade}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs text-gray-300">
-                    {match.combo_against}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{match.player1_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player2_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player2_beyblade}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
+                </tr>
+              ))}
+              {matches.map((match, index) => (
+                <tr key={`p2-${index}`} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">
+                    {match.player2_beyblade}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{match.player1_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{match.player2_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-400">{match.winner_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{match.outcome}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{match.player2_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player1_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player1_beyblade}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
                 </tr>
               ))}
             </tbody>
@@ -212,9 +222,9 @@ function PartMatchDetailsModal({ isOpen, onClose, title, matches, partName }: Ma
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-gray-700">
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4 text-white">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-4 text-white">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">{title}</h2>
             <button
@@ -226,27 +236,27 @@ function PartMatchDetailsModal({ isOpen, onClose, title, matches, partName }: Ma
           </div>
         </div>
 
-        <div className="p-6 overflow-auto max-h-[60vh] bg-gray-800">
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead className="bg-gray-700">
+        <div className="p-6 overflow-auto max-h-[60vh]">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Combo Used</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Combo Against</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Player</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Opponent</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Winner</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Finish Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Used</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combo Against</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 1</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player 2</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Winner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Finish Type</th>
               </tr>
             </thead>
-            <tbody className="bg-gray-800 divide-y divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {matches.map((match, index) => (
-                <tr key={index} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs text-gray-300">{match.combo_used}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs text-gray-300">{match.combo_against}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{match.player}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{match.opponent}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-400">{match.winner_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{match.outcome}</td>
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player1_beyblade}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-xs">{match.player2_beyblade}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player1_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.player2_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{match.winner_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{match.outcome}</td>
                 </tr>
               ))}
             </tbody>
@@ -549,45 +559,24 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       match.parsedParts[partType as keyof ParsedBeyblade] === partName
     );
     
-    // Get unique matches (avoid duplicates from processing both players)
-    const uniqueMatches = new Map();
-    
-    partMatches.forEach(processedMatch => {
-      const matchKey = `${processedMatch.player}_${processedMatch.opponent}_${processedMatch.beyblade}_${processedMatch.opponentBeyblade}`;
-      if (!uniqueMatches.has(matchKey)) {
-        uniqueMatches.set(matchKey, {
-          combo_used: processedMatch.beyblade,
-          combo_against: processedMatch.opponentBeyblade,
-          player: processedMatch.player,
-          opponent: processedMatch.opponent,
-          winner_name: processedMatch.isWin ? processedMatch.player : processedMatch.opponent,
-          outcome: processedMatch.outcome
-        });
-      }
-    });
-    
-    setMatchDetailsModal({
-      isOpen: true,
-      title: `All Matches using ${partName}`,
-      matches: Array.from(uniqueMatches.values())
-    });
-  };
-
-  const showComboMatchDetails = (combo: ComboStats) => {
-    const enhancedMatches = combo.allMatches.map(match => {
+    const enhancedMatches = partMatches.map(processedMatch => {
+      // Find the original match data
+      const originalMatch = processedMatch.allMatches?.[0] || {};
       return {
-        combo_used: combo.combo,
-        combo_against: match.winner_name === match.player1_name ? match.player2_beyblade : match.player1_beyblade,
-        player: combo.player,
-        opponent: combo.player === match.player1_name ? match.player2_name : match.player1_name,
-        winner_name: match.winner_name,
-        outcome: match.outcome
+        combo_used: processedMatch.beyblade,
+        combo_against: processedMatch.opponentBeyblade,
+        player1_name: processedMatch.player,
+        player2_name: processedMatch.opponent,
+        winner_name: originalMatch.winner_name,
+        outcome: processedMatch.outcome,
+        player1_beyblade: processedMatch.beyblade,
+        player2_beyblade: processedMatch.opponentBeyblade
       };
     });
     
     setMatchDetailsModal({
       isOpen: true,
-      title: `All Matches for ${combo.combo} by ${combo.player}`,
+      title: `All Matches using ${partName}`,
       matches: enhancedMatches
     });
   };
@@ -726,14 +715,14 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Combos Chart */}
-        <div className="chart-container bg-gray-800">
+        <div className="chart-container">
           <h3 className="chart-title flex items-center">
-            <Target size={24} className="mr-2 text-blue-400" />
+            <Target size={24} className="mr-2 text-blue-600" />
             Top Combos by Score
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={topCombosChartData} margin={{ bottom: 60 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="name" 
                 angle={-45}
@@ -741,16 +730,9 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
                 height={80}
                 interval={0}
                 fontSize={9}
-                tick={{ fill: '#9CA3AF' }}
               />
-              <YAxis tick={{ fill: '#9CA3AF' }} />
+              <YAxis />
               <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1F2937', 
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: '#F3F4F6'
-                }}
                 formatter={(value, name) => [
                   typeof value === 'number' ? value.toFixed(2) : value,
                   name === 'score' ? 'Combo Score' : name === 'winRate' ? 'Win Rate (%)' : 'Matches'
@@ -762,7 +744,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         </div>
 
         {/* Finish Distribution */}
-        <div className="chart-container bg-gray-800">
+        <div className="chart-container">
           <h3 className="chart-title">Finish Type Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -780,36 +762,29 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1F2937', 
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: '#F3F4F6'
-                }}
-              />
+              <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Part Analysis Section */}
-      <div className="chart-container bg-gray-800">
+      <div className="chart-container">
         <h3 className="chart-title flex items-center">
-          <Search size={24} className="mr-2 text-purple-400" />
+          <Search size={24} className="mr-2 text-purple-600" />
           Analysis by Part
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Part Type</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Part Type</label>
             <select
               value={selectedPartType}
               onChange={(e) => {
                 setSelectedPartType(e.target.value);
                 setSelectedPartName('');
               }}
-              className="w-full border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-700 text-white"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="">Select Part Type</option>
               <option value="blade">Blade</option>
@@ -822,12 +797,12 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Part Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Part Name</label>
             <select
               value={selectedPartName}
               onChange={(e) => setSelectedPartName(e.target.value)}
               disabled={!selectedPartType}
-              className="w-full border border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-600 bg-gray-700 text-white"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
             >
               <option value="">Select Part Name</option>
               {selectedPartType && Object.values(partStats[selectedPartType] || {})
@@ -843,62 +818,66 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         {/* Part Combos Table */}
         {selectedPartType && selectedPartName && partCombos.length > 0 && (
           <div className="mb-6">
-            <h4 className="text-lg font-semibold text-white mb-4">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">
               Combos using {selectedPartName} ({selectedPartType})
             </h4>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead className="bg-purple-900/20">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-purple-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-purple-800/30">Combo</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-purple-800/30">Player</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-purple-800/30">Blade Line</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-purple-800/30">Matches</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-purple-800/30">Win Rate</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-purple-800/30">Combo Score</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-purple-800/30">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Combo</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Player</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Blade Line</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Matches</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Win Rate</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Combo Score</th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-purple-100">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-gray-800 divide-y divide-gray-700">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {partCombos.map((combo, index) => (
-                    <tr key={index} className="hover:bg-gray-700">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                    <tr key={index} className="hover:bg-purple-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {combo.combo}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {combo.player}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          combo.bladeLine === 'Basic' ? 'bg-blue-900/50 text-blue-300' :
-                          combo.bladeLine === 'Unique' ? 'bg-purple-900/50 text-purple-300' :
-                          combo.bladeLine === 'Custom' ? 'bg-orange-900/50 text-orange-300' :
-                          combo.bladeLine === 'X-Over' ? 'bg-green-900/50 text-green-300' :
-                          'bg-gray-700 text-gray-300'
+                          combo.bladeLine === 'Basic' ? 'bg-blue-100 text-blue-800' :
+                          combo.bladeLine === 'Unique' ? 'bg-purple-100 text-purple-800' :
+                          combo.bladeLine === 'Custom' ? 'bg-orange-100 text-orange-800' :
+                          combo.bladeLine === 'X-Over' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
                         }`}>
                           {combo.bladeLine}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-center">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                         {combo.totalMatches}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                         <span className={`font-medium ${
-                          combo.winRate >= 60 ? 'text-green-400' :
-                          combo.winRate >= 40 ? 'text-yellow-400' : 'text-red-400'
+                          combo.winRate >= 60 ? 'text-green-600' :
+                          combo.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
                         }`}>
                           {combo.winRate.toFixed(1)}%
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-purple-400 text-center">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-purple-600 text-center">
                         {combo.comboScore.toFixed(1)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <button
                           onClick={() => {
-                            showComboMatchDetails(combo);
+                            setMatchDetailsModal({
+                              isOpen: true,
+                              title: `All Matches for ${combo.combo} by ${combo.player}`,
+                              matches: combo.allMatches || []
+                            });
                           }}
-                          className="text-purple-400 hover:text-purple-300 text-sm font-medium"
+                          className="text-purple-600 hover:text-purple-800 text-sm font-medium"
                         >
                           View Matches
                         </button>
@@ -913,7 +892,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       </div>
 
       {/* Combo Statistics Table */}
-      <div className="chart-container bg-gray-800">
+      <div className="chart-container">
         <div className="flex justify-between items-center mb-4">
           <h3 className="chart-title">Combo Performance Rankings</h3>
           <button
@@ -925,132 +904,52 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead className="bg-gray-700">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('combo')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Combo</span>
-                    {sortConfig.key === 'combo' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('player')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Player</span>
-                    {sortConfig.key === 'player' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('bladeLine')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Blade Line</span>
-                    {sortConfig.key === 'bladeLine' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('totalMatches')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Matches</span>
-                    {sortConfig.key === 'totalMatches' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('winRate')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Win Rate</span>
-                    {sortConfig.key === 'winRate' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('weightedWinRate')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Weighted Win Rate</span>
-                    {sortConfig.key === 'weightedWinRate' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('avgPointsPerMatch')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Avg Points</span>
-                    {sortConfig.key === 'avgPointsPerMatch' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
-                <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600"
-                  onClick={() => handleSort('comboScore')}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>Combo Score</span>
-                    {sortConfig.key === 'comboScore' && (
-                      sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                    )}
-                  </div>
-                </th>
+                <SortableHeader sortKey="combo">Combo</SortableHeader>
+                <SortableHeader sortKey="player">Player</SortableHeader>
+                <SortableHeader sortKey="bladeLine">Blade Line</SortableHeader>
+                <SortableHeader sortKey="totalMatches">Matches</SortableHeader>
+                <SortableHeader sortKey="winRate">Win Rate</SortableHeader>
+                <SortableHeader sortKey="weightedWinRate">Weighted Win Rate</SortableHeader>
+                <SortableHeader sortKey="avgPointsPerMatch">Avg Points</SortableHeader>
+                <SortableHeader sortKey="comboScore">Combo Score</SortableHeader>
               </tr>
             </thead>
-            <tbody className="bg-gray-800 divide-y divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {sortedComboStats.slice(0, 20).map((combo, index) => (
-                <tr key={index} className="hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {combo.combo}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {combo.player}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      combo.bladeLine === 'Basic' ? 'bg-blue-900/50 text-blue-300' :
-                      combo.bladeLine === 'Unique' ? 'bg-purple-900/50 text-purple-300' :
-                      combo.bladeLine === 'Custom' ? 'bg-orange-900/50 text-orange-300' :
-                      combo.bladeLine === 'X-Over' ? 'bg-green-900/50 text-green-300' :
-                      'bg-gray-700 text-gray-300'
+                      combo.bladeLine === 'Basic' ? 'bg-blue-100 text-blue-800' :
+                      combo.bladeLine === 'Unique' ? 'bg-purple-100 text-purple-800' :
+                      combo.bladeLine === 'Custom' ? 'bg-orange-100 text-orange-800' :
+                      combo.bladeLine === 'X-Over' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
                     }`}>
                       {combo.bladeLine}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {combo.totalMatches}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {combo.winRate.toFixed(1)}%
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                     {(combo.weightedWinRate * 100).toFixed(1)}%
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {combo.avgPointsPerMatch.toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
                     {combo.comboScore.toFixed(1)}
                   </td>
                 </tr>
@@ -1065,7 +964,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         {/* Blades and Main Blades */}
         <div className="space-y-6">
           {(['blade', 'mainBlade'] as const).map(partType => (
-            <div key={partType} className="chart-container bg-gray-800">
+            <div key={partType} className="chart-container">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="chart-title capitalize">
                   {partType === 'mainBlade' ? 'Main Blades' : 'Blades'} Performance
@@ -1140,7 +1039,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         {/* Other Parts */}
         <div className="space-y-6">
           {(['ratchet', 'bit', 'lockchip', 'assistBlade'] as const).map(partType => (
-            <div key={partType} className="chart-container bg-gray-800">
+            <div key={partType} className="chart-container">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="chart-title capitalize">
                   {partType === 'assistBlade' ? 'Assist Blades' : `${partType}s`} Performance

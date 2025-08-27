@@ -87,17 +87,17 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
   }
 
   return (
-    <div className="w-full max-w-md p-8 mx-auto bg-gray-800 text-white">
+    <div className="w-full max-w-md p-8 mx-auto">
         <div className="flex items-center mb-6">
           <button
             onClick={onBackToLogin}
-            className="p-2 hover:bg-gray-700 rounded-full transition-colors mr-3 text-gray-400 hover:text-white"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors mr-3 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 className="text-2xl font-bold text-white font-space-grotesk">Create Account</h2>
-            <p className="text-gray-400 font-inter">Join the Beyblade community</p>
+            <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">Create Account</h2>
+            <p className="text-gray-600 font-inter">Join the Beyblade community</p>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
           </div>
 
           {error && (
-            <div className="text-red-400 text-sm bg-red-900/20 p-3 rounded-md font-inter">{error}</div>
+            <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md font-inter">{error}</div>
           )}
 
           <button
@@ -196,7 +196,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-400 font-inter">
+          <p className="text-xs text-gray-500 font-inter">
             By creating an account, you agree to participate in tournaments and follow community guidelines. All new accounts start with basic user permissions.
           </p>
         </div>
