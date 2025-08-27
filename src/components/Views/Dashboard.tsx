@@ -527,23 +527,25 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                 <h3 className="text-white font-bold text-2xl mb-3">Tournament Hub</h3>
                 <p className="text-blue-100 mb-6">Register for upcoming battles and view tournament brackets</p>
                 
-                {upcomingTournaments.length > 0 ? (
-                  <div className="space-y-3">
-                    <div className="text-white font-semibold">{upcomingTournaments[0].name}</div>
-                    <div className="text-blue-200 text-sm">
-                      {new Date(upcomingTournaments[0].tournament_date).toLocaleDateString()} • {upcomingTournaments[0].location}
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-blue-200 text-sm">
-                        {upcomingTournaments[0].current_participants}/{upcomingTournaments[0].max_participants} registered
-                      </span>
-                      <div className="flex items-center text-white font-medium group-hover:translate-x-2 transition-transform">
-                        <span>Register Now</span>
-                        <ArrowRight size={16} className="ml-2" />
-                      </div>
+              {upcomingTournaments.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="text-white font-semibold">{upcomingTournaments[0].name}</div>
+                  <div className="text-blue-200 text-sm">
+                    {new Date(upcomingTournaments[0].tournament_date).toLocaleDateString()} • {upcomingTournaments[0].location}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-200 text-sm">
+                      {upcomingTournaments[0].max_participants === 999999
+                        ? `${upcomingTournaments[0].current_participants} registered`
+                        : `${upcomingTournaments[0].current_participants}/${upcomingTournaments[0].max_participants} registered`}
+                    </span>
+                    <div className="flex items-center text-white font-medium group-hover:translate-x-2 transition-transform">
+                      <span>Register Now</span>
+                      <ArrowRight size={16} className="ml-2" />
                     </div>
                   </div>
-                ) : (
+                </div>
+              ) : (
                   <div className="text-blue-200">No upcoming tournaments</div>
                 )}
               </motion.button>
