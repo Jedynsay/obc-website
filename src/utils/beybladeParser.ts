@@ -40,7 +40,7 @@ export function calculateWilsonScore(wins: number, total: number, z: number = 1.
   const denom = 1 + z * z / total;
   const center = phat + z * z / (2 * total);
   const spread = z * Math.sqrt((phat * (1 - phat) + z * z / (4 * total)) / total);
-  return Math.round(((center - spread) / denom) * 1000) / 1000;
+  return Math.round(((center - spread) / denom) * 1000000) / 1000000;
 }
 
 function tryParseStandardBeyblade(beybladeName: string, bladeLine: string, partsData: AllPartsData): ParsedBeyblade | null {

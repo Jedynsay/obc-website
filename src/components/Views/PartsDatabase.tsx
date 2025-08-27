@@ -469,9 +469,9 @@ const renderPartCard = (part: Part) => {
 
         {/* Part Details Modal */}
         {selectedPart && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-700">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-2xl font-bold truncate">{selectedPart.name}</h2>
@@ -501,9 +501,9 @@ const renderPartCard = (part: Part) => {
               </div>
 
               {/* Modal Content */}
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)] bg-gray-800">
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">Statistics</h3>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {Object.entries(selectedPart.stats)
                       .filter(([stat]) =>
@@ -514,17 +514,17 @@ const renderPartCard = (part: Part) => {
                       .map(([stat, value]) => (
                         <div key={stat} className="text-center">
                           <div className="flex justify-center mb-1">{getStatIcon(stat)}</div>
-                          <div className="text-sm font-medium capitalize">{stat}</div>
-                          <div className="text-lg font-bold text-gray-900">{value}</div>
+                          <div className="text-sm font-medium capitalize text-gray-300">{stat}</div>
+                          <div className="text-lg font-bold text-white">{value}</div>
                         </div>
                       ))}
                   </div>
                 </div>
                 
-                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Preview</h4>
+                <div className="mb-6 bg-gray-700 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-white mb-2">Preview</h4>
                   {selectedPart && (
-                    <div className="w-full aspect-square flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden mx-auto max-h-64">
+                    <div className="w-full aspect-square flex items-center justify-center bg-gray-600 rounded-lg overflow-hidden mx-auto max-h-64">
                       <img
                         src={`https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${
                           tableFolderMap[selectedPart.category]
@@ -534,7 +534,7 @@ const renderPartCard = (part: Part) => {
                           const target = e.target as HTMLImageElement;
                           const fallback = document.createElement('div');
                           fallback.textContent = 'Picture Not Available';
-                          fallback.className = 'text-gray-400 text-sm text-center';
+                          fallback.className = 'text-gray-300 text-sm text-center';
                           target.replaceWith(fallback);
                         }}
                         className="object-contain w-full h-full"
@@ -543,14 +543,14 @@ const renderPartCard = (part: Part) => {
                   )}
                 </div>
 
-                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Win Rate</h4>
-                  <p className="text-gray-600">Coming Soon</p>
+                <div className="mb-6 bg-gray-700 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-white mb-2">Win Rate</h4>
+                  <p className="text-gray-400">Coming Soon</p>
                 </div>
 
-                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Top 3 Combos</h4>
-                  <p className="text-gray-600">Coming Soon</p>
+                <div className="mb-6 bg-gray-700 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-white mb-2">Top 3 Combos</h4>
+                  <p className="text-gray-400">Coming Soon</p>
                 </div>
               </div>
             </div>

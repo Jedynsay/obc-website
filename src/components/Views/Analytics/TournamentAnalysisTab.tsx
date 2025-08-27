@@ -75,19 +75,20 @@ export function TournamentAnalysisTab() {
   return (
     <div className="space-y-8">
       {/* Tournament Selection */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700 p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <Database size={24} className="mr-2 text-blue-600" />
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <Database size={24} className="mr-2 text-blue-400" />
           Tournament Selection
         </h2>
         <div className="max-w-md">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Select Tournament for Analysis
           </label>
           <select
             value={selectedTournament}
             onChange={(e) => setSelectedTournament(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white"
           >
             <option value="">-- Select Tournament --</option>
             {tournaments.map(tournament => (
@@ -102,8 +103,8 @@ export function TournamentAnalysisTab() {
       {selectedTournament && (
         <>
           {/* Sub-tabs */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="filter-tabs">
+          <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700 p-6">
+            <div className="filter-tabs bg-gray-700">
               <button
                 onClick={() => handleSubTabChange('meta')}
                 className={`filter-tab ${
@@ -136,12 +137,12 @@ export function TournamentAnalysisTab() {
       )}
 
       {!selectedTournament && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
-          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Database size={32} className="text-gray-400" />
+        <div className="bg-gray-800 border border-gray-700 rounded-xl p-8 text-center">
+          <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Database size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a Tournament</h3>
-          <p className="text-gray-600">
+          <h3 className="text-lg font-semibold text-white mb-2">Select a Tournament</h3>
+          <p className="text-gray-400">
             Choose a tournament from the dropdown above to view detailed meta analysis and player analytics.
           </p>
         </div>

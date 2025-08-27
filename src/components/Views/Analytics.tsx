@@ -35,18 +35,18 @@ export function Analytics() {
   }
 
   return (
-    <div className="page-container">
+    <div className="page-container bg-gray-900">
       <div className="content-wrapper">
         <div className="page-header">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="page-title flex items-center">
-                <BarChart3 size={32} className="mr-3 text-blue-600" />
+                <BarChart3 size={32} className="mr-3 text-blue-400" />
                 Tournament Analytics
               </h1>
-              <p className="page-subtitle">Comprehensive tournament, player, and community statistics</p>
+              <p className="page-subtitle text-gray-400">Comprehensive tournament, player, and community statistics</p>
             </div>
-            <div className="filter-tabs flex gap-2">
+            <div className="filter-tabs flex gap-2 bg-gray-800">
               <button
                 onClick={() => handleTabChange('overview')}
                 className={`filter-tab ${currentTab === 'overview' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
