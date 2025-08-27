@@ -164,19 +164,6 @@ export function Tournaments() {
                 </button>
               ))}
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="showPractice"
-                checked={showPractice}
-                onChange={(e) => setShowPractice(e.target.checked)}
-                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-              />
-              <label htmlFor="showPractice" className="text-sm font-medium text-gray-700">
-                Show Practice Tournaments
-              </label>
-            </div>
           </div>
         </div>
 
@@ -218,18 +205,15 @@ export function Tournaments() {
                 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between text-gray-600 font-inter text-sm">
-                    <span>Code:</span>
-                    <span className="font-mono font-bold text-blue-600">{tournament.tournament_code}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600 font-inter">
+                  <div className="flex items-center text-gray-400 font-inter">
                     <Calendar size={14} className="mr-2" />
                     <span className="text-sm">{new Date(tournament.tournament_date).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center text-gray-600 font-inter">
+                  <div className="flex items-center text-gray-400 font-inter">
                     <MapPin size={14} className="mr-2" />
                     <span className="text-sm">{tournament.location}</span>
                   </div>
-                  <div className="flex items-center text-gray-600 font-inter">
+                  <div className="flex items-center text-gray-400 font-inter">
                     <Users size={14} className="mr-2" />
                     <span className="text-sm">
                       {tournament.max_participants === 999999
@@ -241,7 +225,7 @@ export function Tournaments() {
 
                 {/* Progress Bar */}
                 <div className="mb-4">
-                  <div className="flex justify-between text-gray-600 font-inter mb-1 text-sm">
+                  <div className="flex justify-between text-gray-400 font-inter mb-1 text-sm">
                     <span>Registration</span>
                     <span className="text-xs">
                       {tournament.max_participants === 999999 

@@ -424,7 +424,7 @@ export function PersonalStatsTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Personal Finish Distribution */}
-        <div className="chart-container">
+        <div className="chart-container bg-gray-800">
           <h3 className="chart-title">Your Finish Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -447,43 +447,53 @@ export function PersonalStatsTab() {
           </ResponsiveContainer>
         </div>
 
-        {/* Points Per Finish Type with Values */}
-        <div className="chart-container">
+        {/* Points Per Finish Type */}
+        <div className="chart-container bg-gray-800">
           <h3 className="chart-title">Points Per Finish Type</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={pointsPerFinish}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="finish" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="points" fill="#3B82F6" />
-              </BarChart>
-            </ResponsiveContainer>
-            
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-4">Points Breakdown</h4>
+            <div className="bg-gray-700 rounded-lg p-4">
+              <h4 className="font-semibold text-white mb-4">Points Breakdown</h4>
               <div className="space-y-3">
                 {pointsPerFinish.map((finish) => (
                   <div key={finish.finish} className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700">{finish.finish}:</span>
-                    <span className="text-lg font-bold text-blue-600">{finish.points}</span>
+                    <span className="text-sm font-medium text-gray-300">{finish.finish}:</span>
+                    <span className="text-lg font-bold text-blue-400">{finish.points}</span>
                   </div>
                 ))}
               </div>
             </div>
+            
+            <ResponsiveContainer width="100%" height={200}>
+              <RadarChart data={pointsPerFinish.map(finish => ({
+                finish: finish.finish.split(' ')[0],
+                points: finish.points
+              }))}>
+                <PolarGrid stroke="#374151" />
+                <PolarAngleAxis dataKey="finish" tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+                <PolarRadiusAxis tick={{ fill: '#9CA3AF', fontSize: 10 }} />
+                <Radar name="Points" dataKey="points" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1F2937', 
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#F3F4F6'
+                  }}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
 
       {/* Personal Combo Performance */}
-      <div className="chart-container">
+      <div className="chart-container bg-gray-800">
         <h3 className="chart-title">Your Combo Performance</h3>
         <div className="mb-4">
           <select
             value={selectedCombo}
             onChange={(e) => setSelectedCombo(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white"
           >
             <option value="">Select combo for detailed view</option>
             {personalCombos.map(combo => (
@@ -495,73 +505,73 @@ export function PersonalStatsTab() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Combo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Blade Line
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Matches
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Weighted Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Avg Points
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Combo Score
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-gray-800 divide-y divide-gray-700">
               {personalCombos.map((combo, index) => (
                 <tr 
                   key={index} 
-                  className={`hover:bg-gray-50 cursor-pointer ${
-                    selectedCombo === combo.combo ? 'bg-blue-50' : ''
+                  className={`hover:bg-gray-700 cursor-pointer ${
+                    selectedCombo === combo.combo ? 'bg-blue-900/30' : ''
                   }`}
                   onClick={() => setSelectedCombo(combo.combo === selectedCombo ? '' : combo.combo)}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                     {combo.combo}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      combo.bladeLine === 'Basic' ? 'bg-blue-100 text-blue-800' :
-                      combo.bladeLine === 'Unique' ? 'bg-purple-100 text-purple-800' :
-                      combo.bladeLine === 'Custom' ? 'bg-orange-100 text-orange-800' :
-                      combo.bladeLine === 'X-Over' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
+                      combo.bladeLine === 'Basic' ? 'bg-blue-900/50 text-blue-300' :
+                      combo.bladeLine === 'Unique' ? 'bg-purple-900/50 text-purple-300' :
+                      combo.bladeLine === 'Custom' ? 'bg-orange-900/50 text-orange-300' :
+                      combo.bladeLine === 'X-Over' ? 'bg-green-900/50 text-green-300' :
+                      'bg-gray-700 text-gray-300'
                     }`}>
                       {combo.bladeLine}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-center">
                     {combo.totalMatches}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <span className={`font-medium ${
-                      combo.winRate >= 60 ? 'text-green-600' :
-                      combo.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                      combo.winRate >= 60 ? 'text-green-400' :
+                      combo.winRate >= 40 ? 'text-yellow-400' : 'text-red-400'
                     }`}>
                       {combo.winRate.toFixed(1)}%
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-400 text-center">
                     {(combo.weightedWinRate * 100).toFixed(1)}%
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-center">
                     {combo.avgPointsPerMatch.toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-400 text-center">
                     {combo.comboScore.toFixed(1)}
                   </td>
                 </tr>
@@ -572,21 +582,21 @@ export function PersonalStatsTab() {
 
         {/* Selected Combo Details */}
         {selectedComboData && (
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h4 className="text-lg font-bold text-blue-900 mb-4">
+          <div className="mt-6 bg-blue-900/20 border border-blue-700 rounded-lg p-6">
+            <h4 className="text-lg font-bold text-blue-300 mb-4">
               Detailed Analysis: {selectedComboData.combo}
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h5 className="font-semibold text-gray-900 mb-3">Win Finishes</h5>
+                <h5 className="font-semibold text-white mb-3">Win Finishes</h5>
                 <div className="space-y-2">
                   {Object.entries(selectedComboData.finishDistribution).map(([finish, count]) => (
                     <div key={finish} className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">{finish}</span>
+                      <span className="text-sm text-gray-300">{finish}</span>
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">{count}</span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-sm font-medium text-white">{count}</span>
+                        <span className="text-xs text-gray-400">
                           ({selectedComboData.totalMatches > 0 ? ((count / selectedComboData.wins) * 100).toFixed(0) : 0}%)
                         </span>
                       </div>
@@ -596,14 +606,14 @@ export function PersonalStatsTab() {
               </div>
               
               <div>
-                <h5 className="font-semibold text-gray-900 mb-3">Points Breakdown</h5>
+                <h5 className="font-semibold text-white mb-3">Points Breakdown</h5>
                 <div className="space-y-2">
                   {Object.entries(selectedComboData.pointsPerFinish).map(([finish, points]) => (
                     <div key={finish} className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">{finish}</span>
+                      <span className="text-sm text-gray-300">{finish}</span>
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">{points} pts</span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-sm font-medium text-white">{points} pts</span>
+                        <span className="text-xs text-gray-400">
                           (avg: {selectedComboData.finishDistribution[finish] > 0 ? 
                             (points / selectedComboData.finishDistribution[finish]).toFixed(1) : '0.0'})
                         </span>
@@ -619,62 +629,62 @@ export function PersonalStatsTab() {
 
 
       {/* Tournament History */}
-      <div className="chart-container">
+      <div className="chart-container bg-gray-800">
         <h3 className="chart-title">Tournament History</h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Tournament
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Date
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Matches
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Wins
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Total Points
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-600">
                   Avg Points
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-gray-800 divide-y divide-gray-700">
               {tournamentHistory.map((tournament, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr key={index} className="hover:bg-gray-700">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                     {tournament.tournamentName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                     {tournament.date ? new Date(tournament.date).toLocaleDateString() : 'N/A'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-center">
                     {tournament.matches}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-green-400 text-center font-medium">
                     {tournament.wins}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <span className={`font-medium ${
-                      tournament.winRate >= 60 ? 'text-green-600' :
-                      tournament.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                      tournament.winRate >= 60 ? 'text-green-400' :
+                      tournament.winRate >= 40 ? 'text-yellow-400' : 'text-red-400'
                     }`}>
                       {tournament.winRate.toFixed(1)}%
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-medium">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-center font-medium">
                     {tournament.points}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 text-center">
                     {tournament.avgPointsPerMatch.toFixed(2)}
                   </td>
                 </tr>
@@ -686,7 +696,7 @@ export function PersonalStatsTab() {
 
       {/* MVP Combo Spotlight */}
       {personalCombos.length > 0 && (
-        <div className="chart-container">
+        <div className="chart-container bg-gray-800">
           <h3 className="chart-title">
             {isDeveloper && devSelectedPlayer ? `${devSelectedPlayer}'s MVP Combo` : 'Your MVP Combo'}
           </h3>
@@ -694,23 +704,23 @@ export function PersonalStatsTab() {
             <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trophy size={40} className="text-white" />
             </div>
-            <h4 className="text-2xl font-bold text-gray-900 mb-2">{personalCombos[0].combo}</h4>
+            <h4 className="text-2xl font-bold text-white mb-2">{personalCombos[0].combo}</h4>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
               <div className="text-center">
-                <div className="text-xl font-bold text-blue-600">{personalCombos[0].totalMatches}</div>
-                <div className="text-sm text-gray-600">Matches</div>
+                <div className="text-xl font-bold text-blue-400">{personalCombos[0].totalMatches}</div>
+                <div className="text-sm text-gray-400">Matches</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-green-600">{personalCombos[0].winRate.toFixed(1)}%</div>
-                <div className="text-sm text-gray-600">Win Rate</div>
+                <div className="text-xl font-bold text-green-400">{personalCombos[0].winRate.toFixed(1)}%</div>
+                <div className="text-sm text-gray-400">Win Rate</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-purple-600">{personalCombos[0].avgPointsPerMatch.toFixed(2)}</div>
-                <div className="text-sm text-gray-600">Avg Points</div>
+                <div className="text-xl font-bold text-purple-400">{personalCombos[0].avgPointsPerMatch.toFixed(2)}</div>
+                <div className="text-sm text-gray-400">Avg Points</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-orange-600">{personalCombos[0].comboScore.toFixed(1)}</div>
-                <div className="text-sm text-gray-600">Combo Score</div>
+                <div className="text-xl font-bold text-orange-400">{personalCombos[0].comboScore.toFixed(1)}</div>
+                <div className="text-sm text-gray-400">Combo Score</div>
               </div>
             </div>
           </div>

@@ -98,18 +98,18 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         className={`fixed left-0 top-0 z-50 h-screen flex flex-col 
         transition-transform duration-200 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
-        bg-white border-r border-gray-200 w-64`}
+        bg-gray-900 border-r border-gray-700 w-64`}
         style={{ pointerEvents: 'auto' }}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
               B
             </div>
             {isOpen && (
               <div>
-                <h1 className="text-xl font-space-grotesk font-bold text-gray-900">OBC Portal</h1>
+                <h1 className="text-xl font-space-grotesk font-bold text-white">OBC Portal</h1>
               </div>
             )}
           </div>
@@ -119,7 +119,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
                 e.stopPropagation();
                 onToggle();
               }}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white"
             >
               <X size={20} />
             </button>
@@ -144,11 +144,11 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         </div>
 
         {/* Auth Section */}
-        <div className="px-4 border-t border-gray-200 py-4">
+        <div className="px-4 border-t border-gray-700 py-4">
           {user && !user.id.startsWith('guest-') ? (
             <button
               onClick={handleLogout}
-              className="sidebar-item w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="sidebar-item w-full text-red-400 hover:text-red-300 hover:bg-red-900/20"
             >
               <div className="transition-colors"><LogOut size={20} /></div>
               {isOpen && <span className="ml-3 font-inter">Logout</span>}
@@ -156,7 +156,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
           ) : (
             <button
               onClick={() => setShowLoginModal(true)}
-              className="sidebar-item w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              className="sidebar-item w-full text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
             >
               <div className="transition-colors"><LogIn size={20} /></div>
               {isOpen && <span className="ml-3 font-inter">Login</span>}
@@ -166,16 +166,17 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
 
         {isOpen && (
           <div className="px-2 pb-4">
-            <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
               <div className="flex items-center space-x-2 mb-2">
                 <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
                   <span className="text-xs text-white">J</span>
                 </div>
                 <h3 className="font-space-grotesk font-semibold text-sm text-gray-900">
+                <h3 className="font-space-grotesk font-semibold text-sm text-white">
                   Created by Jedynsay
                 </h3>
               </div>
-              <p className="text-xs text-gray-600 font-inter mb-2">Powered by Supabase</p>
+              <p className="text-xs text-gray-400 font-inter mb-2">Powered by Supabase</p>
             </div>
           </div>
         )}
@@ -190,11 +191,11 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
             onClick={() => setShowLoginModal(false)}
           />
           <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50">
-            <div className="relative pointer-events-auto bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
+            <div className="relative pointer-events-auto bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
               <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                className="absolute top-4 right-4 w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-colors"
               >
                 <X size={16} />
               </button>

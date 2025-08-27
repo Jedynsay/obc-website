@@ -124,13 +124,13 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
     );
   }
   return (
-    <div className="w-full max-w-md p-8 mx-auto">
+    <div className="w-full max-w-md p-8 mx-auto bg-gray-800 text-white">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
           <span className="text-white text-2xl font-bold font-space-grotesk">B</span>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">OBC Portal</h2>
-        <p className="text-gray-600 mt-2 font-inter">Sign in to access your account</p>
+        <h2 className="text-2xl font-bold text-white font-space-grotesk">OBC Portal</h2>
+        <p className="text-gray-400 mt-2 font-inter">Sign in to access your account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -172,14 +172,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </div>
 
         {error && (
-          <div className="text-red-600 text-sm font-inter text-center">{error}</div>
+          <div className="text-red-400 text-sm font-inter text-center">{error}</div>
         )}
 
         <div className="text-center">
           <button
             type="button"
             onClick={() => setShowForgotPassword(true)}
-            className="text-sm text-blue-600 hover:text-blue-800 font-inter"
+            className="text-sm text-blue-400 hover:text-blue-300 font-inter"
           >
             Forgot your password?
           </button>
@@ -196,10 +196,10 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-gray-600" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500 font-inter">Or</span>
+            <span className="px-2 bg-gray-800 text-gray-400 font-inter">Or</span>
           </div>
         </div>
 
@@ -215,6 +215,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
 
       <div className="mt-6 text-center px-4">
         <p className="text-xs text-gray-500 font-inter">
+        <p className="text-xs text-gray-400 font-inter">
           Create an account to participate in tournaments and access all features.
         </p>
       </div>
