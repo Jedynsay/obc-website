@@ -498,7 +498,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               className="text-center mb-16"
             >
               <h2 className="text-4xl font-bold text-white mb-4">Quick Access Hub</h2>
-              <p className="text-slate-300 text-lg">Jump into action with our most popular features</p>
+              <p className="text-slate-300 text-lg">Quick access to our web app's features.</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -525,7 +525,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                 </div>
                 
                 <h3 className="text-white font-bold text-2xl mb-3">Tournament Hub</h3>
-                <p className="text-blue-100 mb-6">Register for upcoming battles and view tournament brackets</p>
+                <p className="text-blue-100 mb-6">Register for upcoming battles</p>
                 
               {upcomingTournaments.length > 0 ? (
                 <div className="space-y-3">
