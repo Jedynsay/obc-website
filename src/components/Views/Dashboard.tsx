@@ -229,17 +229,17 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-          <div className="w-12 h-12 border-3 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg font-medium">Loading OBC Portal...</p>
+          <div className="w-12 h-12 border-3 border-gray-700 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-300 text-lg font-medium">Loading OBC Portal...</p>
         </motion.div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 overflow-hidden">
+    <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
       <div className="fixed top-6 right-6 z-50">
         {user && !user.id.startsWith("guest-") ? (
           <div className="relative">
@@ -247,14 +247,14 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center space-x-3 bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200"
+              className="flex items-center space-x-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200"
             >
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                 {user.username.charAt(0).toUpperCase()}
               </div>
               <div className="hidden sm:block text-left">
-                <p className="font-semibold text-sm text-gray-900">{user.username}</p>
-                <p className="text-xs text-gray-500 capitalize">{user.role.replace("_", " ")}</p>
+                <p className="font-semibold text-sm text-white">{user.username}</p>
+                <p className="text-xs text-gray-400 capitalize">{user.role.replace("_", " ")}</p>
               </div>
             </motion.button>
 
@@ -264,13 +264,13 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2"
+                  className="absolute top-full right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-2"
                 >
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="font-semibold text-gray-900">{user.username}</p>
-                    <p className="text-sm text-gray-500 capitalize">{user.role.replace("_", " ")}</p>
+                  <div className="px-4 py-3 border-b border-gray-700">
+                    <p className="font-semibold text-white">{user.username}</p>
+                    <p className="text-sm text-gray-400 capitalize">{user.role.replace("_", " ")}</p>
                   </div>
-                  <button className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors">
+                  <button className="w-full text-left px-4 py-3 hover:bg-gray-700 flex items-center space-x-2 text-gray-300 hover:text-white transition-colors">
                     <Settings size={16} />
                     <span>Settings</span>
                   </button>
@@ -279,7 +279,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                       setShowUserMenu(false)
                       await logout()
                     }}
-                    className="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
+                    className="w-full text-left px-4 py-3 hover:bg-red-900/20 flex items-center space-x-2 text-red-400 hover:text-red-300 transition-colors"
                   >
                     <LogOut size={16} />
                     <span>Logout</span>
@@ -312,7 +312,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         {/* Background Image */}
         <div className="absolute inset-0">
           <img src="/community.jpg" alt="Ormoc Beyblade Community" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/40 to-gray-900"></div>
         </div>
 
         {/* Hero Content */}
@@ -353,8 +353,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         </div>
       </motion.section>
 
-      <motion.div style={{ y: contentY }} className="relative z-20 bg-white">
-        <section className="py-20 bg-gray-50">
+      <motion.div style={{ y: contentY }} className="relative z-20 bg-gray-900">
+        <section className="py-20 bg-gray-800">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -363,8 +363,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Community Stats</h2>
-              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              <h2 className="text-4xl font-bold text-white mb-4">Community Stats</h2>
+              <p className="text-gray-300 text-lg max-w-2xl mx-auto">
                 Track the pulse of our competitive scene with real-time statistics
               </p>
             </motion.div>
@@ -374,22 +374,22 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                 {
                   label: "Total Tournaments",
                   value: stats.totalTournaments,
-                  color: "bg-yellow-50 border-yellow-200",
+                  color: "bg-yellow-900/20 border-yellow-700",
                 },
                 {
                   label: "Active Bladers",
                   value: stats.activePlayers,
-                  color: "bg-green-50 border-green-200",
+                  color: "bg-green-900/20 border-green-700",
                 },
                 {
                   label: "Upcoming Events",
                   value: stats.upcomingEvents,
-                  color: "bg-blue-50 border-blue-200",
+                  color: "bg-blue-900/20 border-blue-700",
                 },
                 {
                   label: "Total Matches",
                   value: stats.completedMatches,
-                  color: "bg-purple-50 border-purple-200",
+                  color: "bg-purple-900/20 border-purple-700",
                 },
               ].map((stat, index) => (
                 <motion.div
@@ -400,15 +400,15 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   viewport={{ once: true }}
                   className={`${stat.color} border rounded-lg p-6 text-center`}
                 >
-                  <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                  <div className="text-gray-600 text-sm font-medium">{stat.label}</div>
+                  <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
+                  <div className="text-gray-300 text-sm font-medium">{stat.label}</div>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-gray-900">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -417,8 +417,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Quick Access</h2>
-              <p className="text-gray-600 text-lg">Jump into action with our most popular features</p>
+              <h2 className="text-4xl font-bold text-white mb-4">Quick Access</h2>
+              <p className="text-gray-300 text-lg">Jump into action with our most popular features</p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -533,7 +533,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
         </section>
 
-        <section className="py-20 bg-gray-50">
+        <section className="py-20 bg-gray-800">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -542,8 +542,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Community Champions</h2>
-              <p className="text-gray-600 text-lg">Celebrating our top performers and rising stars</p>
+              <h2 className="text-4xl font-bold text-white mb-4">Community Champions</h2>
+              <p className="text-gray-300 text-lg">Celebrating our top performers and rising stars</p>
             </motion.div>
 
             {topPlayers.length > 0 && (
@@ -561,7 +561,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.5 }}
-                    className="bg-white border border-gray-200 rounded-lg p-12 text-center"
+                    className="bg-gray-900 border border-gray-700 rounded-lg p-12 text-center"
                   >
                     <div className="flex items-center justify-center mb-8">
                       <div className="w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center text-4xl font-bold text-black">
@@ -569,27 +569,27 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                       </div>
                     </div>
 
-                    <h3 className="text-3xl font-bold text-gray-900 mb-3">{topPlayers[currentPlayerIndex]?.name}</h3>
-                    <div className="text-yellow-600 font-semibold text-lg mb-8">Community Champion</div>
+                    <h3 className="text-3xl font-bold text-white mb-3">{topPlayers[currentPlayerIndex]?.name}</h3>
+                    <div className="text-yellow-400 font-semibold text-lg mb-8">Community Champion</div>
 
                     <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
                       <div>
-                        <div className="text-4xl font-bold text-blue-600 mb-2">
+                        <div className="text-4xl font-bold text-blue-400 mb-2">
                           {topPlayers[currentPlayerIndex]?.wins}
                         </div>
-                        <div className="text-gray-600">Total Wins</div>
+                        <div className="text-gray-300">Total Wins</div>
                       </div>
                       <div>
-                        <div className="text-4xl font-bold text-purple-600 mb-2">
+                        <div className="text-4xl font-bold text-purple-400 mb-2">
                           {topPlayers[currentPlayerIndex]?.tournaments}
                         </div>
-                        <div className="text-gray-600">Tournaments</div>
+                        <div className="text-gray-300">Tournaments</div>
                       </div>
                       <div>
-                        <div className="text-4xl font-bold text-green-600 mb-2">
+                        <div className="text-4xl font-bold text-green-400 mb-2">
                           {topPlayers[currentPlayerIndex]?.winRate}%
                         </div>
-                        <div className="text-gray-600">Win Rate</div>
+                        <div className="text-gray-300">Win Rate</div>
                       </div>
                     </div>
                   </motion.div>
@@ -613,29 +613,29 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
         </section>
 
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-gray-900">
           <div className="max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-8"
+              className="bg-gray-800 border border-gray-700 rounded-lg p-8"
             >
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 flex items-center mb-2">
+                  <h3 className="text-2xl font-bold text-white flex items-center mb-2">
                     <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
                     Live Match Results
                   </h3>
-                  <p className="text-gray-600">Real-time updates from ongoing tournaments</p>
+                  <p className="text-gray-300">Real-time updates from ongoing tournaments</p>
                 </div>
 
                 <div className="flex items-center space-x-4">
                   <select
                     value={selectedTournamentFilter}
                     onChange={(e) => setSelectedTournamentFilter(e.target.value)}
-                    className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="all">All Tournaments</option>
                     {allTournaments.map((tournament) => (
@@ -644,9 +644,9 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                       </option>
                     ))}
                   </select>
-                  <div className="flex items-center space-x-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <div className="flex items-center space-x-2 bg-green-900/20 border border-green-700 rounded-lg px-3 py-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-green-600 text-sm font-medium">LIVE</span>
+                    <span className="text-green-400 text-sm font-medium">LIVE</span>
                   </div>
                 </div>
               </div>
@@ -659,8 +659,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                     exit={{ opacity: 0 }}
                     className="text-center py-16"
                   >
-                    <h4 className="text-xl font-semibold text-gray-900 mb-2">No Recent Activity</h4>
-                    <p className="text-gray-600">
+                    <h4 className="text-xl font-semibold text-white mb-2">No Recent Activity</h4>
+                    <p className="text-gray-300">
                       {selectedTournamentFilter === "all"
                         ? "No matches recorded yet across all tournaments"
                         : `No matches found for ${allTournaments.find((t) => t.id === selectedTournamentFilter)?.name || "this tournament"}`}
@@ -679,7 +679,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="bg-white border border-gray-200 rounded-lg p-6"
+                        className="bg-gray-700 border border-gray-600 rounded-lg p-6"
                       >
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
@@ -688,8 +688,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                                 W
                               </div>
                               <div>
-                                <div className="text-gray-900 font-semibold">{match.winner_name}</div>
-                                <div className="text-gray-600 text-sm">
+                                <div className="text-white font-semibold">{match.winner_name}</div>
+                                <div className="text-gray-300 text-sm">
                                   defeated{" "}
                                   {match.winner_name === match.player1_name ? match.player2_name : match.player1_name}
                                 </div>
@@ -697,7 +697,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                             </div>
 
                             {(match.player1_beyblade || match.player2_beyblade) && (
-                              <div className="text-xs text-gray-500 bg-gray-100 rounded px-2 py-1">
+                              <div className="text-xs text-gray-400 bg-gray-800 rounded px-2 py-1">
                                 {match.winner_name === match.player1_name
                                   ? `${match.player1_beyblade || "Unknown"} vs ${match.player2_beyblade || "Unknown"}`
                                   : `${match.player2_beyblade || "Unknown"} vs ${match.player1_beyblade || "Unknown"}`}
@@ -706,10 +706,10 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                           </div>
 
                           <div className="text-right">
-                            <div className="text-gray-900 text-sm font-medium">
+                            <div className="text-white text-sm font-medium">
                               {match.outcome?.split(" (")[0] || "Victory"}
                             </div>
-                            <div className="text-gray-500 text-xs mt-1">
+                            <div className="text-gray-400 text-xs mt-1">
                               {new Date(match.submitted_at).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
@@ -731,22 +731,22 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="border-t border-gray-200 bg-gray-50 py-12"
+          className="border-t border-gray-700 bg-gray-800 py-12"
         >
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
               <div className="text-center md:text-left">
-                <h4 className="text-gray-900 font-bold text-lg mb-2">Ormoc Beyblade Club</h4>
-                <p className="text-gray-600">Building the future of competitive Beyblade in Ormoc</p>
-                <p className="text-gray-500 text-sm mt-1">Created by Jedynsay</p>
+                <h4 className="text-white font-bold text-lg mb-2">Ormoc Beyblade Club</h4>
+                <p className="text-gray-300">Building the future of competitive Beyblade in Ormoc</p>
+                <p className="text-gray-400 text-sm mt-1">Created by Jedynsay</p>
               </div>
 
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span className="text-green-600 font-medium text-sm">System Online</span>
+                  <span className="text-green-400 font-medium text-sm">System Online</span>
                 </div>
-                <div className="text-gray-500 text-sm">Portal v0.5.3</div>
+                <div className="text-gray-400 text-sm">Portal v0.5.3</div>
               </div>
             </div>
           </div>
