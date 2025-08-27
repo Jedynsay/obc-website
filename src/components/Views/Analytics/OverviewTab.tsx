@@ -930,7 +930,7 @@ export function OverviewTab() {
               <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
                 <Crown size={16} className="text-black" />
               </div>
-              <h4 className="text-xl font-bold text-yellow-900 mb-2">Global Champion</h4>
+              <h4 className="text-xl font-bold text-yellow-900 mb-2">Top Champion</h4>
               <p className="text-2xl font-bold text-yellow-800 mb-1">{globalStats.topPlayer}</p>
               <p className="text-yellow-700 text-sm mb-4">Win Rate: {globalStats.topPlayerWinRate.toFixed(1)}%</p>
               
