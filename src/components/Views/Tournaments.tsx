@@ -91,7 +91,7 @@ export function Tournaments() {
         </div>
 
         {/* Tournament Code Search */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Join with Tournament Code</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
@@ -147,7 +147,7 @@ export function Tournaments() {
             </div>
           )}
         </div>
-
+ */}
         {/* Filter Tabs */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
