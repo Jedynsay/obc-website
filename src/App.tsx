@@ -5,16 +5,15 @@ import { Sidebar } from './components/Layout/Sidebar';
 import { Dashboard } from './components/Views/Dashboard';
 import { Tournaments } from './components/Views/Tournaments';
 import { Analytics } from './components/Views/Analytics';
-import MatchTracker from './components/Views/MatchTracker';
 import { TournamentManager } from './components/Views/TournamentManager';
 import { UserManagement } from './components/Views/UserManagement';
 import { DatabaseView } from './components/Views/Database';
 import { Inventory } from './components/Views/Inventory';
-import { DeckBuilder } from './components/Views/DeckBuilder';
 import { Settings } from './components/Views/Settings';
 import { PartsDatabase } from './components/Views/PartsDatabase';
 import { TeamManager } from './components/Views/TeamManager';
 import { CommunityManager } from './components/Views/CommunityManager';
+import { Leaderboards } from './components/Views/Leaderboards';
 import { Menu } from 'lucide-react';
 
 function AppContent() {
@@ -34,7 +33,7 @@ function AppContent() {
       case 'parts-database': return <PartsDatabase />;
       case 'team-manager': return <TeamManager />;
       case 'community-manager': return <CommunityManager />;
-      case 'match-tracker': return <MatchTracker />;
+      case 'leaderboards': return <Leaderboards />;
       case 'tournament-manager': return <TournamentManager />;
       case 'user-management': return <UserManagement />;
       case 'database': return <DatabaseView />;
