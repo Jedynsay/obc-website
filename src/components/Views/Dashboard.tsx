@@ -376,6 +376,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
         </section>
       </motion.div>
+      
       {/* Live Match Feed */}
       <section className="py-24 bg-slate-900/80 backdrop-blur-sm relative">
         <div className="max-w-7xl mx-auto px-6">
@@ -398,6 +399,10 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                   </option>
                 ))}
               </select>
+              <div className="flex items-center space-x-2 bg-green-500/20 border border-green-500/30 rounded-lg px-3 py-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-green-400 text-sm font-medium">LIVE</span>
+              </div>
             </div>
           </div>
 
@@ -411,13 +416,16 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                     <th className="px-4 py-3">Player 1</th>
                     <th className="px-4 py-3">Player 2</th>
                     <th className="px-4 py-3">Winner</th>
-                    <th className="px-4 py-3">Beyblade Used</th>
+                    <th className="px-4 py-3">Beyblades</th>
                     <th className="px-4 py-3">Finish</th>
                   </tr>
                 </thead>
                 <tbody>
                   {recentMatches.map((match) => (
-                    <tr key={match.id} className="border-b border-slate-800 hover:bg-slate-900/60">
+                    <tr
+                      key={match.id}
+                      className="border-b border-slate-800 hover:bg-slate-900/60 transition"
+                    >
                       <td className="px-4 py-3">
                         {new Date(match.submitted_at).toLocaleString()}
                       </td>
@@ -443,8 +451,13 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                       <td className="px-4 py-3 text-cyan-300 font-bold">
                         {match.winner_name}
                       </td>
-                      <td className="px-4 py-3">{match.winner_beyblade || '—'}</td>
-                      <td className="px-4 py-3">{match.finish || '—'}</td>
+                      <td className="px-4 py-3 text-slate-400 font-mono text-xs">
+                        {match.player1_beyblade || 'Unknown'} vs{' '}
+                        {match.player2_beyblade || 'Unknown'}
+                      </td>
+                      <td className="px-4 py-3 text-slate-300">
+                        {match.outcome?.split(' (')[0] || '—'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -455,6 +468,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           )}
         </div>
       </section>
+
 
       {/* Footer */}
       <footer className="py-12 border-t border-slate-800 bg-slate-950 text-center text-slate-500 text-sm">
