@@ -423,6 +423,7 @@ const fetchTournamentLeaderboard = async () => {
         </div>
     
         {/* Tournament dropdown (only if tournament tab) */}
+    {currentTab === 'tournament' && (
       <div className="flex items-center gap-2">
         <label className="text-sm text-gray-600">Tournament:</label>
         <select
