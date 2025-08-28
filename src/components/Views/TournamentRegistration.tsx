@@ -606,36 +606,34 @@ const randomizeAllBeyblades = () => {
             </button>
           )}
 
-          {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-cyan-500/20">
-            {/* Show Randomizer only for developer */}
-            {user?.role === 'developer' && (
-              <button
-                onClick={() => {
-                  // TODO: implement your randomizer logic
-                  console.log('Randomize deck');
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-lg hover:from-pink-400 hover:to-orange-400 transition-all duration-200 shadow-[0_0_15px_rgba(255,100,100,0.3)]"
-              >
-                Randomizer
-              </button>
-            )}
-          
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-slate-800 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={!isFormValid() || isLoadingParts}
-              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-lg hover:from-cyan-400 hover:to-purple-500 disabled:opacity-50 transition-all duration-200 shadow-[0_0_20px_rgba(0,200,255,0.3)]"
-            >
-              <span>Register</span>
-            </button>
-          </div>
-        </div>
+{/* Actions */}
+<div className="flex justify-end space-x-3 pt-4 border-t border-cyan-500/20">
+  {/* Show Randomizer only for developer */}
+  {user?.role === 'developer' && (
+    <button
+      onClick={randomizeAllBeyblades}
+      className="px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-lg hover:from-pink-400 hover:to-orange-400 transition-all duration-200 shadow-[0_0_15px_rgba(255,100,100,0.3)]"
+    >
+      Randomizer
+    </button>
+  )}
+
+  <button
+    onClick={onClose}
+    className="px-4 py-2 bg-slate-800 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
+  >
+    Cancel
+  </button>
+
+  <button
+    onClick={handleSubmit}
+    disabled={!isFormValid() || isLoadingParts}
+    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-lg hover:from-cyan-400 hover:to-purple-500 disabled:opacity-50 transition-all duration-200 shadow-[0_0_20px_rgba(0,200,255,0.3)]"
+  >
+    <span>Register</span>
+  </button>
+</div>
+     </div>
       </div>
     </div>
   );
