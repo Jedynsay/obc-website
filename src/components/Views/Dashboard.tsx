@@ -512,22 +512,36 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       </footer>
 
       {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="relative bg-slate-950 border border-slate-800 p-8 rounded-md max-w-md w-full">
-            <button
+      <AnimatePresence>
+        {showLoginModal && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
               onClick={() => setShowLoginModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50"
             >
-              <X className="w-6 h-6" />
-            </button>
-            <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Login
-            </h3>
-            <LoginForm onSuccess={() => setShowLoginModal(false)} />
-          </div>
-        </div>
-      )}
+              <div className="relative pointer-events-auto bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+                <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
+                <button
+                  onClick={() => setShowLoginModal(false)}
+                  className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
