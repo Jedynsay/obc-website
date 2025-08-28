@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, MapPin, Users, Trophy, Clock, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, MapPin, Users, Trophy, Zap } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
@@ -10,284 +10,201 @@ export function Tournaments() {
   const { alert } = useConfirmation();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'active' | 'completed'>('all');
   const [showPractice, setShowPractice] = useState(false);
-  const [tournamentCode, setTournamentCode] = useState('');
-  const [codeSearchResult, setCodeSearchResult] = useState<any>(null);
   const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
-  const [tournaments, setTournaments] = useState([]);
+  const [tournaments, setTournaments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchTournaments = async () => {
       try {
         const { data, error } = await supabase
           .from('tournaments')
           .select('*')
           .order('tournament_date', { ascending: true });
-
         if (error) throw error;
         setTournaments(data || []);
-      } catch (error) {
-        console.error('Error fetching tournaments:', error);
+      } catch (err) {
+        console.error('Error fetching tournaments:', err);
         setTournaments([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchTournaments();
   }, []);
-  
-  const filteredTournaments = tournaments.filter(tournament => {
-    const statusMatch = filter === 'all' || tournament.status === filter;
-    const practiceMatch = showPractice || !tournament.is_practice;
+
+  const filteredTournaments = tournaments.filter((t) => {
+    const statusMatch = filter === 'all' || t.status === filter;
+    const practiceMatch = showPractice || !t.is_practice;
     return statusMatch && practiceMatch;
   });
 
-  const searchTournamentByCode = async () => {
-    if (!tournamentCode.trim()) {
-      setCodeSearchResult(null);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('tournaments')
-        .select('*')
-        .eq('tournament_code', tournamentCode.toUpperCase())
-        .single();
-
-      if (error) {
-        setCodeSearchResult({ error: 'Tournament not found' });
-        return;
-      }
-
-      setCodeSearchResult(data);
-    } catch (error) {
-      setCodeSearchResult({ error: 'Tournament not found' });
-    }
-  };
-
   const handleTournamentRegistration = (playerName: string, beyblades: any[]) => {
-    console.log('Tournament registration:', { playerName, beyblades });
-    alert('Registration Complete', `Successfully registered ${playerName} with ${beyblades.length} Beyblades for the tournament!`);
+    alert(
+      'Registration Complete',
+      `Successfully registered ${playerName} with ${beyblades.length} Beyblades!`
+    );
     setSelectedTournament(null);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'upcoming': return 'tournament-status-upcoming';
-      case 'active': return 'tournament-status-active';
-      case 'completed': return 'tournament-status-completed';
-      default: return 'tournament-status-completed';
-    }
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold flex items-center mb-4">
-            <Trophy size={40} className="mr-4 text-cyan-400" />
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        {/* Header */}
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tight mb-4">
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Tournament Arena
             </span>
           </h1>
-          <p className="text-slate-400 text-lg">Join the ultimate Beyblade battles and prove your worth</p>
+          <p className="text-slate-400 text-base md:text-lg">
+            Join the ultimate battles and prove your worth
+          </p>
         </div>
 
-        {/* Tournament Code Search */}
-        {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Join with Tournament Code</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
-              <input
-                type="text"
-                placeholder="Enter 8-character tournament code"
-                value={tournamentCode}
-                onChange={(e) => setTournamentCode(e.target.value.toUpperCase())}
-                onKeyPress={(e) => e.key === 'Enter' && searchTournamentByCode()}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                maxLength={8}
-              />
-            </div>
-            <button
-              onClick={searchTournamentByCode}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Search Tournament
-            </button>
-          </div>
-          
-          {codeSearchResult && (
-            <div className="mt-4">
-              {codeSearchResult.error ? (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-700">{codeSearchResult.error}</p>
-                </div>
-              ) : (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-green-900">{codeSearchResult.name}</h3>
-                      <p className="text-green-700 text-sm">{codeSearchResult.location}</p>
-                      <p className="text-green-600 text-sm">
-                        {new Date(codeSearchResult.tournament_date).toLocaleDateString()}
-                      </p>
-                      {codeSearchResult.is_practice && (
-                        <span className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded-lg text-xs font-medium mt-2">
-                          Practice Tournament
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setSelectedTournament(codeSearchResult.id)}
-                      disabled={!codeSearchResult.registration_open}
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-                    >
-                      {codeSearchResult.registration_open ? 'Register' : 'Registration Closed'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
- */}
-        {/* Filter Tabs */}
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-lg p-6 backdrop-blur-sm mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-            <div className="flex items-center space-x-1 bg-slate-800/50 border border-cyan-500/20 rounded-lg p-1">
+        {/* Filters */}
+        <div className="bg-slate-900/60 border border-cyan-500/30 rounded-xl p-4 sm:p-6 backdrop-blur-md mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-wrap gap-2">
               {['upcoming', 'active', 'completed', 'all'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setFilter(tab as any)}
-                  className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 capitalize ${
-                    filter === tab 
-                      ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
-                      : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50'
+                  className={`px-4 py-2 rounded-lg font-medium text-sm capitalize transition-all duration-200 ${
+                    filter === tab
+                      ? 'bg-gradient-to-r from-cyan-500/30 to-purple-500/30 text-cyan-400 border border-cyan-500/40 shadow-[0_0_15px_rgba(0,200,255,0.4)]'
+                      : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
                   }`}
                 >
                   {tab}
                 </button>
               ))}
             </div>
-            
-            <div className="flex items-center space-x-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
               <input
                 type="checkbox"
-                id="showPractice"
                 checked={showPractice}
                 onChange={(e) => setShowPractice(e.target.checked)}
-                className="w-4 h-4 text-cyan-600 border-cyan-500/30 rounded focus:ring-cyan-500 bg-slate-800"
+                className="w-4 h-4 text-cyan-500 bg-slate-800 border-cyan-500/30 rounded focus:ring-cyan-500"
               />
-              <label htmlFor="showPractice" className="text-sm font-medium text-slate-300">
-                Show Practice Tournaments
-              </label>
-            </div>
+              Show Practice
+            </label>
           </div>
         </div>
 
-        {/* Tournament Grid */}
+        {/* Tournament Cards */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-lg animate-spin mx-auto mb-4"></div>
+          <div className="text-center py-20">
+            <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto mb-6"></div>
             <p className="text-slate-400">Loading tournaments...</p>
           </div>
         ) : filteredTournaments.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-slate-800/50 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Trophy size={32} className="text-slate-400" />
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-slate-800/50 rounded-xl flex items-center justify-center mx-auto mb-6">
+              <Trophy size={32} className="text-slate-500" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No tournaments found</h3>
-            <p className="text-slate-400">Check back later for upcoming events</p>
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-2">No tournaments found</h3>
+            <p className="text-slate-400">Check back later for new events</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTournaments.map((tournament) => (
-              <div key={tournament.id} className="bg-slate-900/50 border border-cyan-500/30 rounded-lg p-6 backdrop-blur-sm hover:shadow-[0_0_30px_rgba(0,200,255,0.2)] transition-all duration-300 group">
+              <div
+                key={tournament.id}
+                className="bg-slate-900/70 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_25px_rgba(0,200,255,0.3)] transition-all duration-300"
+              >
+                {/* Title + Status */}
                 <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{tournament.name}</h3>
-                    <div className="flex items-center space-x-2">
-                      <span className={`px-3 py-1 rounded-lg text-xs font-medium capitalize ${
-                        tournament.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                        tournament.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                        'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                      }`}>
-                        {tournament.status}
-                      </span>
-                      {tournament.is_practice && (
-                        <span className="px-3 py-1 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                          Practice
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                {tournament.description && (
-                  <p className="text-slate-300 mb-4 text-sm line-clamp-2">{tournament.description}</p>
-                )}
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-slate-300">
-                    <Calendar size={14} className="mr-2 text-cyan-400" />
-                    <span className="text-sm">{new Date(tournament.tournament_date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center text-slate-300">
-                    <MapPin size={14} className="mr-2 text-cyan-400" />
-                    <span className="text-sm">{tournament.location}</span>
-                  </div>
-                  <div className="flex items-center text-slate-300">
-                    <Users size={14} className="mr-2 text-cyan-400" />
-                    <span className="text-sm">
-                      {tournament.max_participants === 999999
-                        ? `${tournament.current_participants} participants`
-                        : `${tournament.current_participants}/${tournament.max_participants}`}
+                  <h3 className="text-lg font-bold group-hover:text-cyan-400 transition-colors">
+                    {tournament.name}
+                  </h3>
+                  <div className="flex gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize ${
+                        tournament.status === 'upcoming'
+                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          : tournament.status === 'active'
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                      }`}
+                    >
+                      {tournament.status}
                     </span>
+                    {tournament.is_practice && (
+                      <span className="px-3 py-1 rounded-lg text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                        Practice
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Progress Bar */}
+                {/* Info */}
+                <div className="space-y-2 text-sm text-slate-300 mb-4">
+                  <div className="flex items-center">
+                    <Calendar size={14} className="mr-2 text-cyan-400" />
+                    {new Date(tournament.tournament_date).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center">
+                    <MapPin size={14} className="mr-2 text-cyan-400" />
+                    {tournament.location}
+                  </div>
+                  <div className="flex items-center">
+                    <Users size={14} className="mr-2 text-cyan-400" />
+                    {tournament.max_participants === 999999
+                      ? `${tournament.current_participants} participants`
+                      : `${tournament.current_participants}/${tournament.max_participants}`}
+                  </div>
+                </div>
+
+                {/* Progress */}
                 <div className="mb-4">
-                  <div className="flex justify-between text-slate-400 mb-1 text-sm">
+                  <div className="flex justify-between text-xs text-slate-400 mb-1">
                     <span>Registration</span>
-                    <span className="text-xs">
-                      {tournament.max_participants === 999999 
+                    <span>
+                      {tournament.max_participants === 999999
                         ? `${tournament.current_participants} registered`
-                        : `${Math.round((tournament.current_participants / tournament.max_participants) * 100)}%`
-                      }
+                        : `${Math.round(
+                            (tournament.current_participants / tournament.max_participants) * 100
+                          )}%`}
                     </span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-lg h-2">
-                    <div 
-                      className="h-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-500"
-                      style={{ 
-                        width: tournament.max_participants === 999999 
-                          ? '100%' 
-                          : `${Math.min((tournament.current_participants / tournament.max_participants) * 100, 100)}%` 
+                    <div
+                      className="h-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500"
+                      style={{
+                        width:
+                          tournament.max_participants === 999999
+                            ? '100%'
+                            : `${Math.min(
+                                (tournament.current_participants / tournament.max_participants) *
+                                  100,
+                                100
+                              )}%`,
                       }}
                     ></div>
                   </div>
                 </div>
 
+                {/* Register */}
                 {tournament.status === 'upcoming' && (
                   <button
                     onClick={() => setSelectedTournament(tournament.id)}
                     disabled={
                       !tournament.registration_open ||
-                      (tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants)
+                      (tournament.max_participants !== 999999 &&
+                        tournament.current_participants >= tournament.max_participants)
                     }
-                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium px-6 py-3 rounded-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,200,255,0.3)] group-hover:shadow-[0_0_30px_rgba(0,200,255,0.5)]"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium px-4 py-3 rounded-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(0,200,255,0.3)]"
                   >
-                    <div className="flex items-center justify-center space-x-2">
+                    <div className="flex items-center justify-center gap-2">
                       <Zap size={16} />
                       <span>
-                    {!tournament.registration_open 
-                      ? 'Registration Closed'
-                      : tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants 
-                      ? 'Tournament Full' 
-                      : 'Register for Tournament'}
+                        {!tournament.registration_open
+                          ? 'Registration Closed'
+                          : tournament.max_participants !== 999999 &&
+                            tournament.current_participants >= tournament.max_participants
+                          ? 'Tournament Full'
+                          : 'Register Now'}
                       </span>
                     </div>
                   </button>
@@ -297,10 +214,10 @@ export function Tournaments() {
           </div>
         )}
 
-        {/* Tournament Registration Modal */}
+        {/* Modal */}
         {selectedTournament && (
           <TournamentRegistration
-            tournament={filteredTournaments.find(t => t.id === selectedTournament)!}
+            tournament={filteredTournaments.find((t) => t.id === selectedTournament)!}
             onClose={() => setSelectedTournament(null)}
             onSubmit={handleTournamentRegistration}
           />
