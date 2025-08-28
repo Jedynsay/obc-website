@@ -396,35 +396,34 @@ const fetchTournamentLeaderboard = async () => {
           </div>
         </div>
 
-          {/* Tabs + Refresh + Tournament Selection */}
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        
-        {/* Tabs */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleTabChange('tournament')}
-            className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-          >
-            <Trophy size={16} className="mr-1" /> Tournament
-          </button>
-          <button
-            onClick={() => handleTabChange('global')}
-            className={`filter-tab ${currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-          >
-            <Target size={16} className="mr-1" /> Global
-          </button>
-          <button
-            onClick={() => handleTabChange('community')}
-            className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-          >
-            <Users size={16} className="mr-1" /> Community
-          </button>
-        </div>
-    
-        {/* Tournament dropdown (only if tournament tab) */}
+{/* Tabs + Tournament Selection (compact header) */}
+<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
+  <div className="flex flex-col gap-4 md:flex-row md:items-center">
+    {/* Tabs (left) */}
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => handleTabChange('tournament')}
+        className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+      >
+        <Trophy size={16} className="mr-1" /> Tournament
+      </button>
+      <button
+        onClick={() => handleTabChange('global')}
+        className={`filter-tab ${currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+      >
+        <Target size={16} className="mr-1" /> Global
+      </button>
+      <button
+        onClick={() => handleTabChange('community')}
+        className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+      >
+        <Users size={16} className="mr-1" /> Community
+      </button>
+    </div>
+
+    {/* Tournament dropdown (right) */}
     {currentTab === 'tournament' && (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full justify-end md:ml-auto">
         <label className="text-sm text-gray-600">Tournament:</label>
         <select
           value={selectedTournament}
@@ -439,10 +438,10 @@ const fetchTournamentLeaderboard = async () => {
           ))}
         </select>
       </div>
-        )}
-    
-      </div>
-    </div>
+    )}
+  </div>
+</div>
+
 
 
         {/* Community Coming Soon */}
