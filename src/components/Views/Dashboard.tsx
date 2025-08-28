@@ -238,7 +238,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       {/* Stats Section */}
       <motion.div style={{ y: contentY }} className="relative z-20">
         <section className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-sm">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800 relative z-20 -mt-32">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
             {[
               { label: 'Tournaments', value: stats.totalTournaments },
               { label: 'Active Players', value: stats.activePlayers },
