@@ -20,7 +20,7 @@ export function StatBar({ stats }: StatBarProps) {
   ];
 
   return (
-    <div className="bg-slate-950/80 border border-cyan-500/30 rounded-lg p-6 shadow-[0_0_25px_rgba(0,200,255,0.25)]">
+    <div className="bg-slate-950/80 border border-cyan-500/30 rounded-xl p-6 shadow-[0_0_35px_rgba(0,200,255,0.3)]">
       <h5 className="text-sm uppercase font-exo2 tracking-widest text-cyan-400 mb-6">
         Combined Stats
       </h5>
@@ -41,24 +41,45 @@ export function StatBar({ stats }: StatBarProps) {
               </div>
 
               {/* Bar */}
-              <div className="relative h-3 w-full bg-slate-800/60 overflow-hidden">
+              <div className="relative h-4 w-full bg-slate-800/70 overflow-hidden rounded-sm">
+                {/* Main Fill */}
                 <div
                   className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} transition-all duration-700`}
                   style={{
                     width: `${percentage}%`,
-                    clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0% 100%)', // angled right edge
+                    clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0% 100%)',
                   }}
                 />
-                {/* Neon Glow */}
+
+                {/* Glow Layer */}
                 <div
-                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} opacity-30 blur-md`}
+                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} opacity-40 blur-sm`}
                   style={{ width: `${percentage}%` }}
+                />
+
+                {/* Animated Edge Streak */}
+                <div
+                  className={`absolute top-0 h-full w-6 bg-white/20 mix-blend-overlay`}
+                  style={{
+                    left: `calc(${percentage}% - 6px)`,
+                    animation: 'pulse-streak 2s infinite ease-in-out',
+                  }}
                 />
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Custom animation for streak */}
+      <style jsx>{`
+        @keyframes pulse-streak {
+          0% { opacity: 0; }
+          30% { opacity: 1; }
+          60% { opacity: 0.6; }
+          100% { opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
