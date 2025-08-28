@@ -181,7 +181,118 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         </div>
       </motion.section>
 
-      {/* Stats + Quick Access here (same as before) */}
+      {/* Stats Section */}
+      <motion.div style={{ y: contentY }} className="relative z-20">
+        <section className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
+            {[
+              { label: 'Tournaments', value: stats.totalTournaments },
+              { label: 'Active Players', value: stats.activePlayers },
+              { label: 'Upcoming', value: stats.upcomingEvents },
+              { label: 'Matches', value: stats.completedMatches },
+            ].map((stat) => (
+              <div key={stat.label} className="py-14 text-center">
+                <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
+                <div className="mt-2 text-sm uppercase tracking-wide text-slate-400">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Quick Access Hub */}
+        <section className="py-24 bg-slate-900/90 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+            {[
+              {
+                title: 'Tournament Hub',
+                desc: 'Register and track upcoming tournaments.',
+                color: 'from-cyan-500 to-purple-500',
+                action: () => onViewChange?.('tournaments'),
+              },
+              {
+                title: 'Analytics',
+                desc: 'View stats and performance trends.',
+                color: 'from-purple-500 to-pink-500',
+                action: () => onViewChange?.('analytics'),
+              },
+              {
+                title: 'Deck Builder',
+                desc: 'Build and save your best Beyblade combinations.',
+                color: 'from-orange-500 to-red-500',
+                action: () => onViewChange?.('inventory'),
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                onClick={item.action}
+                className="p-12 bg-slate-950 border border-slate-800 hover:shadow-[0_0_30px_rgba(0,200,255,0.2)] cursor-pointer transition relative group"
+              >
+                <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
+                <p className="text-slate-400 mb-6">{item.desc}</p>
+                <span
+                  className={`uppercase font-semibold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}
+                >
+                  Explore →
+                </span>
+                <div
+                  className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${item.color} group-hover:w-full transition-all duration-500`}
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      </motion.div>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-800 bg-slate-950 py-12 relative z-30">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-center md:text-left">
+            <h4 className="font-bold text-lg mb-2">Ormoc Beyblade Club</h4>
+            <p className="text-slate-400">
+              The future of competitive Beyblade in Ormoc
+            </p>
+          </div>
+          <div className="text-slate-500 text-sm">Portal v0.7</div>
+        </div>
+      </footer>
+
+      {/* Login Modal */}
+      <AnimatePresence>
+        {showLoginModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/70 z-40"
+              onClick={() => setShowLoginModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            >
+              <div className="relative bg-white max-w-md w-full p-6">
+                <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
+                <button
+                  onClick={() => setShowLoginModal(false)}
+                  className="absolute top-4 right-4 text-gray-600 hover:text-black"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
       {/* Champions Section */}
       <section className="py-24 relative overflow-hidden">
