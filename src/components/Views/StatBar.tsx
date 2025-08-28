@@ -20,12 +20,12 @@ export function StatBar({ stats }: StatBarProps) {
   ];
 
   return (
-    <div className="bg-slate-950/80 border border-cyan-500/30 rounded-xl p-6 shadow-[0_0_35px_rgba(0,200,255,0.3)]">
-      <h5 className="text-sm uppercase font-exo2 tracking-widest text-cyan-400 mb-6">
+    <div className="bg-slate-950/80 border border-cyan-500/30 rounded-lg p-4 shadow-[0_0_25px_rgba(0,200,255,0.2)]">
+      <h5 className="text-xs uppercase font-exo2 tracking-wider text-cyan-400 mb-4">
         Combined Stats
       </h5>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {statMeta.map(({ key, label, gradient, max }) => {
           const value = stats[key as keyof typeof stats];
           const percentage = Math.min((value / max) * 100, 100);
@@ -33,15 +33,17 @@ export function StatBar({ stats }: StatBarProps) {
           return (
             <div key={key} className="w-full">
               {/* Label + Value */}
-              <div className="flex justify-between mb-1">
-                <span className="text-xs font-exo2 uppercase tracking-wide text-slate-300">
+              <div className="flex justify-between mb-0.5">
+                <span className="text-[10px] font-exo2 uppercase tracking-wide text-slate-400">
                   {label}
                 </span>
-                <span className="text-xs font-exo2 font-bold text-cyan-300">{value}</span>
+                <span className="text-[11px] font-exo2 font-bold text-cyan-300">
+                  {value}
+                </span>
               </div>
 
               {/* Bar */}
-              <div className="relative h-4 w-full bg-slate-800/70 overflow-hidden rounded-sm">
+              <div className="relative h-3 w-full bg-slate-800/70 overflow-hidden rounded-sm">
                 {/* Main Fill */}
                 <div
                   className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} transition-all duration-700`}
@@ -53,15 +55,15 @@ export function StatBar({ stats }: StatBarProps) {
 
                 {/* Glow Layer */}
                 <div
-                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} opacity-40 blur-sm`}
+                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} opacity-30 blur-sm`}
                   style={{ width: `${percentage}%` }}
                 />
 
                 {/* Animated Edge Streak */}
                 <div
-                  className={`absolute top-0 h-full w-6 bg-white/20 mix-blend-overlay`}
+                  className={`absolute top-0 h-full w-4 bg-white/20 mix-blend-overlay`}
                   style={{
-                    left: `calc(${percentage}% - 6px)`,
+                    left: `calc(${percentage}% - 4px)`,
                     animation: 'pulse-streak 2s infinite ease-in-out',
                   }}
                 />
