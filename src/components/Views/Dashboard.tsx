@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { LogIn, LogOut, Settings, X, Trophy } from 'lucide-react';
+import { LogIn, LogOut, Settings, X } from 'lucide-react';
 import { LoginForm } from '../Auth/LoginForm';
 
 interface Tournament {
@@ -22,13 +22,6 @@ interface DashboardStats {
   completedMatches: number;
 }
 
-interface TopPlayer {
-  name: string;
-  wins: number;
-  tournaments: number;
-  winRate: number;
-}
-
 interface DashboardProps {
   onViewChange?: (view: string) => void;
 }
@@ -46,7 +39,6 @@ export function Dashboard({ onViewChange }: DashboardProps) {
   const [upcomingTournaments, setUpcomingTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Parallax scroll refs (hero section only now)
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll(
     containerRef.current
@@ -58,7 +50,6 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       : undefined
   );
 
-  // Parallax transforms
   const heroY = useTransform(scrollYProgress, [0, 1], [0, -200]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 1], [0, -100]);
@@ -104,27 +95,36 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <p className="text-white text-lg font-semibold">Loading...</p>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <p className="text-white text-lg font-semibold animate-pulse">
+          Loading Portal...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white overflow-hidden">
-      {/* User Menu - Top Right */}
+    <div className="min-h-screen bg-slate-950 text-white overflow-hidden relative">
+      {/* Background tech layers */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(30,30,60,0.5),rgba(10,10,20,1))]" />
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:60px_60px] opacity-10" />
+      </div>
+
+      {/* User Menu */}
       <div className="fixed top-6 right-6 z-50">
         {user && !user.id.startsWith('guest-') ? (
           <div className="relative">
             <motion.button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center space-x-3 bg-slate-800 px-4 py-2 hover:bg-slate-700 transition"
+              className="flex items-center space-x-3 bg-slate-800/70 px-4 py-2 hover:bg-slate-700/70 transition"
             >
-              <div className="w-10 h-10 bg-blue-600 flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center font-bold">
                 {user.username.charAt(0).toUpperCase()}
               </div>
               <div className="hidden sm:block text-left">
-                <p className="font-semibold text-sm text-white">{user.username}</p>
+                <p className="font-semibold text-sm">{user.username}</p>
                 <p className="text-xs text-slate-300 capitalize">
                   {user.role.replace('_', ' ')}
                 </p>
@@ -132,8 +132,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
             </motion.button>
 
             {showUserMenu && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-slate-800 border border-slate-700 p-2">
-                <button className="w-full text-left px-4 py-2 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center gap-2">
+              <div className="absolute top-full right-0 mt-2 w-48 bg-slate-900 border border-slate-700">
+                <button className="w-full text-left px-4 py-2 hover:bg-slate-800 text-slate-300 flex items-center gap-2">
                   <Settings size={16} /> Settings
                 </button>
                 <button
@@ -141,7 +141,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                     setShowUserMenu(false);
                     await logout();
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-red-900/20 text-red-400 flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-red-900/30 text-red-400 flex items-center gap-2"
                 >
                   <LogOut size={16} /> Logout
                 </button>
@@ -151,7 +151,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         ) : (
           <button
             onClick={() => setShowLoginModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-semibold uppercase tracking-wide"
+            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold uppercase tracking-wide hover:shadow-[0_0_20px_rgba(0,200,255,0.6)] transition"
           >
             <LogIn size={18} className="inline-block mr-2" />
             Login
@@ -163,35 +163,29 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       <motion.section
         ref={containerRef}
         style={{ y: heroY, opacity: heroOpacity }}
-        className="relative h-screen flex items-center justify-center"
+        className="relative h-screen flex items-center justify-center text-center"
       >
-        <div className="absolute inset-0">
-          <img
-            src="/community.jpg"
-            alt="Ormoc Beyblade Community"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/60"></div>
-        </div>
-
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <h1 className="text-6xl md:text-8xl font-extrabold uppercase tracking-tight text-white">
-            Ormoc <span className="text-blue-500">Beyblade Club</span>
+        <div className="relative z-10 px-6 max-w-5xl mx-auto">
+          <h1 className="text-7xl md:text-8xl font-extrabold uppercase tracking-tight">
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              Ormoc Beyblade Club
+            </span>
           </h1>
           <p className="mt-6 text-xl text-slate-300">
-            Welcome to the home of competitive Beyblade in Ormoc. Let it rip!
+            Welcome to the future of competitive Beyblade. Let it rip ⚡
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-6 justify-center">
             <button
               onClick={() => onViewChange?.('tournaments')}
-              className="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-wide"
+              className="relative px-10 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold uppercase tracking-wider hover:shadow-[0_0_20px_rgba(0,200,255,0.7)] transition overflow-hidden group"
             >
               Join Tournament
+              <span className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.2),transparent)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
             </button>
             <button
               onClick={() => onViewChange?.('analytics')}
-              className="px-10 py-4 border border-slate-600 hover:bg-slate-800 text-white font-bold uppercase tracking-wide"
+              className="px-10 py-4 border border-slate-600 text-white font-bold uppercase tracking-wider hover:bg-slate-800 transition"
             >
               View Analytics
             </button>
@@ -200,8 +194,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       </motion.section>
 
       {/* Stats Section */}
-      <motion.div style={{ y: contentY }} className="relative z-20 bg-slate-900">
-        <section className="border-y border-slate-800">
+      <motion.div style={{ y: contentY }} className="relative z-20">
+        <section className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-sm">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
             {[
               { label: 'Tournaments', value: stats.totalTournaments },
@@ -209,8 +203,10 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               { label: 'Upcoming', value: stats.upcomingEvents },
               { label: 'Matches', value: stats.completedMatches },
             ].map((stat) => (
-              <div key={stat.label} className="py-12 text-center">
-                <div className="text-5xl font-extrabold">{stat.value}</div>
+              <div key={stat.label} className="py-14 text-center">
+                <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
                 <div className="mt-2 text-sm uppercase tracking-wide text-slate-400">
                   {stat.label}
                 </div>
@@ -220,56 +216,59 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         </section>
 
         {/* Quick Access Hub */}
-        <section className="py-20 bg-slate-800">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div
-              onClick={() => onViewChange?.('tournaments')}
-              className="p-12 bg-slate-900 hover:bg-slate-700 transition cursor-pointer"
-            >
-              <h3 className="text-2xl font-bold mb-3">Tournament Hub</h3>
-              <p className="text-slate-400 mb-6">
-                Register and track upcoming tournaments.
-              </p>
-              <span className="uppercase text-blue-500 font-semibold hover:underline">
-                Explore →
-              </span>
-            </div>
-            <div
-              onClick={() => onViewChange?.('analytics')}
-              className="p-12 bg-slate-900 hover:bg-slate-700 transition cursor-pointer"
-            >
-              <h3 className="text-2xl font-bold mb-3">Analytics</h3>
-              <p className="text-slate-400 mb-6">
-                View stats and performance trends.
-              </p>
-              <span className="uppercase text-purple-400 font-semibold hover:underline">
-                Explore →
-              </span>
-            </div>
-            <div
-              onClick={() => onViewChange?.('inventory')}
-              className="p-12 bg-slate-900 hover:bg-slate-700 transition cursor-pointer"
-            >
-              <h3 className="text-2xl font-bold mb-3">Deck Builder</h3>
-              <p className="text-slate-400 mb-6">
-                Build and save your best Beyblade combinations.
-              </p>
-              <span className="uppercase text-orange-400 font-semibold hover:underline">
-                Explore →
-              </span>
-            </div>
+        <section className="py-24 bg-slate-900/90 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+            {[
+              {
+                title: 'Tournament Hub',
+                desc: 'Register and track upcoming tournaments.',
+                color: 'from-cyan-500 to-purple-500',
+                action: () => onViewChange?.('tournaments'),
+              },
+              {
+                title: 'Analytics',
+                desc: 'View stats and performance trends.',
+                color: 'from-purple-500 to-pink-500',
+                action: () => onViewChange?.('analytics'),
+              },
+              {
+                title: 'Deck Builder',
+                desc: 'Build and save your best Beyblade combinations.',
+                color: 'from-orange-500 to-red-500',
+                action: () => onViewChange?.('inventory'),
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                onClick={item.action}
+                className="p-12 bg-slate-950 border border-slate-800 hover:shadow-[0_0_30px_rgba(0,200,255,0.2)] cursor-pointer transition relative group"
+              >
+                <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
+                <p className="text-slate-400 mb-6">{item.desc}</p>
+                <span
+                  className={`uppercase font-semibold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}
+                >
+                  Explore →
+                </span>
+                <div
+                  className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${item.color} group-hover:w-full transition-all duration-500`}
+                />
+              </div>
+            ))}
           </div>
         </section>
       </motion.div>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-12">
+      <footer className="border-t border-slate-800 bg-slate-950 py-12 relative z-30">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
-            <h4 className="text-white font-bold text-lg mb-2">Ormoc Beyblade Club</h4>
-            <p className="text-slate-400">Building the future of competitive Beyblade</p>
+            <h4 className="font-bold text-lg mb-2">Ormoc Beyblade Club</h4>
+            <p className="text-slate-400">
+              The future of competitive Beyblade in Ormoc
+            </p>
           </div>
-          <div className="text-slate-500 text-sm">Portal v0.6</div>
+          <div className="text-slate-500 text-sm">Portal v0.7</div>
         </div>
       </footer>
 
@@ -281,7 +280,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 z-40"
+              className="fixed inset-0 bg-black/70 z-40"
               onClick={() => setShowLoginModal(false)}
             />
             <motion.div
