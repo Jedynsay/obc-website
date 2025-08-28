@@ -57,6 +57,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       setResetLoading(false);
     }
   };
+
   if (currentView === 'signup') {
     return <SignupForm onBackToLogin={() => setCurrentView('login')} onSignupSuccess={onLoginSuccess} />;
   }
@@ -67,19 +68,19 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         <div className="flex items-center mb-6">
           <button
             onClick={() => setShowForgotPassword(false)}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors mr-3 text-gray-600 hover:text-gray-900"
+            className="p-2 hover:bg-slate-800 rounded-full transition-colors mr-3 text-cyan-400 hover:text-white"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">Reset Password</h2>
-            <p className="text-gray-600 font-inter">Enter your email to receive reset instructions</p>
+            <h2 className="text-2xl font-bold text-white">Reset Password</h2>
+            <p className="text-slate-400">Enter your email to receive reset instructions</p>
           </div>
         </div>
 
         <form onSubmit={handleForgotPassword} className="space-y-6">
           <div>
-            <label htmlFor="resetEmail" className="form-label">
+            <label htmlFor="resetEmail" className="block text-sm font-medium text-cyan-400 mb-2">
               Email Address
             </label>
             <input
@@ -87,17 +88,17 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               id="resetEmail"
               value={resetEmail}
               onChange={(e) => setResetEmail(e.target.value)}
-              className="input-field w-full"
+              className="w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200"
               required
               placeholder="Enter your email address"
             />
           </div>
 
           {resetMessage && (
-            <div className={`text-sm font-inter text-center p-3 rounded-md ${
+            <div className={`text-sm text-center p-3 rounded-md border ${
               resetMessage.includes('Error') 
-                ? 'text-red-600 bg-red-50' 
-                : 'text-green-600 bg-green-50'
+                ? 'text-red-400 bg-red-500/10 border-red-500/30' 
+                : 'text-green-400 bg-green-500/10 border-green-500/30'
             }`}>
               {resetMessage}
             </div>
@@ -106,7 +107,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
           <button
             type="submit"
             disabled={resetLoading}
-            className="primary-button w-full disabled:opacity-50 text-center"
+            className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium px-6 py-3 rounded-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 disabled:opacity-50 shadow-[0_0_20px_rgba(0,200,255,0.3)]"
           >
             {resetLoading ? 'Sending...' : 'Send Reset Email'}
           </button>
@@ -115,7 +116,7 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         <div className="mt-6">
           <button
             onClick={() => setShowForgotPassword(false)}
-            className="secondary-button w-full text-center"
+            className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white font-medium px-6 py-3 rounded-lg transition-all duration-200"
           >
             Back to Login
           </button>
@@ -123,19 +124,20 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       </div>
     );
   }
+
   return (
     <div className="w-full max-w-md p-8 mx-auto">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-          <span className="text-white text-2xl font-bold font-space-grotesk">B</span>
+        <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(0,200,255,0.5)]">
+          <span className="text-white text-2xl font-bold">B</span>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 font-space-grotesk">OBC Portal</h2>
-        <p className="text-gray-600 mt-2 font-inter">Sign in to access your account</p>
+        <h2 className="text-2xl font-bold text-white">OBC Portal</h2>
+        <p className="text-slate-400 mt-2">Ormoc Beyblade Club</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="username" className="form-label">
+          <label htmlFor="username" className="block text-sm font-medium text-cyan-400 mb-2">
             Username
           </label>
           <input
@@ -143,13 +145,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="input-field w-full"
+            className="w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200"
             required
+            placeholder="Enter your username"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="form-label">
+          <label htmlFor="password" className="block text-sm font-medium text-cyan-400 mb-2">
             Password
           </label>
           <div className="relative">
@@ -158,13 +161,14 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-field w-full pr-10"
+              className="w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-4 py-3 pr-10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all duration-200"
               required
+              placeholder="Enter your password"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-cyan-400 transition-colors"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -172,41 +176,44 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </div>
 
         {error && (
-          <div className="text-red-600 text-sm font-inter text-center">{error}</div>
+          <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-center">
+            {error}
+          </div>
         )}
 
         <div className="text-center">
           <button
             type="button"
             onClick={() => setShowForgotPassword(true)}
-            className="text-sm text-blue-600 hover:text-blue-800 font-inter"
+            className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
           >
             Forgot your password?
           </button>
         </div>
+
         <button
           type="submit"
           disabled={loading}
-          className="primary-button w-full disabled:opacity-50 text-center"
+          className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium px-6 py-3 rounded-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 disabled:opacity-50 shadow-[0_0_20px_rgba(0,200,255,0.3)]"
         >
-          {loading ? 'Signing in...' : 'Sign In'}
+          {loading ? 'Accessing...' : 'Access Portal'}
         </button>
       </form>
 
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-slate-700" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500 font-inter">Or</span>
+            <span className="px-2 bg-slate-950 text-slate-500">Or</span>
           </div>
         </div>
 
         <div className="mt-6">
           <button
             onClick={() => setCurrentView('signup')}
-            className="secondary-button w-full text-center"
+            className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white font-medium px-6 py-3 rounded-lg transition-all duration-200"
           >
             Create New Account
           </button>
@@ -214,11 +221,10 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
       </div>
 
       <div className="mt-6 text-center px-4">
-        <p className="text-xs text-gray-500 font-inter">
+        <p className="text-xs text-slate-500">
           Create an account to participate in tournaments and access all features.
         </p>
       </div>
-
     </div>
   );
 }
