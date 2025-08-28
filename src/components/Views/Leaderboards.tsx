@@ -33,6 +33,28 @@ export function Leaderboards() {
 
   const previousRanks = useRef<{ [player: string]: number }>({});
 
+  const fetchTournaments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tournaments')
+        .select('id, name, status, tournament_date')
+        .order('tournament_date', { ascending: false });
+
+      if (error) throw error;
+      
+      setTournaments(data || []);
+      
+      // Auto-select first tournament
+      if (data && data.length > 0) {
+        setSelectedTournament(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching tournaments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchTournaments();
   }, []);
@@ -338,18 +360,18 @@ export function Leaderboards() {
     }
   };
 
-    const getRankIcon = (entry: LeaderboardEntry) => {
-      if (entry.arrow === 'up') return <TrendingUp size={18} className="text-green-500 ml-1" />;
-      if (entry.arrow === 'down') return <TrendingDown size={18} className="text-red-500 ml-1" />;
-  
-      switch (entry.rank) {
-        case 1: return <Crown size={20} className="text-yellow-500" />;
-        case 2: return <Medal size={20} className="text-gray-400" />;
-        case 3: return <Medal size={20} className="text-orange-500" />;
-        default: return <span className="text-gray-600">#{entry.rank}</span>;
-      }
-    };
-  
+  const getRankIcon = (entry: LeaderboardEntry) => {
+    if (entry.arrow === 'up') return <TrendingUp size={18} className="text-green-500 ml-1" />;
+    if (entry.arrow === 'down') return <TrendingDown size={18} className="text-red-500 ml-1" />;
+
+    switch (entry.rank) {
+      case 1: return <Crown size={20} className="text-yellow-500" />;
+      case 2: return <Medal size={20} className="text-gray-400" />;
+      case 3: return <Medal size={20} className="text-orange-500" />;
+      default: return <span className="text-gray-600">#{entry.rank}</span>;
+    }
+  };
+
   if (loading) {
     return (
       <div className="page-container">
