@@ -25,9 +25,9 @@ function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: Sho
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-slate-950 border border-cyan-500/30 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.3)] max-w-6xl w-full max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-4 text-white">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">{title}</h2>
             <button
@@ -42,37 +42,37 @@ function ShowAllModal({ isOpen, onClose, title, data, columns, onRowClick }: Sho
         <div className="p-6">
           <div className="mb-4">
             <div className="relative">
-              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-cyan-500/30 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
           </div>
 
           <div className="overflow-auto max-h-[60vh]">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50 sticky top-0">
+              <thead className="bg-slate-900 sticky top-0">
                 <tr>
                   {columns.map(col => (
-                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th key={col.key} className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">
                       {col.label}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-slate-950 divide-y divide-slate-800">
                 {filteredData.map((row, index) => (
                   <tr 
                     key={index} 
-                    className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                    className={`hover:bg-slate-800/50 ${onRowClick ? 'cursor-pointer' : ''}`}
                     onClick={() => onRowClick?.(row)}
                   >
                     {columns.map(col => (
-                      <td key={col.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td key={col.key} className="px-6 py-4 whitespace-nowrap text-sm text-white">
                         {typeof row[col.key] === 'number' ? 
                           (col.key.includes('Rate') || col.key.includes('Score') ? 
                             row[col.key].toFixed(1) : row[col.key]) : 
@@ -474,53 +474,53 @@ export function OverviewTab() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       {/* Global Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="metric-card">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <div className="metric-value">{globalStats.totalMatches.toLocaleString()}</div>
-              <div className="metric-label">Total Matches</div>
+              <div className="text-3xl font-bold text-cyan-400 mb-1">{globalStats.totalMatches.toLocaleString()}</div>
+              <div className="text-sm font-medium text-slate-400">Total Matches</div>
             </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Target size={24} className="text-blue-600" />
+            <div className="p-3 bg-cyan-500/20 rounded-lg">
+              <Target size={24} className="text-cyan-400" />
             </div>
           </div>
         </div>
 
-        <div className="metric-card">
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <div className="metric-value">{globalStats.totalPlayers}</div>
-              <div className="metric-label">Active Players</div>
+              <div className="text-3xl font-bold text-green-400 mb-1">{globalStats.totalPlayers}</div>
+              <div className="text-sm font-medium text-slate-400">Active Players</div>
             </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Users size={24} className="text-green-600" />
+            <div className="p-3 bg-green-500/20 rounded-lg">
+              <Users size={24} className="text-green-400" />
             </div>
           </div>
         </div>
 
-        <div className="metric-card">
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <div className="metric-value">{globalStats.totalTournaments}</div>
-              <div className="metric-label">Tournaments</div>
+              <div className="text-3xl font-bold text-purple-400 mb-1">{globalStats.totalTournaments}</div>
+              <div className="text-sm font-medium text-slate-400">Tournaments</div>
             </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Trophy size={24} className="text-purple-600" />
+            <div className="p-3 bg-purple-500/20 rounded-lg">
+              <Trophy size={24} className="text-purple-400" />
             </div>
           </div>
         </div>
 
-        <div className="metric-card">
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <div className="metric-value">{globalStats.avgPointsPerMatch.toFixed(2)}</div>
-              <div className="metric-label">Avg Points/Match</div>
+              <div className="text-3xl font-bold text-orange-400 mb-1">{globalStats.avgPointsPerMatch.toFixed(2)}</div>
+              <div className="text-sm font-medium text-slate-400">Avg Points/Match</div>
             </div>
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <TrendingUp size={24} className="text-orange-600" />
+            <div className="p-3 bg-orange-500/20 rounded-lg">
+              <TrendingUp size={24} className="text-orange-400" />
             </div>
           </div>
         </div>
@@ -528,40 +528,40 @@ export function OverviewTab() {
 
       {/* Personal Overview (if logged in) */}
       {personalOverview && (
-        <div className="chart-container">
-          <h2 className="chart-title flex items-center">
-            <Users size={24} className="mr-2 text-blue-600" />
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+          <h2 className="text-xl font-bold text-white mb-6 flex items-center">
+            <Users size={24} className="mr-2 text-cyan-400" />
             Your Performance Overview
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{personalOverview.totalMatches}</div>
-              <div className="text-sm text-gray-600">Total Matches</div>
+            <div className="text-center p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+              <div className="text-2xl font-bold text-cyan-400">{personalOverview.totalMatches}</div>
+              <div className="text-sm text-slate-400">Total Matches</div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{personalOverview.winRate.toFixed(1)}%</div>
-              <div className="text-sm text-gray-600">Win Rate</div>
+            <div className="text-center p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <div className="text-2xl font-bold text-green-400">{personalOverview.winRate.toFixed(1)}%</div>
+              <div className="text-sm text-slate-400">Win Rate</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{personalOverview.weightedWinRate.toFixed(1)}%</div>
-              <div className="text-sm text-gray-600">Weighted Win Rate</div>
+            <div className="text-center p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+              <div className="text-2xl font-bold text-purple-400">{personalOverview.weightedWinRate.toFixed(1)}%</div>
+              <div className="text-sm text-slate-400">Weighted Win Rate</div>
             </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <div className="text-2xl font-bold text-orange-600">{personalOverview.avgPointsPerMatch.toFixed(2)}</div>
-              <div className="text-sm text-gray-600">Avg Points/Match</div>
+            <div className="text-center p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+              <div className="text-2xl font-bold text-orange-400">{personalOverview.avgPointsPerMatch.toFixed(2)}</div>
+              <div className="text-sm text-slate-400">Avg Points/Match</div>
             </div>
           </div>
           
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">MVP Combo</h4>
-              <p className="text-lg font-bold text-blue-600">{personalOverview.mvpCombo}</p>
-              <p className="text-sm text-gray-600">Score: {personalOverview.mvpComboScore.toFixed(1)}</p>
+            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4">
+              <h4 className="font-semibold text-cyan-400 mb-2">MVP Combo</h4>
+              <p className="text-lg font-bold text-white">{personalOverview.mvpCombo}</p>
+              <p className="text-sm text-slate-400">Score: {personalOverview.mvpComboScore.toFixed(1)}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">Favorite Finish</h4>
-              <p className="text-lg font-bold text-green-600">{personalOverview.favoriteFinish}</p>
-              <p className="text-sm text-gray-600">Tournaments: {personalOverview.tournamentsPlayed}</p>
+            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4">
+              <h4 className="font-semibold text-cyan-400 mb-2">Favorite Finish</h4>
+              <p className="text-lg font-bold text-white">{personalOverview.favoriteFinish}</p>
+              <p className="text-sm text-slate-400">Tournaments: {personalOverview.tournamentsPlayed}</p>
             </div>
           </div>
         </div>
@@ -569,8 +569,8 @@ export function OverviewTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Global Finish Distribution */}
-        <div className="chart-container">
-          <h3 className="chart-title">Global Finish Distribution</h3>
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+          <h3 className="text-lg font-bold text-white mb-4">Global Finish Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -593,8 +593,8 @@ export function OverviewTab() {
         </div>
 
         {/* Top Global Combos */}
-        <div className="chart-container">
-          <h3 className="chart-title">Top Global Combos by Score</h3>
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+          <h3 className="text-lg font-bold text-white mb-4">Top Global Combos by Score</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart 
               data={globalCombos.slice(0, 8).map(combo => ({
@@ -605,7 +605,7 @@ export function OverviewTab() {
               }))}
               margin={{ bottom: 80 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
               <XAxis 
                 dataKey="name" 
                 angle={-45}
@@ -613,55 +613,58 @@ export function OverviewTab() {
                 height={100}
                 interval={0}
                 fontSize={10}
+                stroke="#94a3b8"
               />
-              <YAxis />
+              <YAxis stroke="#94a3b8" />
               <Tooltip 
                 formatter={(value, name) => [
                   typeof value === 'number' ? value.toFixed(2) : value,
                   name === 'score' ? 'Combo Score' : name === 'winRate' ? 'Win Rate (%)' : 'Matches'
                 ]}
+                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '8px' }}
+                labelStyle={{ color: '#06b6d4' }}
               />
-              <Bar dataKey="score" fill="#3B82F6" />
+              <Bar dataKey="score" fill="#06b6d4" />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Global Combo Rankings Table */}
-      <div className="chart-container">
+      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="chart-title">Global Combo Rankings</h3>
+          <h3 className="text-lg font-bold text-white">Global Combo Rankings</h3>
         </div>
         
         {/* Group combos by name and calculate aggregate stats */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-800">
+            <thead className="bg-slate-800/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                   Rank
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                   Combo
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                   Users
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                   Total Matches
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                   Global Win Rate
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                   Avg Points
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-slate-950/50 divide-y divide-slate-800">
               {(() => {
                 // Group combos by name and calculate aggregate stats
                 const comboGroups: { [comboName: string]: {
@@ -707,28 +710,28 @@ export function OverviewTab() {
                   .sort((a, b) => b.winRate - a.winRate)
                   .slice(0, 20);
               })().map((comboGroup, index) => (
-                <tr key={index} className="hover:bg-gray-50 cursor-pointer">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                <tr key={index} className="hover:bg-slate-800/50 cursor-pointer">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white">
                     #{index + 1}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                     {comboGroup.combo}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
                     {comboGroup.players.length}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
                     {comboGroup.totalMatches}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <span className={`font-medium ${
-                      comboGroup.winRate >= 60 ? 'text-green-600' :
-                      comboGroup.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                      comboGroup.winRate >= 60 ? 'text-green-400' :
+                      comboGroup.winRate >= 40 ? 'text-yellow-400' : 'text-red-400'
                     }`}>
                       {comboGroup.winRate.toFixed(1)}%
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-white">
                     {comboGroup.avgPoints.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -758,7 +761,7 @@ export function OverviewTab() {
                           ]
                         });
                       }}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-cyan-400 hover:text-cyan-300 text-sm font-medium"
                     >
                       View Players
                     </button>
@@ -772,62 +775,62 @@ export function OverviewTab() {
 
       {/* Head-to-Head Records (Personal) */}
       {personalOverview && headToHeadRecords.length > 0 && (
-        <div className="chart-container">
-          <h3 className="chart-title">Your Head-to-Head Records</h3>
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+          <h3 className="text-lg font-bold text-white mb-4">Your Head-to-Head Records</h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-800">
+              <thead className="bg-slate-800/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">
                     Opponent
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                     Matches
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                     Wins
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                     Losses
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                     Win Rate
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                     Points For
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                     Points Against
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-slate-950/50 divide-y divide-slate-800">
                 {headToHeadRecords.map((record, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={index} className="hover:bg-slate-800/50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                       {record.opponent}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
                       {record.totalMatches}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-green-400 text-center font-medium">
                       {record.wins}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 text-center font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-400 text-center font-medium">
                       {record.losses}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                       <span className={`font-medium ${
-                        record.winRate >= 60 ? 'text-green-600' :
-                        record.winRate >= 40 ? 'text-yellow-600' : 'text-red-600'
+                        record.winRate >= 60 ? 'text-green-400' :
+                        record.winRate >= 40 ? 'text-yellow-400' : 'text-red-400'
                       }`}>
                         {record.winRate.toFixed(1)}%
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
                       {record.pointsFor}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
                       {record.pointsAgainst}
                     </td>
                   </tr>
@@ -839,39 +842,39 @@ export function OverviewTab() {
       )}
 
       {/* Global Player Rankings */}
-      <div className="chart-container">
+      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="chart-title">Global Player Rankings</h3>
+          <h3 className="text-lg font-bold text-white">Global Player Rankings</h3>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Top 10 Table */}
           <div className="lg:col-span-2">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-slate-800">
+                <thead className="bg-slate-800/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                       Rank
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                       Player
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                       Matches
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                       Wins
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                       Win Rate
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                       Tournaments
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-slate-950/50 divide-y divide-slate-800">
                   {Object.entries(playerStats || {})
                     .filter(([_, stats]) => stats.matches >= 3) // Minimum matches for ranking
                     .sort((a, b) => {
@@ -882,36 +885,36 @@ export function OverviewTab() {
                     })
                     .slice(0, 10)
                     .map(([playerName, stats], index) => (
-                      <tr key={playerName} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                      <tr key={playerName} className="hover:bg-slate-800/50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white">
                           <div className="flex items-center">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3 ${
-                              index === 0 ? 'bg-yellow-500' :
-                              index === 1 ? 'bg-gray-400' :
-                              index === 2 ? 'bg-orange-600' : 'bg-blue-500'
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-black text-xs font-bold mr-3 shadow-lg ${
+                              index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                              index === 1 ? 'bg-gradient-to-r from-gray-300 to-gray-400' :
+                              index === 2 ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-cyan-500 to-purple-500'
                             }`}>
                               {index + 1}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                           {playerName}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
                           {stats.matches}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-400 text-center font-medium">
                           {stats.wins}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                           <span className={`font-medium ${
-                            (stats.wins / stats.matches) * 100 >= 60 ? 'text-green-600' :
-                            (stats.wins / stats.matches) * 100 >= 40 ? 'text-yellow-600' : 'text-red-600'
+                            (stats.wins / stats.matches) * 100 >= 60 ? 'text-green-400' :
+                            (stats.wins / stats.matches) * 100 >= 40 ? 'text-yellow-400' : 'text-red-400'
                           }`}>
                             {((stats.wins / stats.matches) * 100).toFixed(1)}%
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
                           {Math.ceil(stats.matches / 10)}
                         </td>
                       </tr>
@@ -923,32 +926,32 @@ export function OverviewTab() {
           
           {/* Top Player Spotlight Card */}
           <div className="lg:col-span-1">
-            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-6 text-center">
-              <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-2 border-yellow-400/30 rounded-xl p-6 text-center backdrop-blur-sm">
+              <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(251,191,36,0.5)]">
                 <Trophy size={40} className="text-white" />
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(251,191,36,0.5)]">
                 <Crown size={16} className="text-black" />
               </div>
-              <h4 className="text-xl font-bold text-yellow-900 mb-2">Global Champion</h4>
-              <p className="text-2xl font-bold text-yellow-800 mb-1">{globalStats.topPlayer}</p>
-              <p className="text-yellow-700 text-sm mb-4">Win Rate: {globalStats.topPlayerWinRate.toFixed(1)}%</p>
+              <h4 className="text-xl font-bold text-yellow-400 mb-2">Global Champion</h4>
+              <p className="text-2xl font-bold text-white mb-1">{globalStats.topPlayer}</p>
+              <p className="text-yellow-300 text-sm mb-4">Win Rate: {globalStats.topPlayerWinRate.toFixed(1)}%</p>
               
-              <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-yellow-200">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/30">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-lg font-bold text-yellow-800">
+                    <div className="text-lg font-bold text-yellow-400">
                       {Object.entries(playerStats || {})
                         .find(([name]) => name === globalStats.topPlayer)?.[1]?.wins || 0}
                     </div>
-                    <div className="text-xs text-yellow-700">Total Wins</div>
+                    <div className="text-xs text-yellow-300">Total Wins</div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-yellow-800">
+                    <div className="text-lg font-bold text-yellow-400">
                       {Object.entries(playerStats || {})
                         .find(([name]) => name === globalStats.topPlayer)?.[1]?.matches || 0}
                     </div>
-                    <div className="text-xs text-yellow-700">Total Matches</div>
+                    <div className="text-xs text-yellow-300">Total Matches</div>
                   </div>
                 </div>
               </div>
