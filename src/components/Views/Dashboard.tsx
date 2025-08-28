@@ -489,6 +489,15 @@ export function Dashboard({ onViewChange }: DashboardProps) {
         <p>© {new Date().getFullYear()} Ormoc Beyblade Club. All rights reserved.</p>
       </footer>
 
+<button
+  onClick={() => setShowLoginModal(true)}
+  className="flex items-center gap-2 px-4 py-2 rounded-md border border-slate-700 hover:bg-slate-800 transition"
+>
+  <LogIn className="w-5 h-5" />
+  <span>Login</span>
+</button>
+
+      
       {/* Login Modal */}
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
