@@ -246,11 +246,11 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
 
 
 {/* Auth Section */}
-<div className="px-4 py-4 bg-slate-950">
+<div className="px-4 py-4 bg-slate-950 border-t border-slate-800">
   {user && !user.id.startsWith('guest-') ? (
     <button
       onClick={handleLogout}
-      className="w-full flex items-center px-3 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500/30 border border-transparent transition-all duration-200"
+      className="w-full flex items-center px-3 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200"
     >
       <div className="transition-colors"><LogOut size={20} /></div>
       {isOpen && <span className="ml-3 font-medium">Logout</span>}
@@ -258,7 +258,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
   ) : (
     <button
       onClick={() => setShowLoginModal(true)}
-      className="w-full flex items-center px-3 py-3 text-cyan-400 hover:text-white hover:bg-cyan-500/20 hover:border-cyan-500/30 border border-transparent transition-all duration-200"
+      className="w-full flex items-center px-3 py-3 text-cyan-400 hover:text-white hover:bg-cyan-500/20 transition-all duration-200"
     >
       <div className="transition-colors"><LogIn size={20} /></div>
       {isOpen && <span className="ml-3 font-medium">Login</span>}
