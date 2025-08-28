@@ -396,59 +396,63 @@ const fetchTournamentLeaderboard = async () => {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="filter-tabs">
+            {/* Tabs + Refresh + Tournament Selection */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          
+          {/* Tabs */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => handleTabChange('tournament')}
-              className={`filter-tab ${
-                currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'
-              }`}
+              className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
             >
-              <Trophy size={16} className="mr-2" />
-              Per Tournament
+              <Trophy size={16} className="mr-1" /> Tournament
             </button>
             <button
               onClick={() => handleTabChange('global')}
-              className={`filter-tab ${
-                currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'
-              }`}
+              className={`filter-tab ${currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
             >
-              <Target size={16} className="mr-2" />
-              Global Rankings
+              <Target size={16} className="mr-1" /> Global
             </button>
             <button
               onClick={() => handleTabChange('community')}
-              className={`filter-tab ${
-                currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'
-              }`}
+              className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
             >
-              <Users size={16} className="mr-2" />
-              Community (Soon)
+              <Users size={16} className="mr-1" /> Community
             </button>
           </div>
-        </div>
-
-        {/* Tournament Selection */}
-        {currentTab === 'tournament' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Tournament Selection</h2>
-            <div className="max-w-md">
+      
+          {/* Tournament dropdown (only if tournament tab) */}
+          {currentTab === 'tournament' && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600">Tournament:</label>
               <select
                 value={selectedTournament}
                 onChange={(e) => setSelectedTournament(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">-- Select Tournament --</option>
-                {tournaments.map(tournament => (
-                  <option key={tournament.id} value={tournament.id}>
-                    {tournament.name} ({tournament.status}) - {new Date(tournament.tournament_date).toLocaleDateString()}
+                <option value="">-- Select --</option>
+                {tournaments.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
                   </option>
                 ))}
               </select>
             </div>
-          </div>
-        )}
+          )}
+      
+          {/* Refresh */}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 disabled:opacity-50"
+          >
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
 
         {/* Community Coming Soon */}
         {currentTab === 'community' && (
