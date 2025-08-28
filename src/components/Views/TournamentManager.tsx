@@ -841,6 +841,10 @@ export function TournamentManager() {
                           : `${tournament.current_participants}/${tournament.max_participants} participants`
                         }
                       </div>
+                    {/* <div className="flex items-center justify-between text-gray-600 font-inter text-sm">
+                    <span>Code:</span>
+                    <span className="font-mono font-bold text-blue-600">{tournament.tournament_code}</span>
+                  </div> */}
                       {tournament.password && (
                         <div className="flex items-center text-orange-600">
                           <span className="text-xs">🔒 Password protected</span>
