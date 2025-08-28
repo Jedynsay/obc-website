@@ -42,6 +42,49 @@ export function Leaderboards() {
     }
   }, [selectedTournament, currentTab]);
 
+  // --- 🔴 NEW: Realtime subscription ---
+  useEffect(() => {
+    let channel: any;
+
+    if (currentTab === 'tournament' && selectedTournament) {
+      channel = supabase
+        .channel(`tournament-leaderboard-${selectedTournament}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'match_sessions', filter: `tournament_id=eq.${selectedTournament}` },
+          () => {
+            // Re-fetch tournament leaderboard on session changes
+            fetchTournamentLeaderboard();
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'match_results', filter: `tournament_id=eq.${selectedTournament}` },
+          () => {
+            // Re-fetch tournament leaderboard on match result changes affecting this tournament
+            fetchTournamentLeaderboard();
+          }
+        )
+        .subscribe();
+    } else if (currentTab === 'global') {
+      channel = supabase
+        .channel('global-leaderboard')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'match_results' },
+          () => {
+            // Re-fetch global leaderboard on match_result changes
+            fetchGlobalLeaderboard();
+          }
+        )
+        .subscribe();
+    }
+
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [currentTab, selectedTournament]);
+
   const fetchTournaments = async () => {
     try {
       const { data, error } = await supabase
