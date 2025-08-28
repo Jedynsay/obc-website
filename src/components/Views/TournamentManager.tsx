@@ -843,7 +843,7 @@ export function TournamentManager() {
                       </div>
                     <div className="flex items-center">
                     <span>Code:</span>
-                    <span className="font-mono font-bold text-blue-600">{tournament.tournament_code}</span>
+                    <span className="flex items-center">{tournament.tournament_code}</span>
                   </div>
                       {tournament.password && (
                         <div className="flex items-center text-orange-600">
