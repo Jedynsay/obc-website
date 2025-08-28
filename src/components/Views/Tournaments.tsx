@@ -98,7 +98,7 @@ export function Tournaments() {
           </div>
 
           {/* Toggle */}
-          <label className="flex items-center cursor-pointer space-x-2 rounded-full">
+          <label className="flex items-center cursor-pointer space-x-2">
             <input
               type="checkbox"
               checked={showPractice}
