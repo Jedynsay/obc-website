@@ -212,7 +212,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
             </span>
           </h1>
           <p className="mt-6 text-xl text-slate-300">
-            Welcome to the future of competitive Beyblade. Let it rip ⚡
+            Fight. Spin. Conquer. Win.
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-6 justify-center">
