@@ -402,44 +402,53 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
 
           {recentMatches.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {recentMatches.map((match) => (
-                <div
-                  key={match.id}
-                  className="p-6 border border-cyan-500/20 bg-slate-950/70 backdrop-blur-xl rounded-md shadow-[0_0_25px_rgba(0,200,255,0.1)] hover:shadow-[0_0_35px_rgba(0,200,255,0.25)] transition"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs uppercase tracking-wider text-slate-400">
-                      {new Date(match.submitted_at).toLocaleString()}
-                    </span>
-                    <span className="px-3 py-1 text-xs rounded-md bg-gradient-to-r from-cyan-600/40 to-purple-600/40 text-cyan-300 font-semibold">
-                      {match.tournaments?.name}
-                    </span>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-white">
-                      {match.player1_name}{' '}
-                      <span
-                        className={`${
+            <div className="overflow-x-auto border border-slate-800 rounded-md">
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase text-xs">
+                  <tr>
+                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Tournament</th>
+                    <th className="px-4 py-3">Player 1</th>
+                    <th className="px-4 py-3">Player 2</th>
+                    <th className="px-4 py-3">Winner</th>
+                    <th className="px-4 py-3">Beyblade Used</th>
+                    <th className="px-4 py-3">Finish</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentMatches.map((match) => (
+                    <tr key={match.id} className="border-b border-slate-800 hover:bg-slate-900/60">
+                      <td className="px-4 py-3">
+                        {new Date(match.submitted_at).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">{match.tournaments?.name}</td>
+                      <td
+                        className={`px-4 py-3 ${
                           match.winner_name === match.player1_name
-                            ? 'text-cyan-400 font-bold'
-                            : 'text-slate-500'
+                            ? 'text-cyan-400 font-semibold'
+                            : ''
                         }`}
                       >
-                        vs
-                      </span>{' '}
-                      {match.player2_name}
-                    </div>
-                    <div className="mt-3 text-sm text-slate-400">
-                      Winner:{' '}
-                      <span className="text-cyan-400 font-semibold">
+                        {match.player1_name}
+                      </td>
+                      <td
+                        className={`px-4 py-3 ${
+                          match.winner_name === match.player2_name
+                            ? 'text-cyan-400 font-semibold'
+                            : ''
+                        }`}
+                      >
+                        {match.player2_name}
+                      </td>
+                      <td className="px-4 py-3 text-cyan-300 font-bold">
                         {match.winner_name}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                      </td>
+                      <td className="px-4 py-3">{match.winner_beyblade || '—'}</td>
+                      <td className="px-4 py-3">{match.finish || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <p className="text-slate-400">No matches available yet.</p>
