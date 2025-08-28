@@ -1,5 +1,4 @@
 import React from 'react';
-import { Zap, Shield, Clock, Activity, ShieldCheck } from 'lucide-react';
 
 interface StatBarProps {
   stats: {
@@ -13,51 +12,48 @@ interface StatBarProps {
 
 export function StatBar({ stats }: StatBarProps) {
   const statMeta = [
-    { key: 'attack', label: 'Attack', gradient: 'from-red-500 to-pink-500', icon: <Zap size={14} className="text-red-400" />, max: 200 },
-    { key: 'defense', label: 'Defense', gradient: 'from-blue-500 to-cyan-500', icon: <Shield size={14} className="text-cyan-400" />, max: 200 },
-    { key: 'stamina', label: 'Stamina', gradient: 'from-green-500 to-emerald-400', icon: <Clock size={14} className="text-green-400" />, max: 200 },
-    { key: 'dash', label: 'Dash', gradient: 'from-yellow-400 to-orange-500', icon: <Activity size={14} className="text-yellow-400" />, max: 50 },
-    { key: 'burstRes', label: 'Burst Res', gradient: 'from-purple-500 to-fuchsia-500', icon: <ShieldCheck size={14} className="text-purple-400" />, max: 80 }
+    { key: 'attack', label: 'Attack', gradient: 'from-red-500 via-pink-500 to-fuchsia-500', max: 200 },
+    { key: 'defense', label: 'Defense', gradient: 'from-cyan-400 via-blue-500 to-indigo-500', max: 200 },
+    { key: 'stamina', label: 'Stamina', gradient: 'from-green-400 via-emerald-500 to-teal-500', max: 200 },
+    { key: 'dash', label: 'Dash', gradient: 'from-yellow-400 via-orange-500 to-red-500', max: 50 },
+    { key: 'burstRes', label: 'Burst Res', gradient: 'from-purple-400 via-fuchsia-500 to-pink-600', max: 80 },
   ];
 
   return (
-    <div className="bg-slate-950/80 border border-cyan-500/30 p-5 mt-6 rounded-xl shadow-[0_0_20px_rgba(0,200,255,0.2)]">
-      <h5 className="text-sm font-bold tracking-wide text-cyan-400 mb-4 flex items-center uppercase">
-        <Activity size={16} className="mr-2 text-cyan-400" />
+    <div className="bg-slate-950/80 border border-cyan-500/30 rounded-lg p-6 shadow-[0_0_25px_rgba(0,200,255,0.25)]">
+      <h5 className="text-sm uppercase font-exo2 tracking-widest text-cyan-400 mb-6">
         Combined Stats
       </h5>
 
-      <div className="space-y-3">
-        {statMeta.map(({ key, label, gradient, icon, max }) => {
+      <div className="space-y-6">
+        {statMeta.map(({ key, label, gradient, max }) => {
           const value = stats[key as keyof typeof stats];
           const percentage = Math.min((value / max) * 100, 100);
 
           return (
-            <div key={key} className="flex items-center group">
-              {/* Label */}
-              <div className="flex items-center w-28 text-xs font-semibold text-slate-300 group-hover:text-cyan-400 transition">
-                {icon}
-                <span className="ml-2">{label}</span>
+            <div key={key} className="w-full">
+              {/* Label + Value */}
+              <div className="flex justify-between mb-1">
+                <span className="text-xs font-exo2 uppercase tracking-wide text-slate-300">
+                  {label}
+                </span>
+                <span className="text-xs font-exo2 font-bold text-cyan-300">{value}</span>
               </div>
 
               {/* Bar */}
-              <div className="flex-1 mx-3 relative">
-                <div className="w-full bg-slate-800/70 rounded-full h-2 overflow-hidden">
-                  <div
-                    className={`h-2 rounded-full bg-gradient-to-r ${gradient} shadow-[0_0_15px_rgba(0,200,255,0.4)]`}
-                    style={{ width: `${percentage}%` }}
-                  ></div>
-                </div>
-                {/* Glow Line Overlay */}
+              <div className="relative h-3 w-full bg-slate-800/60 overflow-hidden">
                 <div
-                  className={`absolute top-0 left-0 h-2 bg-gradient-to-r ${gradient} opacity-30 blur-sm`}
+                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} transition-all duration-700`}
+                  style={{
+                    width: `${percentage}%`,
+                    clipPath: 'polygon(0 0, 100% 0, 95% 100%, 0% 100%)', // angled right edge
+                  }}
+                />
+                {/* Neon Glow */}
+                <div
+                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} opacity-30 blur-md`}
                   style={{ width: `${percentage}%` }}
                 />
-              </div>
-
-              {/* Value */}
-              <div className="w-10 text-xs font-bold text-cyan-300 text-right">
-                {value}
               </div>
             </div>
           );
