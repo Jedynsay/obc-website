@@ -64,132 +64,162 @@ export function Leaderboards() {
     }
   };
 
-    const fetchTournamentLeaderboard = async () => {
-      if (!selectedTournament) return;
-    
-      try {
-        const { data: sessions, error } = await supabase
-          .from('match_sessions')
-          .select('*')
-          .eq('tournament_id', selectedTournament);
-    
-        if (error) throw error;
-    
-        if (!sessions || sessions.length === 0) {
-          setLeaderboard([]);
-          return;
+const fetchTournamentLeaderboard = async () => {
+  if (!selectedTournament) return;
+
+  try {
+    const { data: sessions, error } = await supabase
+      .from('match_sessions')
+      .select('*')
+      .eq('tournament_id', selectedTournament);
+
+    if (error) throw error;
+
+    if (!sessions || sessions.length === 0) {
+      setLeaderboard([]);
+      return;
+    }
+
+    const playerStats: {
+      [name: string]: {
+        wins: number;
+        losses: number;
+        score: number;          // total wins
+        pointsFor: number;      // total points scored
+        pointsAgainst: number;  // total points conceded
+        opponents: string[];
+        winsAgainst: { [opponent: string]: number }; // track wins vs each opponent
+      };
+    } = {};
+
+    sessions.forEach(session => {
+      const { player1_name, player2_name, winner_name, player1_final_score, player2_final_score } = session;
+
+      // Initialize players if missing
+      if (!playerStats[player1_name]) {
+        playerStats[player1_name] = { wins: 0, losses: 0, score: 0, pointsFor: 0, pointsAgainst: 0, opponents: [], winsAgainst: {} };
+      }
+      if (!playerStats[player2_name]) {
+        playerStats[player2_name] = { wins: 0, losses: 0, score: 0, pointsFor: 0, pointsAgainst: 0, opponents: [], winsAgainst: {} };
+      }
+
+      // Assign wins/losses & session score (1 point per win)
+      if (winner_name === player1_name) {
+        playerStats[player1_name].wins++;
+        playerStats[player1_name].score += 1;
+        playerStats[player2_name].losses++;
+        // track win against opponent
+        playerStats[player1_name].winsAgainst[player2_name] = (playerStats[player1_name].winsAgainst[player2_name] || 0) + 1;
+      } else if (winner_name === player2_name) {
+        playerStats[player2_name].wins++;
+        playerStats[player2_name].score += 1;
+        playerStats[player1_name].losses++;
+        // track win against opponent
+        playerStats[player2_name].winsAgainst[player1_name] = (playerStats[player2_name].winsAgainst[player1_name] || 0) + 1;
+      }
+
+      // Track points scored and conceded
+      playerStats[player1_name].pointsFor += player1_final_score || 0;
+      playerStats[player1_name].pointsAgainst += player2_final_score || 0;
+
+      playerStats[player2_name].pointsFor += player2_final_score || 0;
+      playerStats[player2_name].pointsAgainst += player1_final_score || 0;
+
+      // Track opponents
+      if (!playerStats[player1_name].opponents.includes(player2_name)) {
+        playerStats[player1_name].opponents.push(player2_name);
+      }
+      if (!playerStats[player2_name].opponents.includes(player1_name)) {
+        playerStats[player2_name].opponents.push(player1_name);
+      }
+    });
+
+    // Compute Median-Buchholz (drop highest and lowest opponent scores)
+    Object.keys(playerStats).forEach(player => {
+      const opponents = playerStats[player].opponents;
+      const opponentScores: number[] = [];
+
+      opponents.forEach(opponent => {
+        if (playerStats[opponent]) {
+          opponentScores.push(playerStats[opponent].score);
         }
-    
-        const playerStats: {
-          [name: string]: {
-            wins: number;
-            losses: number;
-            score: number;          // total wins
-            pointsFor: number;      // total points scored
-            pointsAgainst: number;  // total points conceded
-            opponents: string[];
-          };
-        } = {};
-    
-        sessions.forEach(session => {
-          const { player1_name, player2_name, winner_name, player1_final_score, player2_final_score } = session;
-    
-          // Initialize players if missing
-          if (!playerStats[player1_name]) {
-            playerStats[player1_name] = { wins: 0, losses: 0, score: 0, pointsFor: 0, pointsAgainst: 0, opponents: [] };
-          }
-          if (!playerStats[player2_name]) {
-            playerStats[player2_name] = { wins: 0, losses: 0, score: 0, pointsFor: 0, pointsAgainst: 0, opponents: [] };
-          }
-    
-          // Assign wins/losses & session score (1 point per win)
-          if (winner_name === player1_name) {
-            playerStats[player1_name].wins++;
-            playerStats[player1_name].score += 1;
-            playerStats[player2_name].losses++;
-          } else if (winner_name === player2_name) {
-            playerStats[player2_name].wins++;
-            playerStats[player2_name].score += 1;
-            playerStats[player1_name].losses++;
-          }
-    
-          // Track points scored and conceded
-          playerStats[player1_name].pointsFor += player1_final_score || 0;
-          playerStats[player1_name].pointsAgainst += player2_final_score || 0;
-    
-          playerStats[player2_name].pointsFor += player2_final_score || 0;
-          playerStats[player2_name].pointsAgainst += player1_final_score || 0;
-    
-          // Track opponents
-          if (!playerStats[player1_name].opponents.includes(player2_name)) {
-            playerStats[player1_name].opponents.push(player2_name);
-          }
-          if (!playerStats[player2_name].opponents.includes(player1_name)) {
-            playerStats[player2_name].opponents.push(player1_name);
-          }
-        });
-    
-        // Compute Median-Buchholz (drop highest and lowest opponent scores)
-        Object.keys(playerStats).forEach(player => {
-          const opponents = playerStats[player].opponents;
-          const opponentScores: number[] = [];
-    
-          opponents.forEach(opponent => {
-            if (playerStats[opponent]) {
-              opponentScores.push(playerStats[opponent].score);
+      });
+
+      if (opponentScores.length > 2) {
+        opponentScores.sort((a, b) => a - b);
+        opponentScores.shift(); // drop lowest
+        opponentScores.pop();   // drop highest
+      }
+
+      const buchholzScore = opponentScores.reduce((sum, s) => sum + s, 0);
+      (playerStats[player] as any).buchholz = buchholzScore;
+    });
+
+    // --- Compute TB (wins against tied opponents) ---
+    const scoreGroups: { [score: number]: string[] } = {};
+    Object.keys(playerStats).forEach(player => {
+      const score = playerStats[player].score;
+      if (!scoreGroups[score]) scoreGroups[score] = [];
+      scoreGroups[score].push(player);
+    });
+
+    Object.values(scoreGroups).forEach(group => {
+      if (group.length > 1) {
+        group.forEach(player => {
+          let tbWins = 0;
+          group.forEach(opponent => {
+            if (opponent !== player) {
+              tbWins += playerStats[player].winsAgainst[opponent] || 0;
             }
           });
-    
-          if (opponentScores.length > 2) {
-            opponentScores.sort((a, b) => a - b);
-            opponentScores.shift(); // drop lowest
-            opponentScores.pop();   // drop highest
-          }
-    
-          const buchholzScore = opponentScores.reduce((sum, s) => sum + s, 0);
-          (playerStats[player] as any).buchholz = buchholzScore;
+          (playerStats[player] as any).tb = tbWins;
         });
-    
-        // Convert to leaderboard format
-        const leaderboardData = Object.entries(playerStats).map(([name, stats]) => {
-          const totalMatches = stats.wins + stats.losses;
-          const winRate = totalMatches > 0 ? (stats.wins / totalMatches) * 100 : 0;
-          const ptsDiff = stats.pointsFor - stats.pointsAgainst;
-          const buchholz = (stats as any).buchholz || 0;
-    
-          return {
-            participant: name,
-            matchWins: stats.wins,
-            matchLosses: stats.losses,
-            score: stats.score,
-            tb: stats.wins,
-            buchholz,
-            ptsDiff,
-            totalMatches,
-            winRate,
-            rank: 0,
-          };
-        });
-    
-        // Sort & rank
-        leaderboardData.sort((a, b) => {
-          if (b.score !== a.score) return b.score - a.score;
-          if (b.tb !== a.tb) return b.tb - a.tb;
-          if (b.buchholz !== a.buchholz) return b.buchholz - a.buchholz;
-          if (b.ptsDiff !== a.ptsDiff) return b.ptsDiff - a.ptsDiff;
-          return 0;
-        });
-    
-        leaderboardData.forEach((entry, idx) => {
-          entry.rank = idx + 1;
-        });
-    
-        setLeaderboard(leaderboardData);
-      } catch (error) {
-        console.error('Error fetching tournament leaderboard:', error);
-        setLeaderboard([]);
+      } else {
+        (playerStats[group[0]] as any).tb = 0; // no tie → TB = 0
       }
-    };
+    });
+
+    // Convert to leaderboard format
+    const leaderboardData = Object.entries(playerStats).map(([name, stats]) => {
+      const totalMatches = stats.wins + stats.losses;
+      const winRate = totalMatches > 0 ? (stats.wins / totalMatches) * 100 : 0;
+      const ptsDiff = stats.pointsFor - stats.pointsAgainst;
+      const buchholz = (stats as any).buchholz || 0;
+      const tb = (stats as any).tb || 0;
+
+      return {
+        participant: name,
+        matchWins: stats.wins,
+        matchLosses: stats.losses,
+        score: stats.score,
+        tb,
+        buchholz,
+        ptsDiff,
+        totalMatches,
+        winRate,
+        rank: 0,
+      };
+    });
+
+    // Sort & rank
+    leaderboardData.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      if (b.tb !== a.tb) return b.tb - a.tb;
+      if (b.buchholz !== a.buchholz) return b.buchholz - a.buchholz;
+      if (b.ptsDiff !== a.ptsDiff) return b.ptsDiff - a.ptsDiff;
+      return 0;
+    });
+
+    leaderboardData.forEach((entry, idx) => {
+      entry.rank = idx + 1;
+    });
+
+    setLeaderboard(leaderboardData);
+  } catch (error) {
+    console.error('Error fetching tournament leaderboard:', error);
+    setLeaderboard([]);
+  }
+};
 
   const fetchGlobalLeaderboard = async () => {
     try {
