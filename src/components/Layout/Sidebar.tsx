@@ -101,32 +101,31 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         bg-slate-950 border-r border-cyan-500/30 w-64 shadow-[0_0_30px_rgba(0,200,255,0.2)]`}
         style={{ pointerEvents: 'auto' }}
       >
-        {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-cyan-500/30 bg-gradient-to-r from-slate-900 to-slate-950">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg text-white shadow-[0_0_15px_rgba(0,200,255,0.5)]">
-              B
-            </div>
-            {isOpen && (
-              <div>
-                <h1 className="text-xl font-bold text-white">OBC Portal</h1>
-                <p className="text-xs text-cyan-400">Ormoc Beyblade Club</p>
-              </div>
-            )}
-          </div>
-          {isOpen && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggle();
-              }}
-              className="p-2 hover:bg-cyan-500/20 rounded-lg transition-colors text-cyan-400 hover:text-white"
-            >
-              <X size={20} />
-            </button>
-          )}
-        </div>
-
+{/* Sidebar Header */}
+<div className="flex items-center justify-between p-4 bg-slate-950">
+  <div className="flex items-center space-x-3">
+    <img 
+      src="/favicon.png" 
+      alt="OBC Logo" 
+      className="w-8 h-8 object-contain"
+    />
+    {isOpen && (
+      <h1 className="text-lg font-bold text-white">OBC Portal</h1>
+    )}
+  </div>
+  {isOpen && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+      className="p-2 hover:bg-cyan-500/20 rounded transition-colors text-cyan-400 hover:text-white"
+    >
+      <X size={20} />
+    </button>
+  )}
+</div>
+        
 <div className="flex-1 overflow-y-auto px-4 py-6 space-y-8">
   {/* Overview */}
   <div>
