@@ -421,7 +421,7 @@ const fetchTournamentLeaderboard = async () => {
             <Users size={16} className="mr-1" /> Community
           </button>
         </div>
-    
+          
       {/* Tournament dropdown (responsive) */}
       {currentTab === 'tournament' && (
         <div className="flex flex-col md:flex-row md:items-center md:justify-end w-full gap-2">
@@ -442,6 +442,12 @@ const fetchTournamentLeaderboard = async () => {
           </select>
         </div>
       )}
+
+      </div>
+    </div>
+
+
+
 
         {/* Community Coming Soon */}
         {currentTab === 'community' && (
