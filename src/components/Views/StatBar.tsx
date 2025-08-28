@@ -72,16 +72,6 @@ export function StatBar({ stats }: StatBarProps) {
           );
         })}
       </div>
-
-      {/* Custom animation for streak */}
-      <style jsx>{`
-        @keyframes pulse-streak {
-          0% { opacity: 0; }
-          30% { opacity: 1; }
-          60% { opacity: 0.6; }
-          100% { opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }
