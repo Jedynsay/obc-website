@@ -198,7 +198,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           <img
             src="/community.jpg"
             alt="Ormoc Beyblade Community"
-            className="w-full h-full object-cover opacity-1000"
+            className="w-full h-full object-cover opacity-100"
           />
           <div className="absolute inset-0 bg-black/70"></div>
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:60px_60px] opacity-20" />
@@ -210,7 +210,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
             className="text-7xl md:text-8xl uppercase tracking-tight"
             style={{
               fontFamily: "'Orbitron', sans-serif",
-              fontWeight: 900,
+              fontWeight: 600,
             }}
           >
             <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
