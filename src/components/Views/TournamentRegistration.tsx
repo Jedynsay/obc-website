@@ -569,7 +569,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
 
           {beyblades.length < tournament.beyblades_per_player && (
             <button
-              onClick={() => setBeyblades([...beyblades, { id: Date.now().toString(), isCustomLine: false, parts: {} }]}
+              onClick={() => setBeyblades([...beyblades, { id: Date.now().toString(), isCustomLine: false, parts: {} }])}
               className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-600 hover:border-blue-400 hover:text-blue-600 flex items-center justify-center space-x-2"
             >
               <Plus size={20} />
