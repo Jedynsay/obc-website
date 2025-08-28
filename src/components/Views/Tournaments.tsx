@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Users, Trophy, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, MapPin, Users, Trophy, Zap, Search } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
@@ -10,200 +10,215 @@ export function Tournaments() {
   const { alert } = useConfirmation();
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'active' | 'completed'>('all');
   const [showPractice, setShowPractice] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
-  const [tournaments, setTournaments] = useState<any[]>([]);
+  const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchTournaments = async () => {
       try {
         const { data, error } = await supabase
           .from('tournaments')
           .select('*')
           .order('tournament_date', { ascending: true });
+
         if (error) throw error;
         setTournaments(data || []);
-      } catch (err) {
-        console.error('Error fetching tournaments:', err);
+      } catch (error) {
+        console.error('Error fetching tournaments:', error);
         setTournaments([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchTournaments();
   }, []);
 
-  const filteredTournaments = tournaments.filter((t) => {
-    const statusMatch = filter === 'all' || t.status === filter;
-    const practiceMatch = showPractice || !t.is_practice;
-    return statusMatch && practiceMatch;
+  const filteredTournaments = tournaments.filter(tournament => {
+    const statusMatch = filter === 'all' || tournament.status === filter;
+    const practiceMatch = showPractice || !tournament.is_practice;
+    const searchMatch =
+      tournament.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tournament.location.toLowerCase().includes(searchTerm.toLowerCase());
+    return statusMatch && practiceMatch && searchMatch;
   });
 
   const handleTournamentRegistration = (playerName: string, beyblades: any[]) => {
-    alert(
-      'Registration Complete',
-      `Successfully registered ${playerName} with ${beyblades.length} Beyblades!`
-    );
+    alert('Registration Complete', `Successfully registered ${playerName} with ${beyblades.length} Beyblades for the tournament!`);
     setSelectedTournament(null);
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
-        <div className="mb-8 text-left">
-          <h1 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight">
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold flex items-center mb-4">
+            <Trophy size={40} className="mr-4 text-cyan-400" />
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Tournament Arena
             </span>
           </h1>
-          <p className="text-slate-400 text-sm md:text-base mt-2">
-            Join the ultimate battles and prove your worth
-          </p>
+          <p className="text-slate-400 text-lg">Join the ultimate Beyblade battles and prove your worth</p>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-10">
-          {['upcoming', 'active', 'completed', 'all'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab as any)}
-              className={`px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg transition-all duration-300 flex-1 sm:flex-none text-center 
-                ${
+        {/* Controls: Tabs + Search + Toggle */}
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-lg p-4 backdrop-blur-sm mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Tabs */}
+          <div className="flex space-x-6 border-b border-slate-700 w-full sm:w-auto">
+            {['upcoming', 'active', 'completed', 'all'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab as any)}
+                className={`relative pb-2 text-sm font-medium capitalize transition-colors ${
                   filter === tab
-                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.4)]'
-                    : 'bg-slate-900/60 border border-cyan-500/20 text-slate-300 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(0,200,255,0.3)]'
-                }`
-            }
+                    ? 'text-cyan-400'
+                    : 'text-slate-400 hover:text-cyan-300'
+                }`}
+              >
+                {tab}
+                {filter === tab && (
+                  <span className="absolute left-0 bottom-0 h-0.5 w-full bg-gradient-to-r from-cyan-400 to-purple-400"></span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Search */}
+          <div className="flex items-center bg-slate-800/70 border border-slate-700 px-3 py-2 rounded-lg w-full sm:w-64">
+            <Search size={16} className="text-slate-400 mr-2" />
+            <input
+              type="text"
+              placeholder="Search tournaments..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-transparent flex-1 text-sm focus:outline-none placeholder-slate-500"
+            />
+          </div>
+
+          {/* Toggle */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowPractice(!showPractice)}
+              className={`relative w-12 h-6 flex items-center rounded-full transition-colors duration-300 ${
+                showPractice ? 'bg-cyan-500/80' : 'bg-slate-700'
+              }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              <span
+                className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300 ${
+                  showPractice ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
             </button>
-          ))}
-          <button
-            onClick={() => setShowPractice(!showPractice)}
-            className={`px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg transition-all duration-300 flex-1 sm:flex-none text-center 
-              ${
-                showPractice
-                  ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.4)]'
-                  : 'bg-slate-900/60 border border-cyan-500/20 text-slate-300 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(0,200,255,0.3)]'
-              }`
-          }
-          >
-            Practice
-          </button>
+            <span className="text-sm text-slate-300">Show Practice</span>
+          </div>
         </div>
 
-        {/* Tournament Cards */}
+        {/* Tournament Grid */}
         {loading ? (
-          <div className="text-center py-20">
-            <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto mb-6"></div>
+          <div className="text-center py-12">
+            <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-lg animate-spin mx-auto mb-4"></div>
             <p className="text-slate-400">Loading tournaments...</p>
           </div>
         ) : filteredTournaments.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-800/50 rounded-xl flex items-center justify-center mx-auto mb-6">
-              <Trophy size={32} className="text-slate-500" />
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-slate-800/50 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Trophy size={32} className="text-slate-400" />
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-2">No tournaments found</h3>
-            <p className="text-slate-400">Check back later for new events</p>
+            <h3 className="text-xl font-bold text-white mb-2">No tournaments found</h3>
+            <p className="text-slate-400">Check back later for upcoming events</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTournaments.map((tournament) => (
-              <div
-                key={tournament.id}
-                className="bg-slate-900/70 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_25px_rgba(0,200,255,0.3)] transition-all duration-300"
-              >
-                {/* Title + Status */}
+              <div key={tournament.id} className="bg-slate-900/50 border border-cyan-500/30 rounded-lg p-6 backdrop-blur-sm hover:shadow-[0_0_30px_rgba(0,200,255,0.2)] transition-all duration-300 group">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold group-hover:text-cyan-400 transition-colors">
-                    {tournament.name}
-                  </h3>
-                  <div className="flex gap-2">
-                    <span
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize 
-                        ${tournament.status === 'upcoming'
-                          ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                          : tournament.status === 'active'
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                          : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'}`}
-                    >
-                      {tournament.status}
-                    </span>
-                    {tournament.is_practice && (
-                      <span className="px-3 py-1 rounded-lg text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                        Practice
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{tournament.name}</h3>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-3 py-1 rounded-lg text-xs font-medium capitalize ${
+                        tournament.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                        tournament.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                        'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                      }`}>
+                        {tournament.status}
                       </span>
-                    )}
+                      {tournament.is_practice && (
+                        <span className="px-3 py-1 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                          Practice
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Info */}
-                <div className="space-y-2 text-sm text-slate-300 mb-4">
-                  <div className="flex items-center">
+                {tournament.description && (
+                  <p className="text-slate-300 mb-4 text-sm line-clamp-2">{tournament.description}</p>
+                )}
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-slate-300">
                     <Calendar size={14} className="mr-2 text-cyan-400" />
-                    {new Date(tournament.tournament_date).toLocaleDateString()}
+                    <span className="text-sm">{new Date(tournament.tournament_date).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center text-slate-300">
                     <MapPin size={14} className="mr-2 text-cyan-400" />
-                    {tournament.location}
+                    <span className="text-sm">{tournament.location}</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center text-slate-300">
                     <Users size={14} className="mr-2 text-cyan-400" />
-                    {tournament.max_participants === 999999
-                      ? `${tournament.current_participants} participants`
-                      : `${tournament.current_participants}/${tournament.max_participants}`}
+                    <span className="text-sm">
+                      {tournament.max_participants === 999999
+                        ? `${tournament.current_participants} participants`
+                        : `${tournament.current_participants}/${tournament.max_participants}`}
+                    </span>
                   </div>
                 </div>
 
-                {/* Progress */}
+                {/* Progress Bar */}
                 <div className="mb-4">
-                  <div className="flex justify-between text-xs text-slate-400 mb-1">
+                  <div className="flex justify-between text-slate-400 mb-1 text-sm">
                     <span>Registration</span>
-                    <span>
+                    <span className="text-xs">
                       {tournament.max_participants === 999999
                         ? `${tournament.current_participants} registered`
-                        : `${Math.round(
-                            (tournament.current_participants / tournament.max_participants) * 100
-                          )}%`}
+                        : `${Math.round((tournament.current_participants / tournament.max_participants) * 100)}%`
+                      }
                     </span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-lg h-2">
                     <div
-                      className="h-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500"
+                      className="h-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-500"
                       style={{
-                        width:
-                          tournament.max_participants === 999999
-                            ? '100%'
-                            : `${Math.min(
-                                (tournament.current_participants / tournament.max_participants) * 100,
-                                100
-                              )}%`,
+                        width: tournament.max_participants === 999999
+                          ? '100%'
+                          : `${Math.min((tournament.current_participants / tournament.max_participants) * 100, 100)}%`
                       }}
                     ></div>
                   </div>
                 </div>
 
-                {/* Register */}
                 {tournament.status === 'upcoming' && (
                   <button
                     onClick={() => setSelectedTournament(tournament.id)}
                     disabled={
                       !tournament.registration_open ||
-                      (tournament.max_participants !== 999999 &&
-                        tournament.current_participants >= tournament.max_participants)
+                      (tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants)
                     }
-                    className="w-full px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg transition-all duration-300 flex items-center justify-center gap-2
-                      bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:from-cyan-400 hover:to-purple-500 
-                      disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium px-6 py-3 rounded-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,200,255,0.3)] group-hover:shadow-[0_0_30px_rgba(0,200,255,0.5)]"
                   >
-                    <Zap size={16} />
-                    {!tournament.registration_open
-                      ? 'Registration Closed'
-                      : tournament.max_participants !== 999999 &&
-                        tournament.current_participants >= tournament.max_participants
-                      ? 'Tournament Full'
-                      : 'Register Now'}
+                    <div className="flex items-center justify-center space-x-2">
+                      <Zap size={16} />
+                      <span>
+                        {!tournament.registration_open
+                          ? 'Registration Closed'
+                          : tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants
+                          ? 'Tournament Full'
+                          : 'Register for Tournament'}
+                      </span>
+                    </div>
                   </button>
                 )}
               </div>
@@ -211,10 +226,10 @@ export function Tournaments() {
           </div>
         )}
 
-        {/* Modal */}
+        {/* Tournament Registration Modal */}
         {selectedTournament && (
           <TournamentRegistration
-            tournament={filteredTournaments.find((t) => t.id === selectedTournament)!}
+            tournament={filteredTournaments.find(t => t.id === selectedTournament)!}
             onClose={() => setSelectedTournament(null)}
             onSubmit={handleTournamentRegistration}
           />
