@@ -353,7 +353,8 @@ const randomizeAllBeyblades = () => {
         )}
 
     {/* Header */}
-    <div className="sticky top-0 z-20 bg-gradient-to-r from-cyan-500 to-purple-500 px-4 sm:px-6 py-4 flex justify-between items-center rounded-t-2xl shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+<div className="sticky top-0 bg-gradient-to-r from-cyan-500 to-purple-500 px-4 sm:px-6 py-4 flex justify-between items-center">
+
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-white">Tournament Registration</h2>
         <p className="text-cyan-100">{tournament.name}</p>
