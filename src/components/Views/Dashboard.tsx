@@ -414,9 +414,10 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                     <th className="px-4 py-3">Date</th>
                     <th className="px-4 py-3">Tournament</th>
                     <th className="px-4 py-3">Player 1</th>
+                    <th className="px-4 py-3">Player 1 Beyblade</th>
                     <th className="px-4 py-3">Player 2</th>
+                    <th className="px-4 py-3">Player 2 Beyblade</th>
                     <th className="px-4 py-3">Winner</th>
-                    <th className="px-4 py-3">Beyblades</th>
                     <th className="px-4 py-3">Finish</th>
                   </tr>
                 </thead>
@@ -430,6 +431,8 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                         {new Date(match.submitted_at).toLocaleString()}
                       </td>
                       <td className="px-4 py-3">{match.tournaments?.name}</td>
+
+                      {/* Player 1 + Beyblade */}
                       <td
                         className={`px-4 py-3 ${
                           match.winner_name === match.player1_name
@@ -439,6 +442,11 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                       >
                         {match.player1_name}
                       </td>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                        {match.player1_beyblade || 'Unknown'}
+                      </td>
+
+                      {/* Player 2 + Beyblade */}
                       <td
                         className={`px-4 py-3 ${
                           match.winner_name === match.player2_name
@@ -448,12 +456,13 @@ export function Dashboard({ onViewChange }: DashboardProps) {
                       >
                         {match.player2_name}
                       </td>
+                      <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                        {match.player2_beyblade || 'Unknown'}
+                      </td>
+
+                      {/* Winner + Finish */}
                       <td className="px-4 py-3 text-cyan-300 font-bold">
                         {match.winner_name}
-                      </td>
-                      <td className="px-4 py-3 text-slate-400 font-mono text-xs">
-                        {match.player1_beyblade || 'Unknown'} vs{' '}
-                        {match.player2_beyblade || 'Unknown'}
                       </td>
                       <td className="px-4 py-3 text-slate-300">
                         {match.outcome?.split(' (')[0] || '—'}
@@ -468,7 +477,6 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           )}
         </div>
       </section>
-
 
       {/* Footer */}
       <footer className="py-12 border-t border-slate-800 bg-slate-950 text-center text-slate-500 text-sm">
