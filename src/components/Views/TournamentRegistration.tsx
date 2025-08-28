@@ -541,7 +541,7 @@ const randomizeAllBeyblades = () => {
                       <div className={`w-8 h-4 rounded-full transition-colors ${
                         beyblade.isCustomLine ? 'bg-purple-500' : 'bg-slate-600'
                       }`}>
-                        <div className={`w-3 h-3 bg-white rounded-none shadow transform transition-transform ${
+                        <div className={`w-3 h-3 bg-white rounded-full shadow transform transition-transform ${
                           beyblade.isCustomLine ? 'translate-x-4' : 'translate-x-0'
                         } mt-0.5 ml-0.5`}></div>
                       </div>
