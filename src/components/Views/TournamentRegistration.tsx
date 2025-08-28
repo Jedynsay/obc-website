@@ -341,12 +341,12 @@ const randomizeAllBeyblades = () => {
   
   return (
 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-  <div className="bg-slate-950 border border-cyan-500/30 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.3)] w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative">
+  <div className="bg-slate-950 border border-cyan-500/30 rounded-none shadow-[0_0_40px_rgba(0,200,255,0.3)] w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative">
         {/* Loading Overlay */}
         {isLoadingParts && (
-          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
+          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-none">
             <div className="text-center">
-              <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-none animate-spin mx-auto mb-4"></div>
               <p className="text-slate-400">Loading Beyblade parts...</p>
             </div>
           </div>
@@ -360,7 +360,7 @@ const randomizeAllBeyblades = () => {
       </div>
       <button
         onClick={onClose}
-        className="p-2 hover:bg-white/20 rounded-full transition-colors text-white"
+        className="p-2 hover:bg-white/20 rounded-none transition-colors text-white"
       >
         <X size={24} />
       </button>
@@ -521,7 +521,7 @@ const randomizeAllBeyblades = () => {
           {/* Custom Line Toggle */}
           {/* Beyblade Configuration Cards */}
           {beyblades.map((beyblade, index) => (
-            <div key={beyblade.id} className="bg-slate-900/50 border border-cyan-500/20 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
+            <div key={beyblade.id} className="bg-slate-900/50 border border-cyan-500/20 rounded-none p-4 sm:p-6 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">Beyblade #{index + 1}</h3>
                 <div className="flex items-center space-x-2">
@@ -537,10 +537,10 @@ const randomizeAllBeyblades = () => {
                         onChange={(e) => updateBeyblade(beyblade.id, 'isCustomLine', e.target.checked)}
                         className="sr-only"
                       />
-                      <div className={`w-8 h-4 rounded-full transition-colors ${
+                      <div className={`w-8 h-4 rounded-none transition-colors ${
                         beyblade.isCustomLine ? 'bg-purple-500' : 'bg-slate-600'
                       }`}>
-                        <div className={`w-3 h-3 bg-white rounded-full shadow transform transition-transform ${
+                        <div className={`w-3 h-3 bg-white rounded-none shadow transform transition-transform ${
                           beyblade.isCustomLine ? 'translate-x-4' : 'translate-x-0'
                         } mt-0.5 ml-0.5`}></div>
                       </div>
@@ -550,7 +550,7 @@ const randomizeAllBeyblades = () => {
                     </span>
                   </div>
                   {beyblades.length > 1 && (
-                    <button onClick={() => removeBeyblade(beyblade.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-full transition-colors">
+                    <button onClick={() => removeBeyblade(beyblade.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-none transition-colors">
                       <Trash2 size={16} />
                     </button>
                   )}
