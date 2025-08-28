@@ -522,7 +522,7 @@ const randomizeAllBeyblades = () => {
           {/* Custom Line Toggle */}
           {/* Beyblade Configuration Cards */}
           {beyblades.map((beyblade, index) => (
-            <div key={beyblade.id} className="bg-slate-900/50 border border-cyan-500/20 rounded-none p-4 sm:p-6 backdrop-blur-sm">
+            <div key={beyblade.id} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-4 sm:p-6 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-white">Beyblade #{index + 1}</h3>
                 <div className="flex items-center space-x-2">
