@@ -259,8 +259,6 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       ))}
     </div>
   </section>
-</motion.div>
-
 
         {/* Quick Access Hub */}
         <section className="py-24 bg-slate-900/90 backdrop-blur-sm">
