@@ -313,6 +313,27 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
     }
   };
 
+const randomizeBeyblade = (beybladeId: string) => {
+  setBeyblades((prev) =>
+    prev.map((b) => {
+      if (b.id !== beybladeId) return b;
+
+      const requiredParts = getRequiredParts(b.isCustomLine ? "Custom" : "Basic");
+      const newParts: any = {};
+
+      requiredParts.forEach((partType) => {
+        const options = getPartOptions(partType);
+        if (options.length > 0) {
+          const randomIndex = Math.floor(Math.random() * options.length);
+          newParts[partType] = options[randomIndex];
+        }
+      });
+
+      return { ...b, parts: newParts };
+    })
+  );
+};
+  
   return (
 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
   <div className="bg-slate-950 border border-cyan-500/30 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.3)] w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative">
