@@ -245,46 +245,27 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
 </div>
 
 
-        {/* Auth Section */}
-        <div className="px-4 border-t border-cyan-500/30 py-4 bg-gradient-to-r from-slate-950 to-slate-900">
-          {user && !user.id.startsWith('guest-') ? (
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center px-3 py-3 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500/30 border border-transparent transition-all duration-200"
-            >
-              <div className="transition-colors"><LogOut size={20} /></div>
-              {isOpen && <span className="ml-3 font-medium">Logout</span>}
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowLoginModal(true)}
-              className="w-full flex items-center px-3 py-3 rounded-lg text-cyan-400 hover:text-white hover:bg-cyan-500/20 hover:border-cyan-500/30 border border-transparent transition-all duration-200"
-            >
-              <div className="transition-colors"><LogIn size={20} /></div>
-              {isOpen && <span className="ml-3 font-medium">Login</span>}
-            </button>
-          )}
-        </div>
+{/* Auth Section */}
+<div className="px-4 py-4 bg-slate-950">
+  {user && !user.id.startsWith('guest-') ? (
+    <button
+      onClick={handleLogout}
+      className="w-full flex items-center px-3 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500/30 border border-transparent transition-all duration-200"
+    >
+      <div className="transition-colors"><LogOut size={20} /></div>
+      {isOpen && <span className="ml-3 font-medium">Logout</span>}
+    </button>
+  ) : (
+    <button
+      onClick={() => setShowLoginModal(true)}
+      className="w-full flex items-center px-3 py-3 text-cyan-400 hover:text-white hover:bg-cyan-500/20 hover:border-cyan-500/30 border border-transparent transition-all duration-200"
+    >
+      <div className="transition-colors"><LogIn size={20} /></div>
+      {isOpen && <span className="ml-3 font-medium">Login</span>}
+    </button>
+  )}
+</div>
 
-        {isOpen && (
-          <div className="px-2 pb-4">
-            <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-4 backdrop-blur-sm">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 bg-gradient-to-r from-cyan-500 to-purple-600 rounded flex items-center justify-center">
-                  <span className="text-xs text-white font-bold">J</span>
-                </div>
-                <h3 className="font-semibold text-sm text-cyan-400">
-                  Created by Jedynsay
-                </h3>
-              </div>
-              <p className="text-xs text-slate-400 mb-2">Powered by Supabase</p>
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-green-400 font-medium">System Online</span>
-              </div>
-            </div>
-          </div>
-        )}
       </aside>
 
       {/* Login Modal */}
