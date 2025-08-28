@@ -206,7 +206,13 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <h1 className="text-7xl md:text-8xl font-extrabold uppercase tracking-tight">
+          <h1
+            className="text-7xl md:text-8xl uppercase tracking-tight"
+            style={{
+              fontFamily: "'Orbitron', sans-serif",
+              fontWeight: 900,
+            }}
+          >
             <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Ormoc Beyblade Club
             </span>
