@@ -422,31 +422,26 @@ const fetchTournamentLeaderboard = async () => {
           </button>
         </div>
     
-        {/* Tournament dropdown (better mobile styling) */}
-        {currentTab === 'tournament' && (
-          <div className="flex flex-col md:flex-row md:items-center md:justify-end w-full md:w-auto gap-2">
-            <label className="text-sm text-gray-600 whitespace-nowrap md:mr-2">
-              Tournament:
-            </label>
-            <select
-              value={selectedTournament}
-              onChange={(e) => setSelectedTournament(e.target.value)}
-              className="w-full md:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">-- Select --</option>
-              {tournaments.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
-    </div>
-
-
-
+      {/* Tournament dropdown (responsive) */}
+      {currentTab === 'tournament' && (
+        <div className="flex flex-col md:flex-row md:items-center md:justify-end w-full gap-2">
+          <label className="text-sm text-gray-600 whitespace-nowrap md:mr-2">
+            Tournament:
+          </label>
+          <select
+            value={selectedTournament}
+            onChange={(e) => setSelectedTournament(e.target.value)}
+            className="w-full md:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">-- Select --</option>
+            {tournaments.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
         {/* Community Coming Soon */}
         {currentTab === 'community' && (
