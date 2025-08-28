@@ -513,7 +513,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="relative bg-slate-950 border border-slate-800 p-8 rounded-md max-w-md w-full">
             <button
               onClick={() => setShowLoginModal(false)}
