@@ -369,7 +369,7 @@ const randomizeAllBeyblades = () => {
     {/* Scrollable Content */}
     <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {partsError && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-none p-4">
               <p className="text-red-400 text-sm">{partsError}</p>
               <button onClick={fetchPartsData} className="text-sm underline text-red-400 hover:text-red-300">Try Again</button>
             </div>
@@ -377,21 +377,21 @@ const randomizeAllBeyblades = () => {
 
           {/* Tournament Description */}
           {tournament.description && (
-            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4 backdrop-blur-sm">
+            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-none p-4 backdrop-blur-sm">
               <h3 className="text-lg font-semibold text-cyan-400 mb-2">Tournament Details</h3>
               <p className="text-slate-300">{tournament.description}</p>
             </div>
           )}
 
           {/* Player Information */}
-          <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4 sm:p-6 backdrop-blur-sm">
+          <div className="bg-slate-800/50 border border-cyan-500/20 rounded-none p-4 sm:p-6 backdrop-blur-sm">
             <div className="flex items-center mb-4">
               <User className="text-cyan-400 mr-2" size={20} />
               <h3 className="text-lg font-semibold text-cyan-400">Player Information</h3>
             </div>
             
             {(!user || user.id.startsWith('guest-')) && (
-              <div className="mb-4 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+              <div className="mb-4 p-3 bg-yellow-500/10 rounded-none border border-yellow-500/30">
                 <p className="text-sm font-medium text-yellow-400">
                   Register your account to see personal stats across multiple tournaments. Tournament entry player name should be the same as account username to view personal stats.
                 </p>
@@ -399,7 +399,7 @@ const randomizeAllBeyblades = () => {
             )}
 
             {user && !user.id.startsWith('guest-') && (
-              <div className="mb-4 p-3 bg-slate-900/50 rounded-lg border border-cyan-500/20">
+              <div className="mb-4 p-3 bg-slate-900/50 rounded-none border border-cyan-500/20">
                 <label className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -429,7 +429,7 @@ const randomizeAllBeyblades = () => {
                   onChange={(e) => setPlayerName(e.target.value)}
                   disabled={registeringForSelf}
                   placeholder="Enter your player name"
-                  className={`w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
+                  className={`w-full bg-slate-900 border border-cyan-500/30 rounded-none px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
                     registeringForSelf ? 'bg-slate-800 cursor-not-allowed opacity-50' : ''
                   }`}
                 />
@@ -446,7 +446,7 @@ const randomizeAllBeyblades = () => {
                   id="paymentMode"
                   value={paymentMode}
                   onChange={(e) => setPaymentMode(e.target.value as any)}
-                  className="w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full bg-slate-900 border border-cyan-500/30 rounded-none px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 >
                   {tournament.is_free && <option value="free">Free Entry</option>}
                   <option value="cash">Cash</option>
@@ -461,7 +461,7 @@ const randomizeAllBeyblades = () => {
 
           {/* Deck Presets Section */}
           {!user?.id.startsWith('guest-') && deckPresets.length > 0 && (
-            <div className="bg-slate-800/50 border border-purple-500/20 rounded-lg p-4 sm:p-6 backdrop-blur-sm">
+            <div className="bg-slate-800/50 border border-purple-500/20 rounded-none p-4 sm:p-6 backdrop-blur-sm">
               <div className="flex items-center mb-4">
                 <Layers className="text-purple-400 mr-2" size={20} />
                 <h3 className="text-lg font-semibold text-purple-400">Quick Setup with Deck Presets</h3>
@@ -475,7 +475,7 @@ const randomizeAllBeyblades = () => {
                   <select
                     value={selectedPreset}
                     onChange={(e) => setSelectedPreset(e.target.value)}
-                    className="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full bg-slate-900 border border-purple-500/30 rounded-none px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="">-- Select a preset --</option>
                     {deckPresets.map(preset => (
@@ -491,7 +491,7 @@ const randomizeAllBeyblades = () => {
                     type="button"
                     onClick={() => selectedPreset && loadPreset(selectedPreset)}
                     disabled={!selectedPreset}
-                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-purple-400 hover:to-purple-500 transition-colors disabled:opacity-50 text-sm shadow-[0_0_15px_rgba(147,51,234,0.3)]"
+                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-none hover:from-purple-400 hover:to-purple-500 transition-colors disabled:opacity-50 text-sm shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                   >
                     Load Preset
                   </button>
@@ -499,7 +499,7 @@ const randomizeAllBeyblades = () => {
               </div>
 
               {selectedPreset && (
-                <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-purple-500/20">
+                <div className="mt-4 p-3 bg-slate-900/50 rounded-none border border-purple-500/20">
                   <div className="text-sm text-purple-300">
                     <strong>Preview:</strong>
                     {deckPresets.find(p => p.id === selectedPreset)?.beyblades.slice(0, 3).map((bey: any, index: number) => (
@@ -561,7 +561,7 @@ const randomizeAllBeyblades = () => {
                 <label className="block text-sm font-medium text-cyan-400 mb-1">
                   Generated Name
                 </label>
-                <div className="bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-sm font-mono text-slate-300">
+                <div className="bg-slate-800 border border-cyan-500/30 rounded-none px-3 py-2 text-sm font-mono text-slate-300">
                   {generateBeybladeName(beyblade) || 'Select all parts to generate name'}
                 </div>
               </div>
@@ -576,7 +576,7 @@ const randomizeAllBeyblades = () => {
                       <select
                         value={beyblade.parts[partType] ? JSON.stringify(beyblade.parts[partType]) : ''}
                         onChange={(e) => e.target.value && updatePart(beyblade.id, partType, JSON.parse(e.target.value))}
-                        className="w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        className="w-full bg-slate-900 border border-cyan-500/30 rounded-none px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
                       >
                         <option value="">Select {partType}</option>
                         {getPartOptions(partType).map((part: any, idx) => (
@@ -599,7 +599,7 @@ const randomizeAllBeyblades = () => {
           {beyblades.length < tournament.beyblades_per_player && (
             <button
               onClick={() => setBeyblades([...beyblades, { id: Date.now().toString(), isCustomLine: false, parts: {} }])}
-              className="w-full border-2 border-dashed border-cyan-500/30 rounded-lg p-4 text-slate-400 hover:border-cyan-400 hover:text-cyan-400 flex items-center justify-center space-x-2 transition-colors"
+              className="w-full border-2 border-dashed border-cyan-500/30 rounded-none p-4 text-slate-400 hover:border-cyan-400 hover:text-cyan-400 flex items-center justify-center space-x-2 transition-colors"
             >
               <Plus size={20} />
               <span>Add Another Beyblade</span>
@@ -612,7 +612,7 @@ const randomizeAllBeyblades = () => {
   {user?.role === 'developer' && (
     <button
       onClick={randomizeAllBeyblades}
-      className="px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-lg hover:from-pink-400 hover:to-orange-400 transition-all duration-200 shadow-[0_0_15px_rgba(255,100,100,0.3)]"
+      className="px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-500 text-white rounded-none hover:from-pink-400 hover:to-orange-400 transition-all duration-200 shadow-[0_0_15px_rgba(255,100,100,0.3)]"
     >
       Randomizer
     </button>
@@ -620,7 +620,7 @@ const randomizeAllBeyblades = () => {
 
   <button
     onClick={onClose}
-    className="px-4 py-2 bg-slate-800 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition-colors"
+    className="px-4 py-2 bg-slate-800 border border-slate-600 text-slate-300 rounded-none hover:bg-slate-700 hover:text-white transition-colors"
   >
     Cancel
   </button>
@@ -628,7 +628,7 @@ const randomizeAllBeyblades = () => {
   <button
     onClick={handleSubmit}
     disabled={!isFormValid() || isLoadingParts}
-    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-lg hover:from-cyan-400 hover:to-purple-500 disabled:opacity-50 transition-all duration-200 shadow-[0_0_20px_rgba(0,200,255,0.3)]"
+    className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-none hover:from-cyan-400 hover:to-purple-500 disabled:opacity-50 transition-all duration-200 shadow-[0_0_20px_rgba(0,200,255,0.3)]"
   >
     <span>Register</span>
   </button>
