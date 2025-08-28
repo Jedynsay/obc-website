@@ -441,19 +441,6 @@ const fetchTournamentLeaderboard = async () => {
             </div>
           )}
       
-          {/* Refresh */}
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 disabled:opacity-50"
-          >
-            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-            <span>Refresh</span>
-          </button>
-        </div>
-      </div>
-
-
         {/* Community Coming Soon */}
         {currentTab === 'community' && (
           <div className="max-w-4xl mx-auto">
