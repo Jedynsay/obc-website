@@ -422,14 +422,16 @@ const fetchTournamentLeaderboard = async () => {
           </button>
         </div>
     
-        {/* Tournament dropdown (right on desktop, full-width below tabs on mobile) */}
+        {/* Tournament dropdown (better mobile styling) */}
         {currentTab === 'tournament' && (
-          <div className="flex items-center gap-2 md:justify-end w-full md:w-auto">
-            <label className="text-sm text-gray-600 whitespace-nowrap">Tournament:</label>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-end w-full md:w-auto gap-2">
+            <label className="text-sm text-gray-600 whitespace-nowrap md:mr-2">
+              Tournament:
+            </label>
             <select
               value={selectedTournament}
               onChange={(e) => setSelectedTournament(e.target.value)}
-              className="flex-1 md:flex-none border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full md:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">-- Select --</option>
               {tournaments.map((t) => (
