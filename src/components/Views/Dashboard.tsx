@@ -402,56 +402,73 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
 
           {recentMatches.length > 0 ? (
-            <div className="overflow-x-auto border border-slate-800 rounded-md">
-              <table className="w-full text-left text-sm text-slate-300">
-                <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase text-xs">
-                  <tr>
-                    <th className="px-4 py-3">Date</th>
-                    <th className="px-4 py-3">Tournament</th>
-                    <th className="px-4 py-3">Player 1</th>
-                    <th className="px-4 py-3">Player 2</th>
-                    <th className="px-4 py-3">Winner</th>
-                    <th className="px-4 py-3">Beyblade Used</th>
-                    <th className="px-4 py-3">Finish</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentMatches.map((match) => (
-                    <tr key={match.id} className="border-b border-slate-800 hover:bg-slate-900/60">
-                      <td className="px-4 py-3">
-                        {new Date(match.submitted_at).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-3">{match.tournaments?.name}</td>
-                      <td
-                        className={`px-4 py-3 ${
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {recentMatches.map((match) => (
+                <div
+                  key={match.id}
+                  className="p-6 border border-cyan-500/20 bg-slate-950/70 backdrop-blur-xl rounded-md shadow-[0_0_25px_rgba(0,200,255,0.1)] hover:shadow-[0_0_35px_rgba(0,200,255,0.25)] transition"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs uppercase tracking-wider text-slate-400">
+                      {new Date(match.submitted_at).toLocaleString()}
+                    </span>
+                    <span className="px-3 py-1 text-xs rounded-md bg-gradient-to-r from-cyan-600/40 to-purple-600/40 text-cyan-300 font-semibold">
+                      {match.tournaments?.name}
+                    </span>
+                  </div>
+
+                  <div className="text-center">
+                    <div className="text-lg font-semibold text-white">
+                      {match.player1_name}{' '}
+                      <span
+                        className={`${
                           match.winner_name === match.player1_name
-                            ? 'text-cyan-400 font-semibold'
-                            : ''
+                            ? 'text-cyan-400 font-bold'
+                            : 'text-slate-500'
                         }`}
                       >
-                        {match.player1_name}
-                      </td>
-                      <td
-                        className={`px-4 py-3 ${
-                          match.winner_name === match.player2_name
-                            ? 'text-cyan-400 font-semibold'
-                            : ''
-                        }`}
-                      >
-                        {match.player2_name}
-                      </td>
-                      <td className="px-4 py-3 text-cyan-300 font-bold">
+                        vs
+                      </span>{' '}
+                      {match.player2_name}
+                    </div>
+                    <div className="mt-3 text-sm text-slate-400">
+                      Winner:{' '}
+                      <span className="text-cyan-400 font-semibold">
                         {match.winner_name}
-                      </td>
-                      <td className="px-4 py-3">{match.winner_beyblade || '—'}</td>
-                      <td className="px-4 py-3">{match.finish || '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-slate-400">No matches available yet.</p>
           )}
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="py-12 border-t border-slate-800 bg-slate-950 text-center text-slate-500 text-sm">
+        <p>© {new Date().getFullYear()} Ormoc Beyblade Club. All rights reserved.</p>
+      </footer>
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="relative bg-slate-950 border border-slate-800 p-8 rounded-md max-w-md w-full">
+            <button
+              onClick={() => setShowLoginModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+              Login
+            </h3>
+            <LoginForm onSuccess={() => setShowLoginModal(false)} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
