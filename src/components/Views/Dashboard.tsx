@@ -305,3 +305,111 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     </div>
   );
 }
+{/* Community Champions */}
+<section className="py-24 relative overflow-hidden">
+  {/* Background glow */}
+  <div className="absolute inset-0 bg-gradient-to-r from-cyan-900/10 via-purple-900/10 to-pink-900/10 blur-3xl"></div>
+
+  <div className="max-w-6xl mx-auto px-6 relative z-10">
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+      className="text-center mb-16"
+    >
+      <h2 className="text-5xl font-extrabold uppercase tracking-tight">
+        <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          Community Champions
+        </span>
+      </h2>
+      <p className="text-slate-400 mt-4">
+        Celebrating our top bladers — skill, speed, and strategy ⚡
+      </p>
+    </motion.div>
+
+    {topPlayers.length > 0 && (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+        className="relative"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPlayerIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="relative text-center border border-cyan-500/30 bg-slate-950/70 backdrop-blur-xl rounded-md p-12 shadow-[0_0_40px_rgba(0,200,255,0.15)]"
+          >
+            {/* Glowing orb avatar */}
+            <div className="flex items-center justify-center mb-10">
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center text-6xl font-bold text-white shadow-[0_0_30px_rgba(0,200,255,0.6)] animate-pulse">
+                  {topPlayers[currentPlayerIndex]?.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="absolute inset-0 rounded-full border-4 border-cyan-400/40 animate-spin-slow"></div>
+              </div>
+            </div>
+
+            {/* Player Name */}
+            <h3 className="text-3xl font-bold mb-3 text-white">
+              {topPlayers[currentPlayerIndex]?.name}
+            </h3>
+            <p className="text-cyan-400 font-semibold uppercase tracking-wide mb-10">
+              Champion Blader
+            </p>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-10 max-w-xl mx-auto">
+              <div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                  {topPlayers[currentPlayerIndex]?.wins}
+                </div>
+                <div className="text-slate-400 mt-2 text-sm uppercase tracking-wide">
+                  Wins
+                </div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  {topPlayers[currentPlayerIndex]?.tournaments}
+                </div>
+                <div className="text-slate-400 mt-2 text-sm uppercase tracking-wide">
+                  Tournaments
+                </div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+                  {topPlayers[currentPlayerIndex]?.winRate}%
+                </div>
+                <div className="text-slate-400 mt-2 text-sm uppercase tracking-wide">
+                  Win Rate
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Indicators */}
+        {topPlayers.length > 1 && (
+          <div className="flex justify-center space-x-3 mt-10">
+            {topPlayers.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPlayerIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentPlayerIndex
+                    ? 'bg-cyan-400 scale-125 shadow-[0_0_10px_rgba(0,200,255,0.8)]'
+                    : 'bg-slate-600 hover:bg-slate-500'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </motion.div>
+    )}
+  </div>
+</section>
