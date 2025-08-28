@@ -20,7 +20,7 @@ export function StatBar({ stats }: StatBarProps) {
   ];
 
   return (
-    <div className="bg-slate-950/80 border border-cyan-500/30 rounded-lg p-4 shadow-[0_0_25px_rgba(0,200,255,0.2)]">
+    <div className="bg-slate-950/80 border border-cyan-500/30 rounded-none p-4 shadow-[0_0_25px_rgba(0,200,255,0.2)]">
       <h5 className="text-xs uppercase font-exo2 tracking-wider text-cyan-400 mb-4">
         Combined Stats
       </h5>
@@ -43,7 +43,7 @@ export function StatBar({ stats }: StatBarProps) {
               </div>
 
               {/* Bar */}
-              <div className="relative h-3 w-full bg-slate-800/70 overflow-hidden rounded-sm">
+              <div className="relative h-3 w-full bg-slate-800/70 overflow-hidden rounded-none">
                 {/* Main Fill */}
                 <div
                   className={`absolute top-0 left-0 h-full bg-gradient-to-r ${gradient} transition-all duration-700`}
