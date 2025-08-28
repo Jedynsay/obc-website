@@ -217,10 +217,6 @@ export function Tournaments() {
                 )}
                 
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center justify-between text-gray-600 font-inter text-sm">
-                    <span>Code:</span>
-                    <span className="font-mono font-bold text-blue-600">{tournament.tournament_code}</span>
-                  </div>
                   <div className="flex items-center text-gray-600 font-inter">
                     <Calendar size={14} className="mr-2" />
                     <span className="text-sm">{new Date(tournament.tournament_date).toLocaleDateString()}</span>
