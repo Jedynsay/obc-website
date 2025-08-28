@@ -210,7 +210,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
             className="text-7xl md:text-8xl uppercase tracking-tight"
             style={{
               fontFamily: "'Orbitron', sans-serif",
-              fontWeight: 600,
+              fontWeight: 900,
             }}
           >
             <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
