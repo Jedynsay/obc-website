@@ -51,45 +51,46 @@ export function Tournaments() {
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         {/* Header */}
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tight mb-4">
+        <div className="mb-8 text-left">
+          <h1 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight">
             <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Tournament Arena
             </span>
           </h1>
-          <p className="text-slate-400 text-base md:text-lg">
+          <p className="text-slate-400 text-sm md:text-base mt-2">
             Join the ultimate battles and prove your worth
           </p>
         </div>
 
         {/* Filters */}
-        <div className="bg-slate-900/60 border border-cyan-500/30 rounded-xl p-4 sm:p-6 backdrop-blur-md mb-10">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex flex-wrap gap-2">
-              {['upcoming', 'active', 'completed', 'all'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setFilter(tab as any)}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm capitalize transition-all duration-200 ${
-                    filter === tab
-                      ? 'bg-gradient-to-r from-cyan-500/30 to-purple-500/30 text-cyan-400 border border-cyan-500/40 shadow-[0_0_15px_rgba(0,200,255,0.4)]'
-                      : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-              <input
-                type="checkbox"
-                checked={showPractice}
-                onChange={(e) => setShowPractice(e.target.checked)}
-                className="w-4 h-4 text-cyan-500 bg-slate-800 border-cyan-500/30 rounded focus:ring-cyan-500"
-              />
-              Show Practice
-            </label>
-          </div>
+        <div className="flex flex-wrap gap-3 mb-10">
+          {['upcoming', 'active', 'completed', 'all'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab as any)}
+              className={`px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg transition-all duration-300 flex-1 sm:flex-none text-center 
+                ${
+                  filter === tab
+                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.4)]'
+                    : 'bg-slate-900/60 border border-cyan-500/20 text-slate-300 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(0,200,255,0.3)]'
+                }`
+            }
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+          <button
+            onClick={() => setShowPractice(!showPractice)}
+            className={`px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg transition-all duration-300 flex-1 sm:flex-none text-center 
+              ${
+                showPractice
+                  ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.4)]'
+                  : 'bg-slate-900/60 border border-cyan-500/20 text-slate-300 hover:text-cyan-400 hover:shadow-[0_0_15px_rgba(0,200,255,0.3)]'
+              }`
+          }
+          >
+            Practice
+          </button>
         </div>
 
         {/* Tournament Cards */}
@@ -120,13 +121,12 @@ export function Tournaments() {
                   </h3>
                   <div className="flex gap-2">
                     <span
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize ${
-                        tournament.status === 'upcoming'
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize 
+                        ${tournament.status === 'upcoming'
                           ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                           : tournament.status === 'active'
                           ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                          : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                      }`}
+                          : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'}`}
                     >
                       {tournament.status}
                     </span>
@@ -176,8 +176,7 @@ export function Tournaments() {
                           tournament.max_participants === 999999
                             ? '100%'
                             : `${Math.min(
-                                (tournament.current_participants / tournament.max_participants) *
-                                  100,
+                                (tournament.current_participants / tournament.max_participants) * 100,
                                 100
                               )}%`,
                       }}
@@ -194,19 +193,17 @@ export function Tournaments() {
                       (tournament.max_participants !== 999999 &&
                         tournament.current_participants >= tournament.max_participants)
                     }
-                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium px-4 py-3 rounded-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(0,200,255,0.3)]"
+                    className="w-full px-6 py-3 rounded-2xl font-semibold text-sm shadow-lg transition-all duration-300 flex items-center justify-center gap-2
+                      bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:from-cyan-400 hover:to-purple-500 
+                      disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                   >
-                    <div className="flex items-center justify-center gap-2">
-                      <Zap size={16} />
-                      <span>
-                        {!tournament.registration_open
-                          ? 'Registration Closed'
-                          : tournament.max_participants !== 999999 &&
-                            tournament.current_participants >= tournament.max_participants
-                          ? 'Tournament Full'
-                          : 'Register Now'}
-                      </span>
-                    </div>
+                    <Zap size={16} />
+                    {!tournament.registration_open
+                      ? 'Registration Closed'
+                      : tournament.max_participants !== 999999 &&
+                        tournament.current_participants >= tournament.max_participants
+                      ? 'Tournament Full'
+                      : 'Register Now'}
                   </button>
                 )}
               </div>
