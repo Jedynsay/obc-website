@@ -396,40 +396,39 @@ const fetchTournamentLeaderboard = async () => {
           </div>
         </div>
 
-{/* Tabs + Tournament Selection (compact + mobile friendly) */}
-<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
-  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between w-full">
+          {/* Tabs + Refresh + Tournament Selection */}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        
+        {/* Tabs */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleTabChange('tournament')}
+            className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+          >
+            <Trophy size={16} className="mr-1" /> Tournament
+          </button>
+          <button
+            onClick={() => handleTabChange('global')}
+            className={`filter-tab ${currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+          >
+            <Target size={16} className="mr-1" /> Global
+          </button>
+          <button
+            onClick={() => handleTabChange('community')}
+            className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+          >
+            <Users size={16} className="mr-1" /> Community
+          </button>
+        </div>
     
-    {/* Tabs (left on desktop, full-width row on mobile) */}
-    <div className="flex flex-wrap gap-2 md:flex-nowrap">
-      <button
-        onClick={() => handleTabChange('tournament')}
-        className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-      >
-        <Trophy size={16} className="mr-1" /> Tournament
-      </button>
-      <button
-        onClick={() => handleTabChange('global')}
-        className={`filter-tab ${currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-      >
-        <Target size={16} className="mr-1" /> Global
-      </button>
-      <button
-        onClick={() => handleTabChange('community')}
-        className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-      >
-        <Users size={16} className="mr-1" /> Community
-      </button>
-    </div>
-
-    {/* Tournament dropdown (right on desktop, full-width below tabs on mobile) */}
-    {currentTab === 'tournament' && (
-      <div className="flex items-center gap-2 md:justify-end w-full md:w-auto">
-        <label className="text-sm text-gray-600 whitespace-nowrap">Tournament:</label>
+        {/* Tournament dropdown (only if tournament tab) */}
+      <div className="flex items-center gap-2">
+        <label className="text-sm text-gray-600">Tournament:</label>
         <select
           value={selectedTournament}
           onChange={(e) => setSelectedTournament(e.target.value)}
-          className="flex-1 md:flex-none border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">-- Select --</option>
           {tournaments.map((t) => (
@@ -439,11 +438,10 @@ const fetchTournamentLeaderboard = async () => {
           ))}
         </select>
       </div>
-    )}
-  </div>
-</div>
-
-
+        )}
+    
+      </div>
+    </div>
 
 
         {/* Community Coming Soon */}
