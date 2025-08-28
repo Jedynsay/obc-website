@@ -198,7 +198,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           <img
             src="/community.jpg"
             alt="Ormoc Beyblade Community"
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-70"
           />
           <div className="absolute inset-0 bg-black/70"></div>
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:60px_60px] opacity-20" />
