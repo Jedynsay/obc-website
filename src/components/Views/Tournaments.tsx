@@ -64,161 +64,81 @@ export function Tournaments() {
           <p className="text-slate-400 text-lg">Join the ultimate Beyblade battles and prove your worth</p>
         </div>
 
-        {/* Controls: Tabs + Search + Toggle */}
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-lg p-4 backdrop-blur-sm mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Controls */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-700 pb-2 mb-8">
           {/* Tabs */}
-          <div className="flex space-x-6 border-b border-slate-700 w-full sm:w-auto">
+          <div className="flex space-x-6">
             {['upcoming', 'active', 'completed', 'all'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab as any)}
-                className={`relative pb-2 text-sm font-medium capitalize transition-colors ${
-                  filter === tab
-                    ? 'text-cyan-400'
-                    : 'text-slate-400 hover:text-cyan-300'
+                className={`relative pb-2 text-sm font-medium capitalize transition-colors group ${
+                  filter === tab ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'
                 }`}
               >
                 {tab}
-                {filter === tab && (
-                  <span className="absolute left-0 bottom-0 h-0.5 w-full bg-gradient-to-r from-cyan-400 to-purple-400"></span>
-                )}
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${filter === tab ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
             ))}
           </div>
 
           {/* Search */}
-          <div className="flex items-center bg-slate-800/70 border border-slate-700 px-3 py-2 rounded-lg w-full sm:w-64">
-            <Search size={16} className="text-slate-400 mr-2" />
+          <div className="relative w-full sm:w-64">
+            <Search size={16} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search tournaments..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-transparent flex-1 text-sm focus:outline-none placeholder-slate-500"
+              className="w-full pl-8 pr-2 py-2 bg-transparent border-b border-slate-700 text-sm focus:outline-none focus:border-cyan-500 transition"
             />
           </div>
 
           {/* Toggle */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setShowPractice(!showPractice)}
-              className={`relative w-12 h-6 flex items-center rounded-full transition-colors duration-300 ${
-                showPractice ? 'bg-cyan-500/80' : 'bg-slate-700'
-              }`}
-            >
-              <span
-                className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform duration-300 ${
-                  showPractice ? 'translate-x-6' : 'translate-x-1'
+          <label className="flex items-center cursor-pointer space-x-2">
+            <input
+              type="checkbox"
+              checked={showPractice}
+              onChange={() => setShowPractice(!showPractice)}
+              className="sr-only"
+            />
+            <div className="relative w-10 h-5 bg-slate-700">
+              <div
+                className={`absolute top-0.5 left-0.5 h-4 w-4 bg-white transform transition-transform duration-300 ${
+                  showPractice ? 'translate-x-5 bg-cyan-400' : ''
                 }`}
               />
-            </button>
+            </div>
             <span className="text-sm text-slate-300">Show Practice</span>
-          </div>
+          </label>
         </div>
 
         {/* Tournament Grid */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-lg animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-400">Loading tournaments...</p>
-          </div>
+          <div className="text-center py-12 text-slate-400">Loading tournaments...</div>
         ) : filteredTournaments.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-slate-800/50 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Trophy size={32} className="text-slate-400" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">No tournaments found</h3>
-            <p className="text-slate-400">Check back later for upcoming events</p>
-          </div>
+          <div className="text-center py-12 text-slate-400">No tournaments found</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTournaments.map((tournament) => (
-              <div key={tournament.id} className="bg-slate-900/50 border border-cyan-500/30 rounded-lg p-6 backdrop-blur-sm hover:shadow-[0_0_30px_rgba(0,200,255,0.2)] transition-all duration-300 group">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{tournament.name}</h3>
-                    <div className="flex items-center space-x-2">
-                      <span className={`px-3 py-1 rounded-lg text-xs font-medium capitalize ${
-                        tournament.status === 'upcoming' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                        tournament.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                        'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                      }`}>
-                        {tournament.status}
-                      </span>
-                      {tournament.is_practice && (
-                        <span className="px-3 py-1 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                          Practice
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {tournament.description && (
-                  <p className="text-slate-300 mb-4 text-sm line-clamp-2">{tournament.description}</p>
-                )}
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-slate-300">
-                    <Calendar size={14} className="mr-2 text-cyan-400" />
-                    <span className="text-sm">{new Date(tournament.tournament_date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center text-slate-300">
-                    <MapPin size={14} className="mr-2 text-cyan-400" />
-                    <span className="text-sm">{tournament.location}</span>
-                  </div>
-                  <div className="flex items-center text-slate-300">
-                    <Users size={14} className="mr-2 text-cyan-400" />
-                    <span className="text-sm">
-                      {tournament.max_participants === 999999
-                        ? `${tournament.current_participants} participants`
-                        : `${tournament.current_participants}/${tournament.max_participants}`}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-slate-400 mb-1 text-sm">
-                    <span>Registration</span>
-                    <span className="text-xs">
-                      {tournament.max_participants === 999999
-                        ? `${tournament.current_participants} registered`
-                        : `${Math.round((tournament.current_participants / tournament.max_participants) * 100)}%`
-                      }
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-800 rounded-lg h-2">
-                    <div
-                      className="h-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-500"
-                      style={{
-                        width: tournament.max_participants === 999999
-                          ? '100%'
-                          : `${Math.min((tournament.current_participants / tournament.max_participants) * 100, 100)}%`
-                      }}
-                    ></div>
-                  </div>
-                </div>
+              <div
+                key={tournament.id}
+                className="border border-slate-700 bg-slate-900/40 p-6 rounded-none transition hover:border-cyan-500/50"
+              >
+                <h3 className="text-lg font-bold mb-2">{tournament.name}</h3>
+                <div className="text-slate-400 text-sm mb-2">{tournament.location}</div>
+                <div className="text-slate-400 text-sm mb-2">{new Date(tournament.tournament_date).toLocaleDateString()}</div>
 
                 {tournament.status === 'upcoming' && (
                   <button
                     onClick={() => setSelectedTournament(tournament.id)}
-                    disabled={
-                      !tournament.registration_open ||
-                      (tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants)
-                    }
-                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-medium px-6 py-3 rounded-lg hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,200,255,0.3)] group-hover:shadow-[0_0_30px_rgba(0,200,255,0.5)]"
+                    className="relative mt-4 pb-1 text-cyan-400 text-sm font-medium group"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <Zap size={16} />
-                      <span>
-                        {!tournament.registration_open
-                          ? 'Registration Closed'
-                          : tournament.max_participants !== 999999 && tournament.current_participants >= tournament.max_participants
-                          ? 'Tournament Full'
-                          : 'Register for Tournament'}
-                      </span>
-                    </div>
+                    Register
+                    <span className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 w-0 group-hover:w-full transition-all duration-500" />
                   </button>
                 )}
               </div>
@@ -226,7 +146,6 @@ export function Tournaments() {
           </div>
         )}
 
-        {/* Tournament Registration Modal */}
         {selectedTournament && (
           <TournamentRegistration
             tournament={filteredTournaments.find(t => t.id === selectedTournament)!}
