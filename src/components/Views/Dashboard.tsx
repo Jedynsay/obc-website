@@ -206,22 +206,17 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-<h1
-  className="text-5xl md:text-6xl font-exo2 uppercase tracking-wide"
-  style={{ fontWeight: 800 }}
->
-  <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-    Ormoc Beyblade Club
-  </span>
-</h1>
-<p className="mt-4 text-lg md:text-xl text-slate-200 font-exo2 font-medium">
-  Fight. Spin. Conquer. Win.
-</p>
-
-          <p className="mt-6 text-xl text-slate-300">
+          <h1
+            className="text-5xl md:text-6xl font-exo2 uppercase tracking-wide"
+            style={{ fontWeight: 800 }}
+          >
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              Ormoc Beyblade Club
+            </span>
+          </h1>
+          <p className="mt-4 text-lg md:text-xl text-slate-200 font-exo2 font-medium">
             Fight. Spin. Conquer. Win.
           </p>
-
           <div className="mt-10 flex flex-col sm:flex-row gap-6 justify-center">
             <button
               onClick={() => onViewChange?.('tournaments')}
