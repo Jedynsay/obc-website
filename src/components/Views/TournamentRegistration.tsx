@@ -340,8 +340,8 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
       </button>
     </div>
 
-        {/* Content */}
-        <div className="p-4 sm:p-6 space-y-6">
+    {/* Scrollable Content */}
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {partsError && (
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
               <p className="text-red-400 text-sm">{partsError}</p>
