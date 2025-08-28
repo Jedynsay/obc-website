@@ -333,6 +333,11 @@ const randomizeBeyblade = (beybladeId: string) => {
     })
   );
 };
+
+const randomizeAllBeyblades = () => {
+  beyblades.forEach((b) => randomizeBeyblade(b.id));
+};
+
   
   return (
 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
