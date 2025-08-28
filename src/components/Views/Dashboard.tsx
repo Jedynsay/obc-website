@@ -240,25 +240,26 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
 {/* Stats Section (slight overlap so no gap appears) */}
 <motion.div style={{ y: contentY }} className="relative z-20 -mt-20">
-  <section className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-sm">
-    <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
-      {[
-        { label: 'Tournaments', value: stats.totalTournaments },
-        { label: 'Active Players', value: stats.activePlayers },
-        { label: 'Upcoming', value: stats.upcomingEvents },
-        { label: 'Matches', value: stats.completedMatches },
-      ].map((stat) => (
-        <div key={stat.label} className="py-14 text-center">
-          <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-            {stat.value}
-          </div>
-          <div className="mt-2 text-sm uppercase tracking-wide text-slate-400">
-            {stat.label}
-          </div>
+<section className="border-y border-slate-800 bg-slate-950">
+  <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
+    {[
+      { label: 'Tournaments', value: stats.totalTournaments },
+      { label: 'Active Players', value: stats.activePlayers },
+      { label: 'Upcoming', value: stats.upcomingEvents },
+      { label: 'Matches', value: stats.completedMatches },
+    ].map((stat) => (
+      <div key={stat.label} className="py-14 text-center">
+        <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+          {stat.value}
         </div>
-      ))}
-    </div>
-  </section>
+        <div className="mt-2 text-sm uppercase tracking-wide text-slate-400">
+          {stat.label}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
 
         {/* Quick Access Hub */}
         <section className="py-24 bg-slate-900/90 backdrop-blur-sm">
