@@ -240,7 +240,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
 
 {/* Stats Section (slight overlap so no gap appears) */}
 <motion.div style={{ y: contentY }} className="relative z-20 -mt-20">
-<section className="border-y border-slate-800 bg-slate-950">
+<section className="mt-20 border-y border-slate-800 bg-slate-950">
   <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
     {[
       { label: 'Tournaments', value: stats.totalTournaments },
