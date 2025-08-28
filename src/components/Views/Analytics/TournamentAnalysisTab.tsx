@@ -57,37 +57,37 @@ export function TournamentAnalysisTab() {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading tournaments...</p>
+      <div className="text-center py-12 m-6">
+        <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-slate-400">Loading tournaments...</p>
       </div>
     );
   }
 
   if (isTransitioning) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+      <div className="text-center py-12 m-6">
+        <div className="w-8 h-8 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       {/* Tournament Selection */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-          <Database size={24} className="mr-2 text-blue-600" />
+      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <Database size={24} className="mr-2 text-cyan-400" />
           Tournament Selection
         </h2>
         <div className="max-w-md">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-cyan-400 mb-2">
             Select Tournament for Analysis
           </label>
           <select
             value={selectedTournament}
             onChange={(e) => setSelectedTournament(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">-- Select Tournament --</option>
             {tournaments.map(tournament => (
@@ -102,12 +102,14 @@ export function TournamentAnalysisTab() {
       {selectedTournament && (
         <>
           {/* Sub-tabs */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="filter-tabs">
+          <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+            <div className="flex items-center space-x-1 bg-slate-800/50 border border-cyan-500/20 rounded-lg p-1">
               <button
                 onClick={() => handleSubTabChange('meta')}
-                className={`filter-tab ${
-                  currentSubTab === 'meta' ? 'filter-tab-active' : 'filter-tab-inactive'
+                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                  currentSubTab === 'meta' 
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
+                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50'
                 }`}
               >
                 <BarChart3 size={16} className="mr-2" />
@@ -115,8 +117,10 @@ export function TournamentAnalysisTab() {
               </button>
               <button
                 onClick={() => handleSubTabChange('player')}
-                className={`filter-tab ${
-                  currentSubTab === 'player' ? 'filter-tab-active' : 'filter-tab-inactive'
+                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                  currentSubTab === 'player' 
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
+                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50'
                 }`}
               >
                 <Users size={16} className="mr-2" />
@@ -136,12 +140,12 @@ export function TournamentAnalysisTab() {
       )}
 
       {!selectedTournament && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
-          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Database size={32} className="text-gray-400" />
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-8 text-center m-6">
+          <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Database size={32} className="text-slate-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a Tournament</h3>
-          <p className="text-gray-600">
+          <h3 className="text-lg font-semibold text-white mb-2">Select a Tournament</h3>
+          <p className="text-slate-400">
             Choose a tournament from the dropdown above to view detailed meta analysis and player analytics.
           </p>
         </div>
