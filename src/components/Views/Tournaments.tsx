@@ -87,7 +87,7 @@ export function Tournaments() {
       <div className="content-wrapper">
         <div className="page-header">
           <h1 className="page-title">Tournaments</h1>
-          <p className="page-subtitle">Join the ultimate Beyblade battles</p>
+          <p className="page-subtitle">Join the ultimate Beyblade breakattles</p>
         </div>
 
         {/* Tournament Code Search */}
