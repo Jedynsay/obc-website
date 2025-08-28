@@ -421,28 +421,25 @@ const fetchTournamentLeaderboard = async () => {
             <Users size={16} className="mr-1" /> Community
           </button>
         </div>
-          
-      {/* Tournament dropdown (responsive) */}
-      {currentTab === 'tournament' && (
-        <div className="flex flex-col md:flex-row md:items-center md:justify-end w-full gap-2">
-          <label className="text-sm text-gray-600 whitespace-nowrap md:mr-2">
-            Tournament:
-          </label>
-          <select
-            value={selectedTournament}
-            onChange={(e) => setSelectedTournament(e.target.value)}
-            className="w-full md:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">-- Select --</option>
-            {tournaments.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
+    
+        {/* Tournament dropdown (right on desktop, full-width below tabs on mobile) */}
+        {currentTab === 'tournament' && (
+          <div className="flex items-center gap-2 md:justify-end w-full md:w-auto">
+            <label className="text-sm text-gray-600 whitespace-nowrap">Tournament:</label>
+            <select
+              value={selectedTournament}
+              onChange={(e) => setSelectedTournament(e.target.value)}
+              className="flex-1 md:flex-none border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Select --</option>
+              {tournaments.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
     </div>
 
