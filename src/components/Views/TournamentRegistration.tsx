@@ -314,8 +314,8 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-slate-950 border border-cyan-500/30 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.3)] w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative">
+<div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
+  <div className="bg-slate-950 border border-cyan-500/30 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.3)] w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative">
         {/* Loading Overlay */}
         {isLoadingParts && (
           <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
