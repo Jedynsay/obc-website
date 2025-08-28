@@ -236,6 +236,28 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       </button>
     </div>
   </motion.div>
+
+  {/* Login / Logout Button */}
+<div className="fixed top-6 right-6 z-[1000]">
+  {user ? (
+    <button
+      onClick={logout}
+      className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-md text-sm font-medium text-white"
+    >
+      <LogOut className="w-4 h-4" />
+      Logout
+    </button>
+  ) : (
+    <button
+      onClick={() => setShowLoginModal(true)}
+      className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-md text-sm font-medium text-white"
+    >
+      <LogIn className="w-4 h-4" />
+      Login
+    </button>
+  )}
+</div>
+
 </motion.section>
 
 {/* Stats Section (slight overlap so no gap appears) */}
