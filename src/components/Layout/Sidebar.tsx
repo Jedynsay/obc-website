@@ -102,7 +102,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         style={{ pointerEvents: 'auto' }}
       >
 {/* Sidebar Header */}
-<div className="flex items-center justify-between p-4 bg-slate-950">
+<div className="flex items-center justify-between p-4 bg-slate-950 border-b border-slate-800">
   <div className="flex items-center space-x-3">
     <img 
       src="/favicon.png" 
