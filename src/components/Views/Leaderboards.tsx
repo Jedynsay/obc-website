@@ -423,21 +423,22 @@ const fetchTournamentLeaderboard = async () => {
         </div>
     
         {/* Tournament dropdown (only if tournament tab) */}
-      <div className="flex items-center gap-2">
-        <label className="text-sm text-gray-600">Tournament:</label>
-        <select
-          value={selectedTournament}
-          onChange={(e) => setSelectedTournament(e.target.value)}
-          className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">-- Select --</option>
-          {tournaments.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
-            </option>
-          ))}
-        </select>
-      </div>
+        {currentTab === 'tournament' && (
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Tournament:</label>
+            <select
+              value={selectedTournament}
+              onChange={(e) => setSelectedTournament(e.target.value)}
+              className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Select --</option>
+              {tournaments.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
     
       </div>
