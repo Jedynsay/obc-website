@@ -314,73 +314,73 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-slate-950 border border-cyan-500/30 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.3)] w-full max-w-full sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative">
         {/* Loading Overlay */}
         {isLoadingParts && (
-          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-lg">
+          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading Beyblade parts...</p>
+              <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-slate-400">Loading Beyblade parts...</p>
             </div>
           </div>
         )}
 
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex justify-between items-center">
+        <div className="sticky top-0 bg-gradient-to-r from-cyan-500 to-purple-500 px-4 sm:px-6 py-4 flex justify-between items-center rounded-t-2xl">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Tournament Registration</h2>
-            <p className="text-gray-600">{tournament.name}</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Tournament Registration</h2>
+            <p className="text-cyan-100">{tournament.name}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <X size={20} />
+          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition-colors text-white">
+            <X size={24} />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-4 sm:p-6 space-y-6">
           {partsError && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-700 text-sm">{partsError}</p>
-              <button onClick={fetchPartsData} className="text-sm underline text-red-600">Try Again</button>
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+              <p className="text-red-400 text-sm">{partsError}</p>
+              <button onClick={fetchPartsData} className="text-sm underline text-red-400 hover:text-red-300">Try Again</button>
             </div>
           )}
 
           {/* Tournament Description */}
           {tournament.description && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Tournament Details</h3>
-              <p className="text-gray-700">{tournament.description}</p>
+            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4 backdrop-blur-sm">
+              <h3 className="text-lg font-semibold text-cyan-400 mb-2">Tournament Details</h3>
+              <p className="text-slate-300">{tournament.description}</p>
             </div>
           )}
 
           {/* Player Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
+          <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4 sm:p-6 backdrop-blur-sm">
             <div className="flex items-center mb-4">
-              <User className="text-blue-600 mr-2" size={20} />
-              <h3 className="text-lg font-semibold text-blue-900">Player Information</h3>
+              <User className="text-cyan-400 mr-2" size={20} />
+              <h3 className="text-lg font-semibold text-cyan-400">Player Information</h3>
             </div>
             
             {(!user || user.id.startsWith('guest-')) && (
-              <div className="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-300">
-                <p className="text-sm font-medium text-yellow-800">
+              <div className="mb-4 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                <p className="text-sm font-medium text-yellow-400">
                   Register your account to see personal stats across multiple tournaments. Tournament entry player name should be the same as account username to view personal stats.
                 </p>
               </div>
             )}
 
             {user && !user.id.startsWith('guest-') && (
-              <div className="mb-4 p-3 bg-white rounded-lg border border-blue-200">
+              <div className="mb-4 p-3 bg-slate-900/50 rounded-lg border border-cyan-500/20">
                 <label className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={registeringForSelf}
                     onChange={(e) => setRegisteringForSelf(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-cyan-600 border-cyan-500/30 rounded focus:ring-cyan-500 bg-slate-800"
                   />
                   <div className="flex items-center space-x-2">
-                    <UserCheck size={16} className="text-blue-600" />
-                    <span className="text-sm font-medium text-blue-900">
+                    <UserCheck size={16} className="text-cyan-400" />
+                    <span className="text-sm font-medium text-cyan-400">
                       Register for self? Player name entry should be same as your account username to view your own personal stats. ({user.username})
                     </span>
                   </div>
@@ -390,7 +390,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="playerName" className="block text-sm font-medium text-cyan-400 mb-1">
                   Player Name *
                 </label>
                 <input
@@ -400,24 +400,24 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                   onChange={(e) => setPlayerName(e.target.value)}
                   disabled={registeringForSelf}
                   placeholder="Enter your player name"
-                  className={`w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    registeringForSelf ? 'bg-gray-100 cursor-not-allowed' : ''
+                  className={`w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-3 py-2 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
+                    registeringForSelf ? 'bg-slate-800 cursor-not-allowed opacity-50' : ''
                   }`}
                 />
                 {playerName.trim() && existingPlayerNames.includes(playerName.toLowerCase().trim()) && (
-                  <div className="mt-1 text-xs text-red-600">⚠ This player name is already registered</div>
+                  <div className="mt-1 text-xs text-red-400">⚠ This player name is already registered</div>
                 )}
               </div>
 
               <div>
-                <label htmlFor="paymentMode" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="paymentMode" className="block text-sm font-medium text-cyan-400 mb-1">
                   Mode of Payment *
                 </label>
                 <select
                   id="paymentMode"
                   value={paymentMode}
                   onChange={(e) => setPaymentMode(e.target.value as any)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 >
                   {tournament.is_free && <option value="free">Free Entry</option>}
                   <option value="cash">Cash</option>
@@ -432,21 +432,21 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
 
           {/* Deck Presets Section */}
           {!user?.id.startsWith('guest-') && deckPresets.length > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
+            <div className="bg-slate-800/50 border border-purple-500/20 rounded-lg p-4 sm:p-6 backdrop-blur-sm">
               <div className="flex items-center mb-4">
-                <Layers className="text-green-600 mr-2" size={20} />
-                <h3 className="text-lg font-semibold text-green-900">Quick Setup with Deck Presets</h3>
+                <Layers className="text-purple-400 mr-2" size={20} />
+                <h3 className="text-lg font-semibold text-purple-400">Quick Setup with Deck Presets</h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-purple-400 mb-1">
                     Select Deck Preset
                   </label>
                   <select
                     value={selectedPreset}
                     onChange={(e) => setSelectedPreset(e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full bg-slate-900 border border-purple-500/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="">-- Select a preset --</option>
                     {deckPresets.map(preset => (
@@ -462,7 +462,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                     type="button"
                     onClick={() => selectedPreset && loadPreset(selectedPreset)}
                     disabled={!selectedPreset}
-                    className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 text-sm"
+                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-purple-400 hover:to-purple-500 transition-colors disabled:opacity-50 text-sm shadow-[0_0_15px_rgba(147,51,234,0.3)]"
                   >
                     Load Preset
                   </button>
@@ -470,16 +470,16 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
               </div>
 
               {selectedPreset && (
-                <div className="mt-4 p-3 bg-white rounded-lg border border-green-200">
-                  <div className="text-sm text-green-800">
+                <div className="mt-4 p-3 bg-slate-900/50 rounded-lg border border-purple-500/20">
+                  <div className="text-sm text-purple-300">
                     <strong>Preview:</strong>
                     {deckPresets.find(p => p.id === selectedPreset)?.beyblades.slice(0, 3).map((bey: any, index: number) => (
-                      <div key={index} className="font-mono text-xs mt-1">
+                      <div key={index} className="font-mono text-xs mt-1 text-slate-400">
                         • {bey.name || `Beyblade ${index + 1}`}
                       </div>
                     ))}
                     {deckPresets.find(p => p.id === selectedPreset)?.beyblades.length > 3 && (
-                      <div className="text-xs mt-1 text-green-600">
+                      <div className="text-xs mt-1 text-purple-400">
                         +{deckPresets.find(p => p.id === selectedPreset)?.beyblades.length - 3} more...
                       </div>
                     )}
@@ -492,13 +492,13 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
           {/* Custom Line Toggle */}
           {/* Beyblade Configuration Cards */}
           {beyblades.map((beyblade, index) => (
-            <div key={beyblade.id} className="border border-gray-200 rounded-lg p-4 sm:p-6">
+            <div key={beyblade.id} className="bg-slate-900/50 border border-cyan-500/20 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Beyblade #{index + 1}</h3>
+                <h3 className="text-lg font-semibold text-white">Beyblade #{index + 1}</h3>
                 <div className="flex items-center space-x-2">
                   {/* Custom Line Toggle for this Beyblade */}
                   <div className="flex items-center space-x-2">
-                    <span className={`text-xs font-medium ${!beyblade.isCustomLine ? 'text-purple-900' : 'text-purple-600'}`}>
+                    <span className={`text-xs font-medium ${!beyblade.isCustomLine ? 'text-cyan-400' : 'text-slate-400'}`}>
                       Standard Line
                     </span>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -509,19 +509,19 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                         className="sr-only"
                       />
                       <div className={`w-8 h-4 rounded-full transition-colors ${
-                        beyblade.isCustomLine ? 'bg-purple-600' : 'bg-gray-300'
+                        beyblade.isCustomLine ? 'bg-purple-500' : 'bg-slate-600'
                       }`}>
                         <div className={`w-3 h-3 bg-white rounded-full shadow transform transition-transform ${
                           beyblade.isCustomLine ? 'translate-x-4' : 'translate-x-0'
                         } mt-0.5 ml-0.5`}></div>
                       </div>
                     </label>
-                    <span className={`text-xs font-medium ${beyblade.isCustomLine ? 'text-purple-900' : 'text-purple-600'}`}>
+                    <span className={`text-xs font-medium ${beyblade.isCustomLine ? 'text-purple-400' : 'text-slate-400'}`}>
                       Custom Line
                     </span>
                   </div>
                   {beyblades.length > 1 && (
-                    <button onClick={() => removeBeyblade(beyblade.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-full">
+                    <button onClick={() => removeBeyblade(beyblade.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-full transition-colors">
                       <Trash2 size={16} />
                     </button>
                   )}
@@ -529,10 +529,10 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-cyan-400 mb-1">
                   Generated Name
                 </label>
-                <div className="border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-sm font-mono">
+                <div className="bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-sm font-mono text-slate-300">
                   {generateBeybladeName(beyblade) || 'Select all parts to generate name'}
                 </div>
               </div>
@@ -541,13 +541,13 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {getRequiredParts(beyblade.isCustomLine ? 'Custom' : 'Basic').map((partType) => (
                     <div key={partType}>
-                      <label className="block text-sm font-medium mb-1">
+                      <label className="block text-sm font-medium text-cyan-400 mb-1">
                         {partType} *
                       </label>
                       <select
                         value={beyblade.parts[partType] ? JSON.stringify(beyblade.parts[partType]) : ''}
                         onChange={(e) => e.target.value && updatePart(beyblade.id, partType, JSON.parse(e.target.value))}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-slate-900 border border-cyan-500/30 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
                       >
                         <option value="">Select {partType}</option>
                         {getPartOptions(partType).map((part: any, idx) => (
@@ -570,7 +570,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
           {beyblades.length < tournament.beyblades_per_player && (
             <button
               onClick={() => setBeyblades([...beyblades, { id: Date.now().toString(), isCustomLine: false, parts: {} }])}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-600 hover:border-blue-400 hover:text-blue-600 flex items-center justify-center space-x-2"
+              className="w-full border-2 border-dashed border-cyan-500/30 rounded-lg p-4 text-slate-400 hover:border-cyan-400 hover:text-cyan-400 flex items-center justify-center space-x-2 transition-colors"
             >
               <Plus size={20} />
               <span>Add Another Beyblade</span>
@@ -578,14 +578,14 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
           )}
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-            <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-cyan-500/20">
+            <button onClick={onClose} className="px-4 py-2 bg-slate-800 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition-colors">
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={!isFormValid() || isLoadingParts}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-lg hover:from-cyan-400 hover:to-purple-500 disabled:opacity-50 transition-all duration-200 shadow-[0_0_20px_rgba(0,200,255,0.3)]"
             >
               <span>Register</span>
             </button>
