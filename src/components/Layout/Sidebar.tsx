@@ -90,26 +90,27 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
     <>
       {/* Backdrop for all screen sizes when sidebar is open */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 z-30" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30" />
       )}
 
       <aside
         id="app-sidebar"
         className={`fixed left-0 top-0 z-50 h-screen flex flex-col 
-        transition-transform duration-200 ease-in-out
+        transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
-        bg-white border-r border-gray-200 w-64`}
+        bg-slate-950 border-r border-cyan-500/30 w-64 shadow-[0_0_30px_rgba(0,200,255,0.2)]`}
         style={{ pointerEvents: 'auto' }}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-cyan-500/30 bg-gradient-to-r from-slate-900 to-slate-950">
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center font-space-grotesk font-bold text-lg text-white">
+            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-lg flex items-center justify-center font-bold text-lg text-white shadow-[0_0_15px_rgba(0,200,255,0.5)]">
               B
             </div>
             {isOpen && (
               <div>
-                <h1 className="text-xl font-space-grotesk font-bold text-gray-900">OBC Portal</h1>
+                <h1 className="text-xl font-bold text-white">OBC Portal</h1>
+                <p className="text-xs text-cyan-400">Ormoc Beyblade Club</p>
               </div>
             )}
           </div>
@@ -119,7 +120,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
                 e.stopPropagation();
                 onToggle();
               }}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-cyan-500/20 rounded-lg transition-colors text-cyan-400 hover:text-white"
             >
               <X size={20} />
             </button>
@@ -133,10 +134,20 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
               <li key={item.id}>
                 <button
                   onClick={() => onViewChange(item.id)}
-                  className={currentView === item.id ? 'sidebar-item-active' : 'sidebar-item'}
+                  className={`w-full flex items-center px-3 py-3 rounded-lg transition-all duration-200 group ${
+                    currentView === item.id 
+                      ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
+                      : 'text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50 hover:border-cyan-500/20 border border-transparent'
+                  }`}
                 >
-                  <div className="transition-colors">{item.icon}</div>
-                  {isOpen && <span className="ml-3 font-inter">{item.label}</span>}
+                  <div className={`transition-colors ${
+                    currentView === item.id ? 'text-cyan-400' : 'text-slate-400 group-hover:text-cyan-400'
+                  }`}>
+                    {item.icon}
+                  </div>
+                  {isOpen && (
+                    <span className="ml-3 font-medium">{item.label}</span>
+                  )}
                 </button>
               </li>
             ))}
@@ -144,38 +155,42 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         </div>
 
         {/* Auth Section */}
-        <div className="px-4 border-t border-gray-200 py-4">
+        <div className="px-4 border-t border-cyan-500/30 py-4 bg-gradient-to-r from-slate-950 to-slate-900">
           {user && !user.id.startsWith('guest-') ? (
             <button
               onClick={handleLogout}
-              className="sidebar-item w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="w-full flex items-center px-3 py-3 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500/30 border border-transparent transition-all duration-200"
             >
               <div className="transition-colors"><LogOut size={20} /></div>
-              {isOpen && <span className="ml-3 font-inter">Logout</span>}
+              {isOpen && <span className="ml-3 font-medium">Logout</span>}
             </button>
           ) : (
             <button
               onClick={() => setShowLoginModal(true)}
-              className="sidebar-item w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              className="w-full flex items-center px-3 py-3 rounded-lg text-cyan-400 hover:text-white hover:bg-cyan-500/20 hover:border-cyan-500/30 border border-transparent transition-all duration-200"
             >
               <div className="transition-colors"><LogIn size={20} /></div>
-              {isOpen && <span className="ml-3 font-inter">Login</span>}
+              {isOpen && <span className="ml-3 font-medium">Login</span>}
             </button>
           )}
         </div>
 
         {isOpen && (
           <div className="px-2 pb-4">
-            <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
+            <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-4 backdrop-blur-sm">
               <div className="flex items-center space-x-2 mb-2">
-                <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
-                  <span className="text-xs text-white">J</span>
+                <div className="w-6 h-6 bg-gradient-to-r from-cyan-500 to-purple-600 rounded flex items-center justify-center">
+                  <span className="text-xs text-white font-bold">J</span>
                 </div>
-                <h3 className="font-space-grotesk font-semibold text-sm text-gray-900">
+                <h3 className="font-semibold text-sm text-cyan-400">
                   Created by Jedynsay
                 </h3>
               </div>
-              <p className="text-xs text-gray-600 font-inter mb-2">Powered by Supabase</p>
+              <p className="text-xs text-slate-400 mb-2">Powered by Supabase</p>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-green-400 font-medium">System Online</span>
+              </div>
             </div>
           </div>
         )}
@@ -185,16 +200,15 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
       {showLoginModal && (
         <>
           <div
-            className="modal-overlay"
-            style={{ zIndex: 50 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
             onClick={() => setShowLoginModal(false)}
           />
           <div className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-50">
-            <div className="relative pointer-events-auto bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh]">
+            <div className="relative pointer-events-auto bg-slate-950 border border-cyan-500/30 rounded-xl shadow-[0_0_40px_rgba(0,200,255,0.3)] max-w-md w-full mx-4 max-h-[90vh]">
               <LoginForm onLoginSuccess={() => setShowLoginModal(false)} />
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+                className="absolute top-4 right-4 w-8 h-8 bg-slate-800 hover:bg-slate-700 border border-cyan-500/30 rounded-full flex items-center justify-center text-cyan-400 hover:text-white transition-colors"
               >
                 <X size={16} />
               </button>
