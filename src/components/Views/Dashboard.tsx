@@ -240,7 +240,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
       </span>
     </h1>
     <p className="mt-4 text-lg md:text-xl text-slate-200 font-exo2 font-medium">
-      Fight. Spin. Conquer. Win.
+      Fight. Conquer. Win.
     </p>
     <div className="mt-10 flex flex-col sm:flex-row gap-6 justify-center">
       <button
