@@ -187,75 +187,80 @@ export function Dashboard({ onViewChange }: DashboardProps) {
   }
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-hidden relative">
-      {/* Hero Section with Community Image */}
-      <motion.section
-        ref={containerRef}
-        style={{ y: heroY, opacity: heroOpacity }}
-        className="relative h-screen flex items-center justify-center overflow-hidden"
+{/* Hero Section with Community Image */}
+<motion.section
+  ref={containerRef}
+  style={{ opacity: heroOpacity }}
+  className="relative h-screen flex items-center justify-center overflow-hidden"
+>
+  {/* Fixed Background Image */}
+  <div className="absolute inset-0">
+    <img
+      src="/community.jpg"
+      alt="Ormoc Beyblade Community"
+      className="w-full h-full object-cover fixed inset-0"
+    />
+    <div className="absolute inset-0 bg-black/60"></div>
+    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:60px_60px] opacity-20" />
+  </div>
+
+  {/* Hero Content */}
+  <motion.div
+    className="relative z-10 text-center px-6 max-w-5xl mx-auto"
+    style={{ y: heroY }}
+  >
+    <h1
+      className="text-5xl md:text-6xl font-exo2 uppercase tracking-wide"
+      style={{ fontWeight: 800 }}
+    >
+      <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+        Ormoc Beyblade Club
+      </span>
+    </h1>
+    <p className="mt-4 text-lg md:text-xl text-slate-200 font-exo2 font-medium">
+      Fight. Spin. Conquer. Win.
+    </p>
+    <div className="mt-10 flex flex-col sm:flex-row gap-6 justify-center">
+      <button
+        onClick={() => onViewChange?.('tournaments')}
+        className="relative px-10 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold uppercase tracking-wider hover:shadow-[0_0_20px_rgba(0,200,255,0.7)] transition overflow-hidden group"
       >
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src="/community.jpg"
-            alt="Ormoc Beyblade Community"
-            className="w-full h-full object-cover opacity-100"
-          />
-          <div className="absolute inset-0 bg-black/70"></div>
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:60px_60px] opacity-20" />
-        </div>
+        Join Tournament
+        <span className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.2),transparent)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+      </button>
+      <button
+        onClick={() => onViewChange?.('analytics')}
+        className="px-10 py-4 border border-slate-600 text-white font-bold uppercase tracking-wider hover:bg-slate-800 transition"
+      >
+        View Analytics
+      </button>
+    </div>
+  </motion.div>
+</motion.section>
 
-        {/* Hero Content */}
-        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <h1
-            className="text-5xl md:text-6xl font-exo2 uppercase tracking-wide"
-            style={{ fontWeight: 800 }}
-          >
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              Ormoc Beyblade Club
-            </span>
-          </h1>
-          <p className="mt-4 text-lg md:text-xl text-slate-200 font-exo2 font-medium">
-            Fight. Spin. Conquer. Win.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-6 justify-center">
-            <button
-              onClick={() => onViewChange?.('tournaments')}
-              className="relative px-10 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold uppercase tracking-wider hover:shadow-[0_0_20px_rgba(0,200,255,0.7)] transition overflow-hidden group"
-            >
-              Join Tournament
-              <span className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.2),transparent)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-            </button>
-            <button
-              onClick={() => onViewChange?.('analytics')}
-              className="px-10 py-4 border border-slate-600 text-white font-bold uppercase tracking-wider hover:bg-slate-800 transition"
-            >
-              View Analytics
-            </button>
+{/* Stats Section (slight overlap so no gap appears) */}
+<motion.div style={{ y: contentY }} className="relative z-20 -mt-20">
+  <section className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+    <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
+      {[
+        { label: 'Tournaments', value: stats.totalTournaments },
+        { label: 'Active Players', value: stats.activePlayers },
+        { label: 'Upcoming', value: stats.upcomingEvents },
+        { label: 'Matches', value: stats.completedMatches },
+      ].map((stat) => (
+        <div key={stat.label} className="py-14 text-center">
+          <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+            {stat.value}
+          </div>
+          <div className="mt-2 text-sm uppercase tracking-wide text-slate-400">
+            {stat.label}
           </div>
         </div>
-      </motion.section>
+      ))}
+    </div>
+  </section>
+</motion.div>
 
-      {/* Stats Section */}
-      <motion.div style={{ y: contentY }} className="relative z-20">
-        <section className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-sm">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-800">
-            {[
-              { label: 'Tournaments', value: stats.totalTournaments },
-              { label: 'Active Players', value: stats.activePlayers },
-              { label: 'Upcoming', value: stats.upcomingEvents },
-              { label: 'Matches', value: stats.completedMatches },
-            ].map((stat) => (
-              <div key={stat.label} className="py-14 text-center">
-                <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                  {stat.value}
-                </div>
-                <div className="mt-2 text-sm uppercase tracking-wide text-slate-400">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* Quick Access Hub */}
         <section className="py-24 bg-slate-900/90 backdrop-blur-sm">
