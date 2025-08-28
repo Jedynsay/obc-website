@@ -376,3 +376,82 @@ export function Dashboard({ onViewChange }: DashboardProps) {
           </div>
         </section>
       </motion.div>
+      {/* Live Match Feed */}
+      <section className="py-24 bg-slate-900/80 backdrop-blur-sm relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+            <h2 className="text-4xl font-extrabold uppercase tracking-tight mb-6 md:mb-0">
+              <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Live Match Feed
+              </span>
+            </h2>
+            <div className="flex items-center gap-4">
+              <select
+                value={selectedTournamentFilter}
+                onChange={(e) => setSelectedTournamentFilter(e.target.value)}
+                className="bg-slate-950/80 border border-slate-700 text-white px-4 py-2 text-sm rounded-md focus:ring-2 focus:ring-cyan-500"
+              >
+                <option value="all">All Tournaments</option>
+                {allTournaments.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {recentMatches.length > 0 ? (
+            <div className="overflow-x-auto border border-slate-800 rounded-md">
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase text-xs">
+                  <tr>
+                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Tournament</th>
+                    <th className="px-4 py-3">Player 1</th>
+                    <th className="px-4 py-3">Player 2</th>
+                    <th className="px-4 py-3">Winner</th>
+                    <th className="px-4 py-3">Beyblade Used</th>
+                    <th className="px-4 py-3">Finish</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentMatches.map((match) => (
+                    <tr key={match.id} className="border-b border-slate-800 hover:bg-slate-900/60">
+                      <td className="px-4 py-3">
+                        {new Date(match.submitted_at).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">{match.tournaments?.name}</td>
+                      <td
+                        className={`px-4 py-3 ${
+                          match.winner_name === match.player1_name
+                            ? 'text-cyan-400 font-semibold'
+                            : ''
+                        }`}
+                      >
+                        {match.player1_name}
+                      </td>
+                      <td
+                        className={`px-4 py-3 ${
+                          match.winner_name === match.player2_name
+                            ? 'text-cyan-400 font-semibold'
+                            : ''
+                        }`}
+                      >
+                        {match.player2_name}
+                      </td>
+                      <td className="px-4 py-3 text-cyan-300 font-bold">
+                        {match.winner_name}
+                      </td>
+                      <td className="px-4 py-3">{match.winner_beyblade || '—'}</td>
+                      <td className="px-4 py-3">{match.finish || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-slate-400">No matches available yet.</p>
+          )}
+        </div>
+      </section>
