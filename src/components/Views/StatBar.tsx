@@ -59,14 +59,6 @@ export function StatBar({ stats }: StatBarProps) {
                   style={{ width: `${percentage}%` }}
                 />
 
-                {/* Animated Edge Streak */}
-                <div
-                  className={`absolute top-0 h-full w-4 bg-white/20 mix-blend-overlay`}
-                  style={{
-                    left: `calc(${percentage}% - 4px)`,
-                    animation: 'pulse-streak 2s infinite ease-in-out',
-                  }}
-                />
               </div>
             </div>
           );
