@@ -440,27 +440,24 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
     );
   }
 
-  return (
-    <div className="space-y-6 p-6">
+   return (
+    <div className="space-y-4 p-3 sm:space-y-6 sm:p-6">
       {/* Player Selection */}
-      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                      transition-all duration-300 hover:border-cyan-400/70 
                      hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-        {/* Animated bottom underline */}
-        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
-                         w-0 transition-all duration-500 group-hover:w-full" />
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-          <Users size={24} className="mr-2 text-blue-600" />
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center">
+          <Users size={20} className="mr-2 text-blue-600" />
           Player Selection
         </h2>
-        <div className="max-w-md">
-          <label className="block text-sm font-medium text-cyan-400 mb-2">
+        <div className="max-w-full sm:max-w-md">
+          <label className="block text-xs sm:text-sm font-medium text-cyan-400 mb-1 sm:mb-2">
             Select Player for Detailed Analysis
           </label>
           <select
             value={selectedPlayer}
             onChange={(e) => setSelectedPlayer(e.target.value)}
-            className="w-full bg-slate-800 border border-cyan-500/30 rounded-none px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full bg-slate-800 border border-cyan-500/30 rounded-none px-2 sm:px-3 py-1.5 sm:py-2 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">-- Select Player --</option>
             {playerNames.sort().map(playerName => (
@@ -471,6 +468,7 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
           </select>
         </div>
       </div>
+
 
       {/* Tournament Player Rankings moved above Player Selection */}
 
