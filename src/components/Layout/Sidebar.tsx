@@ -245,6 +245,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
   </div>
 )}
 
+</div>
 
 
 {/* Auth Section */}
