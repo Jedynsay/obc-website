@@ -174,48 +174,40 @@ export function Tournaments() {
     )}
   </div>
 
- {/* Progress Bar (hide if unlimited) */}
-{tournament.max_participants !== 999999 && (
-  <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
-    <div
-      className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
-      style={{
-        width: `${
-          ((tournament.participants?.length || 0) / tournament.max_participants) * 100
-        }%`,
-      }}
-    />
-  </div>
-)}
+  {/* Progress Bar (hide if unlimited) */}
+  {tournament.max_participants !== 999999 && (
+    <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
+      <div
+        className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
+        style={{
+          width: `${
+            ((tournament.participants?.length || 0) / tournament.max_participants) * 100
+          }%`,
+        }}
+      />
+    </div>
+  )}
 
-{/* Practice Badge (above button, bottom-right) */}
-{tournament.is_practice && (
-  <span className="absolute bottom-12 right-3 px-2 py-0.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 rounded-sm">
-    Practice
-  </span>
-)}
-
-{/* Register / Closed Button */}
-{tournament.status === 'upcoming' ? (
-  <button
-    onClick={() => setSelectedTournament(tournament.id)}
-    className="relative mt-2 px-4 py-2 w-full text-sm font-semibold text-white 
-               bg-gradient-to-r from-cyan-500 to-purple-500 overflow-hidden 
-               transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.6)]"
-  >
-    <span className="relative z-10">Register</span>
-    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent 
-                     translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-  </button>
-) : (
-  <button
-    disabled
-    className="mt-2 px-4 py-2 w-full text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed"
-  >
-    Registration Closed
-  </button>
-)}
-
+  {/* Register / Closed Button */}
+  {tournament.status === 'upcoming' ? (
+    <button
+      onClick={() => setSelectedTournament(tournament.id)}
+      className="relative mt-2 px-4 py-2 text-sm font-semibold text-white 
+                 bg-gradient-to-r from-cyan-500 to-purple-500 overflow-hidden 
+                 transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.6)]"
+    >
+      <span className="relative z-10">Register</span>
+      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent 
+                       translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+    </button>
+  ) : (
+    <button
+      disabled
+      className="mt-2 px-4 py-2 text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed w-full"
+    >
+      Registration Closed
+    </button>
+  )}
 </div>
 
   ))}
