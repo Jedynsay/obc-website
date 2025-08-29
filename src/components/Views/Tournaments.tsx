@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Users, Trophy, Zap, Search } from 'lucide-react';
+import { Calendar, MapPin, Users, Trophy, Search } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirmation } from '../../context/ConfirmationContext';
@@ -66,8 +66,8 @@ export function Tournaments() {
 
         {/* Controls */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-700 pb-2 mb-8">
-          {/* Tabs */}
-          <div className="flex space-x-6">
+          {/* Tabs + Practice Toggle */}
+          <div className="flex items-center space-x-6">
             {['upcoming', 'active', 'completed', 'all'].map((tab) => (
               <button
                 key={tab}
@@ -83,6 +83,24 @@ export function Tournaments() {
                 />
               </button>
             ))}
+
+            {/* Practice Toggle inline */}
+            <label className="flex items-center cursor-pointer space-x-2 ml-6">
+              <input
+                type="checkbox"
+                checked={showPractice}
+                onChange={() => setShowPractice(!showPractice)}
+                className="sr-only"
+              />
+              <div className="relative w-10 h-5 bg-slate-700">
+                <div
+                  className={`absolute top-0.5 left-0.5 h-4 w-4 bg-white transform transition-transform duration-300 ${
+                    showPractice ? 'translate-x-5 bg-cyan-400' : ''
+                  }`}
+                />
+              </div>
+              <span className="text-sm text-slate-300">Practice</span>
+            </label>
           </div>
 
           {/* Search */}
@@ -96,24 +114,6 @@ export function Tournaments() {
               className="w-full pl-8 pr-2 py-2 bg-transparent border-b border-slate-700 text-sm focus:outline-none focus:border-cyan-500 transition"
             />
           </div>
-
-          {/* Toggle */}
-          <label className="flex items-center cursor-pointer space-x-2">
-            <input
-              type="checkbox"
-              checked={showPractice}
-              onChange={() => setShowPractice(!showPractice)}
-              className="sr-only"
-            />
-            <div className="relative w-10 h-5 bg-slate-700">
-              <div
-                className={`absolute top-0.5 left-0.5 h-4 w-4 bg-white transform transition-transform duration-300 ${
-                  showPractice ? 'translate-x-5 bg-cyan-400' : ''
-                }`}
-              />
-            </div>
-            <span className="text-sm text-slate-300">Show Practice</span>
-          </label>
         </div>
 
         {/* Tournament Grid */}
@@ -122,97 +122,97 @@ export function Tournaments() {
         ) : filteredTournaments.length === 0 ? (
           <div className="text-center py-12 text-slate-400">No tournaments found</div>
         ) : (
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {filteredTournaments.map((tournament) => (
-<div
-  key={tournament.id}
-  className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
-             transition-all duration-300 hover:border-cyan-400/70 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
->
-  {/* Animated bottom underline */}
-  <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 w-0 transition-all duration-500 group-hover:w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTournaments.map((tournament) => (
+              <div
+                key={tournament.id}
+                className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                           transition-all duration-300 hover:border-cyan-400/70 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+              >
+                {/* Animated bottom underline */}
+                <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 w-0 transition-all duration-500 group-hover:w-full" />
 
-  {/* Status Badge (top-right) */}
-  <span
-    className={`absolute top-3 right-3 px-2 py-0.5 text-xs font-semibold rounded-sm
-      ${tournament.status === 'active'
-        ? 'text-green-400 bg-green-400/10'
-        : tournament.status === 'completed'
-        ? 'text-purple-400 bg-purple-400/10'
-        : 'text-cyan-400 bg-cyan-400/10'
-      }`}
-  >
-    {tournament.status.toUpperCase()}
-  </span>
+                {/* Status Badge (top-right) */}
+                <span
+                  className={`absolute top-3 right-3 px-2 py-0.5 text-xs font-semibold rounded-sm
+                    ${tournament.status === 'active'
+                      ? 'text-green-400 bg-green-400/10'
+                      : tournament.status === 'completed'
+                      ? 'text-purple-400 bg-purple-400/10'
+                      : 'text-cyan-400 bg-cyan-400/10'
+                    }`}
+                >
+                  {tournament.status.toUpperCase()}
+                </span>
 
-  {/* Practice Badge (bottom-right) */}
-  {tournament.is_practice && (
-    <span className="absolute bottom-3 right-3 px-2 py-0.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 rounded-sm">
-      Practice
-    </span>
-  )}
+                {/* Practice Badge (bottom-right) */}
+                {tournament.is_practice && (
+                  <span className="absolute bottom-3 right-3 px-2 py-0.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 rounded-sm">
+                    Practice
+                  </span>
+                )}
 
-  {/* Title & Description */}
-  <h3 className="text-xl font-bold mb-2">{tournament.name}</h3>
-  <p className="text-slate-400 text-sm mb-3">{tournament.description}</p>
+                {/* Title & Description */}
+                <h3 className="text-xl font-bold mb-2">{tournament.name}</h3>
+                <p className="text-slate-400 text-sm mb-3">{tournament.description}</p>
 
-  {/* Details */}
-  <div className="flex items-center text-slate-400 text-sm mb-2">
-    <Calendar size={14} className="mr-2 text-cyan-400" />
-    {new Date(tournament.tournament_date).toLocaleDateString()}
-  </div>
-  <div className="flex items-center text-slate-400 text-sm mb-2">
-    <MapPin size={14} className="mr-2 text-cyan-400" />
-    {tournament.location}
-  </div>
-  <div className="flex items-center text-slate-400 text-sm mb-4">
-    <Users size={14} className="mr-2 text-cyan-400" />
-    {tournament.max_participants === 999999 ? (
-      <>{tournament.participants?.length || 0} players</>
-    ) : (
-      <>{tournament.participants?.length || 0} / {tournament.max_participants} players</>
-    )}
-  </div>
+                {/* Details */}
+                <div className="flex items-center text-slate-400 text-sm mb-2">
+                  <Calendar size={14} className="mr-2 text-cyan-400" />
+                  {new Date(tournament.tournament_date).toLocaleDateString()}
+                </div>
+                <div className="flex items-center text-slate-400 text-sm mb-2">
+                  <MapPin size={14} className="mr-2 text-cyan-400" />
+                  {tournament.location}
+                </div>
+                <div className="flex items-center text-slate-400 text-sm mb-4">
+                  <Users size={14} className="mr-2 text-cyan-400" />
+                  {tournament.max_participants === 999999 ? (
+                    <>{tournament.participants?.length || 0} players</>
+                  ) : (
+                    <>{tournament.participants?.length || 0} / {tournament.max_participants} players</>
+                  )}
+                </div>
 
-  {/* Progress Bar (hide if unlimited) */}
-  {tournament.max_participants !== 999999 && (
-    <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
-      <div
-        className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
-        style={{
-          width: `${
-            ((tournament.participants?.length || 0) / tournament.max_participants) * 100
-          }%`,
-        }}
-      />
-    </div>
-  )}
+                {/* Progress Bar (hide if unlimited) */}
+                {tournament.max_participants !== 999999 && (
+                  <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
+                      style={{
+                        width: `${
+                          ((tournament.participants?.length || 0) / tournament.max_participants) * 100
+                        }%`,
+                      }}
+                    />
+                  </div>
+                )}
 
-  {/* Register / Closed Button */}
-  {tournament.status === 'upcoming' ? (
-    <button
-      onClick={() => setSelectedTournament(tournament.id)}
-      className="relative mt-2 px-4 py-2 text-sm font-semibold text-white 
-                 bg-gradient-to-r from-cyan-500 to-purple-500 overflow-hidden 
-                 transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.6)]"
-    >
-      <span className="relative z-10">Register</span>
-      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent 
-                       translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-    </button>
-  ) : (
-    <button
-      disabled
-      className="mt-2 px-4 py-2 text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed w-full"
-    >
-      Registration Closed
-    </button>
-  )}
-</div>
-
-  ))}
-</div>
-
+                {/* Register / Closed Button (bottom-right aligned) */}
+                <div className="flex justify-end mt-4">
+                  {tournament.status === 'upcoming' ? (
+                    <button
+                      onClick={() => setSelectedTournament(tournament.id)}
+                      className="relative px-4 py-2 text-sm font-semibold text-white 
+                                 bg-gradient-to-r from-cyan-500 to-purple-500 overflow-hidden 
+                                 transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.6)]"
+                    >
+                      <span className="relative z-10">Register</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent 
+                                       translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="px-4 py-2 text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed"
+                    >
+                      Registration Closed
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
         {selectedTournament && (
