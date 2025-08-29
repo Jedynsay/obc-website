@@ -187,16 +187,35 @@ export function Dashboard({ onViewChange }: DashboardProps) {
   }
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-hidden relative">
-{/* Global Login/Logout Button (top right) */}
+{/* Global Login/User Button (top right) */}
 <div className="fixed top-6 right-6 z-[1000]">
   {user ? (
-    <button
-      onClick={logout}
-      className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-md text-sm font-medium text-white shadow-lg"
-    >
-      <LogOut className="w-4 h-4" />
-      Logout
-    </button>
+    <div className="relative">
+      <button
+        onClick={() => setShowUserMenu(!showUserMenu)}
+        className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-md text-sm font-medium text-white shadow-lg"
+      >
+        <span>{user.username || user.email}</span>
+        <span className="text-cyan-400 text-xs font-semibold uppercase">
+          {user.role}
+        </span>
+      </button>
+
+      {/* Dropdown Menu */}
+      {showUserMenu && (
+        <div className="absolute right-0 mt-2 w-40 bg-slate-900 border border-slate-700 rounded-md shadow-lg">
+          <button
+            onClick={() => {
+              logout();
+              setShowUserMenu(false);
+            }}
+            className="w-full text-left px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 text-sm"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
   ) : (
     <button
       onClick={() => setShowLoginModal(true)}
@@ -207,6 +226,7 @@ export function Dashboard({ onViewChange }: DashboardProps) {
     </button>
   )}
 </div>
+
 
       
 {/* Hero Section with Community Image */}
