@@ -127,98 +127,98 @@ export function Tournaments() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTournaments.map((tournament) => (
-<div
-  key={tournament.id}
-  className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
-             transition-all duration-300 hover:border-cyan-400/70 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
->
-  {/* Animated bottom underline */}
-  <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 w-0 transition-all duration-500 group-hover:w-full" />
-
-  {/* Title + Status + Practice in the same row */}
-  <div className="flex justify-between items-start gap-2">
-    <h3 className="text-xl font-bold leading-tight break-words max-w-[65%]">
-      {tournament.name}
-    </h3>
-    <div className="flex items-center gap-2 shrink-0">
-      <span
-        className={`px-2 py-0.5 text-xs font-semibold rounded-sm
-          ${tournament.status === 'active'
-            ? 'text-green-400 bg-green-400/10'
-            : tournament.status === 'completed'
-            ? 'text-purple-400 bg-purple-400/10'
-            : 'text-cyan-400 bg-cyan-400/10'
-          }`}
-      >
-        {tournament.status.toUpperCase()}
-      </span>
-
-      {tournament.is_practice && (
-        <span className="px-2 py-0.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 rounded-sm">
-          Practice
-        </span>
-      )}
-    </div>
-  </div>
-
-  {/* Description */}
-  <p className="text-slate-400 text-sm mb-3 mt-2">{tournament.description}</p>
-
-  {/* Details */}
-  <div className="flex items-center text-slate-400 text-sm mb-2">
-    <Calendar size={14} className="mr-2 text-cyan-400" />
-    {new Date(tournament.tournament_date).toLocaleDateString()}
-  </div>
-  <div className="flex items-center text-slate-400 text-sm mb-2">
-    <MapPin size={14} className="mr-2 text-cyan-400" />
-    {tournament.location}
-  </div>
-  <div className="flex items-center text-slate-400 text-sm mb-4">
-    <Users size={14} className="mr-2 text-cyan-400" />
-    {tournament.max_participants === 999999 ? (
-      <>{tournament.participants?.length || 0} players</>
-    ) : (
-      <>{tournament.participants?.length || 0} / {tournament.max_participants} players</>
-    )}
-  </div>
-
-  {/* Progress Bar */}
-  {tournament.max_participants !== 999999 && (
-    <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
-      <div
-        className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
-        style={{
-          width: `${
-            ((tournament.participants?.length || 0) / tournament.max_participants) * 100
-          }%`,
-        }}
-      />
-    </div>
-  )}
-
-  {/* Register / Closed Button */}
-  <div className="mt-4">
-    {tournament.status === 'upcoming' ? (
-      <button
-        onClick={() => setSelectedTournament(tournament.id)}
-        className="w-full relative px-4 py-2 text-sm font-semibold text-white 
-                   bg-gradient-to-r from-cyan-500 to-purple-500 overflow-hidden 
-                   transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.6)]"
-      >
-        <span className="relative z-10">Register</span>
-        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent 
-                         translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-      </button>
-    ) : (
-      <button
-        disabled
-        className="w-full px-4 py-2 text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed"
-      >
-        Registration Closed
-      </button>
-    )}
-  </div>
-</div>
+          <div
+            key={tournament.id}
+            className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+          >
+            {/* Animated bottom underline */}
+            <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 w-0 transition-all duration-500 group-hover:w-full" />
+          
+            {/* Title + Status + Practice in the same row */}
+            <div className="flex justify-between items-start gap-2">
+              <h3 className="text-xl font-bold leading-tight break-words max-w-[65%]">
+                {tournament.name}
+              </h3>
+              <div className="flex items-center gap-2 shrink-0">
+                <span
+                  className={`px-2 py-0.5 text-xs font-semibold rounded-sm
+                    ${tournament.status === 'active'
+                      ? 'text-green-400 bg-green-400/10'
+                      : tournament.status === 'completed'
+                      ? 'text-purple-400 bg-purple-400/10'
+                      : 'text-cyan-400 bg-cyan-400/10'
+                    }`}
+                >
+                  {tournament.status.toUpperCase()}
+                </span>
+          
+                {tournament.is_practice && (
+                  <span className="px-2 py-0.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 rounded-sm">
+                    Practice
+                  </span>
+                )}
+              </div>
+            </div>
+          
+            {/* Description */}
+            <p className="text-slate-400 text-sm mb-3 mt-2">{tournament.description}</p>
+          
+            {/* Details */}
+            <div className="flex items-center text-slate-400 text-sm mb-2">
+              <Calendar size={14} className="mr-2 text-cyan-400" />
+              {new Date(tournament.tournament_date).toLocaleDateString()}
+            </div>
+            <div className="flex items-center text-slate-400 text-sm mb-2">
+              <MapPin size={14} className="mr-2 text-cyan-400" />
+              {tournament.location}
+            </div>
+            <div className="flex items-center text-slate-400 text-sm mb-4">
+              <Users size={14} className="mr-2 text-cyan-400" />
+              {tournament.max_participants === 999999 ? (
+                <>{tournament.participants?.length || 0} players</>
+              ) : (
+                <>{tournament.participants?.length || 0} / {tournament.max_participants} players</>
+              )}
+            </div>
+          
+            {/* Progress Bar */}
+            {tournament.max_participants !== 999999 && (
+              <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
+                  style={{
+                    width: `${
+                      ((tournament.participants?.length || 0) / tournament.max_participants) * 100
+                    }%`,
+                  }}
+                />
+              </div>
+            )}
+          
+            {/* Register / Closed Button */}
+            <div className="mt-4">
+              {tournament.status === 'upcoming' ? (
+                <button
+                  onClick={() => setSelectedTournament(tournament.id)}
+                  className="w-full relative px-4 py-2 text-sm font-semibold text-white 
+                             bg-gradient-to-r from-cyan-500 to-purple-500 overflow-hidden 
+                             transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.6)]"
+                >
+                  <span className="relative z-10">Register</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent 
+                                   translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="w-full px-4 py-2 text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed"
+                >
+                  Registration Closed
+                </button>
+              )}
+            </div>
+          </div>
           ))}
           </div>
         )}
