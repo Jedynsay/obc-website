@@ -135,7 +135,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
                       onClick={() => onViewChange(item.id)}
                       className={`w-full flex items-center px-2 py-2 relative transition group
                         ${currentView === item.id
-                          ? 'text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]'
+                          ? 'text-cyan-400'
                           : 'text-slate-300 hover:text-cyan-400'}
                       `}
                     >
