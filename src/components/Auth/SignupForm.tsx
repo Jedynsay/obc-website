@@ -59,7 +59,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
     if (success) {
       setSuccess(true);
     } else {
-      setError('Failed to create account. Username might already be taken or there was a server error. Please try a different username.');
+      setError('Failed to create account. Username might already be taken. Please try a different username.');
     }
     setLoading(false);
   };
