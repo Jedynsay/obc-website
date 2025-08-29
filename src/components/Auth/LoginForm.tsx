@@ -220,11 +220,6 @@ export function LoginForm({ onLoginSuccess }: LoginFormProps) {
         </div>
       </div>
 
-      <div className="mt-6 text-center px-4">
-        <p className="text-xs text-slate-500">
-          Create an account to participate in tournaments and access all features.
-        </p>
-      </div>
     </div>
   );
 }
