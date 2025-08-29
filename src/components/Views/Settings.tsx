@@ -108,11 +108,6 @@ export function Settings({ onLoginSuccess }: LoginFormProps) {
           </div>
         </div>
 
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            Create an account to participate in tournaments and access all features.
-          </p>
-        </div>
     </div>
   );
 }
