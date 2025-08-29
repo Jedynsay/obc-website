@@ -441,23 +441,23 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
   }
 
    return (
-    <div className="space-y-4 p-3 sm:space-y-6 sm:p-6">
+    <div className="space-y-3 p-2 sm:space-y-6 sm:p-6">
       {/* Player Selection */}
       <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                      transition-all duration-300 hover:border-cyan-400/70 
                      hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-        <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center">
+        <h2 className="text-base sm:text-xl font-bold text-white mb-2 sm:mb-4 flex items-center">
           <Users size={20} className="mr-2 text-blue-600" />
           Player Selection
         </h2>
-        <div className="max-w-full sm:max-w-md">
-          <label className="block text-xs sm:text-sm font-medium text-cyan-400 mb-1 sm:mb-2">
+        <div className="w-full">
+          <label className="block text-xs font-medium text-cyan-400 mb-1">
             Select Player for Detailed Analysis
           </label>
           <select
             value={selectedPlayer}
             onChange={(e) => setSelectedPlayer(e.target.value)}
-            className="w-full bg-slate-800 border border-cyan-500/30 rounded-none px-2 sm:px-3 py-1.5 sm:py-2 text-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full bg-slate-800 border border-cyan-500/30 rounded-none px-2 py-1.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">-- Select Player --</option>
             {playerNames.sort().map(playerName => (
@@ -476,36 +476,36 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
       {selectedPlayerData && (
         <>
           {/* Move Tournament Player Rankings above Player Selection */}
-          <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+          <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                          transition-all duration-300 hover:border-cyan-400/70 
-                         hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] mb-6">
+                         hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] mb-3 sm:mb-6">
             {/* Animated bottom underline */}
             <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
                              w-0 transition-all duration-500 group-hover:w-full" />
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-white flex items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
                 <Trophy size={20} className="mr-2 text-yellow-600" />
                 Tournament Player Rankings
               </h2>
               <button
                 onClick={showAllPlayers}
-                className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-4 py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-2 shadow-[0_0_15px_rgba(0,200,255,0.3)]"
+                className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-1 sm:space-x-2 shadow-[0_0_15px_rgba(0,200,255,0.3)] text-sm"
               >
                 <Eye size={16} />
                 <span>Show All</span>
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                 <thead className="bg-slate-800/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Player</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Matches</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Win Rate</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Weighted Win Rate</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Total Points</th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Avg Points/Match</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Most Common Win</th>
+                    <th className="px-2 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Player</th>
+                    <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">M</th>
+                    <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">WR%</th>
+                    <th className="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Weighted WR</th>
+                    <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Pts</th>
+                    <th className="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Avg Pts</th>
+                    <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">Most Common Win</th>
                   </tr>
                 </thead>
                 <tbody className="bg-slate-950/50 divide-y divide-slate-800">
@@ -518,16 +518,16 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                         className={`hover:bg-slate-800/50 cursor-pointer ${selectedPlayer === player.name ? 'bg-cyan-500/10' : ''}`}
                         onClick={() => setSelectedPlayer(player.name)}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                          <div className="flex items-center">
-                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold mr-3">
+                        <td className="px-2 sm:px-6 py-2 sm:py-4 whitespace-nowrap text-sm font-medium text-white">
+                          <div className="flex items-center space-x-1 sm:space-x-3">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                               {index + 1}
                             </div>
-                            {player.name}
+                            <span className="truncate">{player.name}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-white text-center">{player.matches}</td>
-                        <td className="px-6 py-4 text-sm text-center">
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-white text-center">{player.matches}</td>
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-center">
                           <span className={`font-medium ${
                             player.winRate >= 60 ? 'text-green-400' :
                             player.winRate >= 40 ? 'text-yellow-400' : 'text-red-400'
@@ -535,12 +535,12 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                             {player.winRate.toFixed(1)}%
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm font-bold text-cyan-400 text-center">
+                        <td className="hidden sm:table-cell px-6 py-4 text-sm font-bold text-cyan-400 text-center">
                           {(player.weightedWinRate * 100).toFixed(1)}%
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-white text-center">{player.totalPoints}</td>
-                        <td className="px-6 py-4 text-sm text-white text-center">{player.avgPointsPerMatch.toFixed(2)}</td>
-                        <td className="px-6 py-4 text-sm text-white">{player.mostCommonWinFinish}</td>
+                        <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm font-medium text-white text-center">{player.totalPoints}</td>
+                        <td className="hidden sm:table-cell px-6 py-4 text-sm text-white text-center">{player.avgPointsPerMatch.toFixed(2)}</td>
+                        <td className="hidden md:table-cell px-6 py-4 text-sm text-white">{player.mostCommonWinFinish}</td>
                       </tr>
                     ))}
                 </tbody>
@@ -548,56 +548,56 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
             </div>
           </div>
 
-        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                        transition-all duration-300 hover:border-cyan-400/70 
                        hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
           {/* Animated bottom underline */}
           <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
                            w-0 transition-all duration-500 group-hover:w-full" />
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-white flex items-center">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-6 gap-2">
+            <h3 className="text-base sm:text-xl font-bold text-white flex items-center">
               <Target size={24} className="mr-2 text-blue-600" />
               {selectedPlayerData.name} — Detailed Performance
             </h3>
             <button
-              className="text-sm text-cyan-400 hover:text-cyan-300 underline"
+              className="text-xs sm:text-sm text-cyan-400 hover:text-cyan-300 underline self-start sm:self-auto"
               onClick={() => openMatchDetailsForPlayer(selectedPlayerData.name)}
             >
               View Match Details
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-6">
             {/* Total Matches */}
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400">{selectedPlayerData.matches}</div>
-              <div className="text-sm text-slate-400">Total Matches</div>
+              <div className="text-xl sm:text-3xl font-bold text-cyan-400">{selectedPlayerData.matches}</div>
+              <div className="text-xs sm:text-sm text-slate-400">Matches</div>
             </div>
 
             {/* Win Rate */}
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-400">{selectedPlayerData.winRate.toFixed(1)}%</div>
-              <div className="text-sm text-slate-400">Win Rate</div>
+              <div className="text-xl sm:text-3xl font-bold text-green-400">{selectedPlayerData.winRate.toFixed(1)}%</div>
+              <div className="text-xs sm:text-sm text-slate-400">Win Rate</div>
             </div>
 
             {/* Total Points */}
             <div className="text-center">
-              <div className="text-3xl font-bold text-purple-400">{selectedPlayerData.totalPoints}</div>
-              <div className="text-sm text-slate-400">Total Points</div>
+              <div className="text-xl sm:text-3xl font-bold text-purple-400">{selectedPlayerData.totalPoints}</div>
+              <div className="text-xs sm:text-sm text-slate-400">Points</div>
             </div>
 
             {/* Avg Points/Match */}
-            <div className="text-center">
-              <div className="text-3xl font-bold text-orange-400">{selectedPlayerData.avgPointsPerMatch.toFixed(2)}</div>
-              <div className="text-sm text-slate-400">Avg Points/Match</div>
+            <div className="text-center col-span-2 sm:col-span-1">
+              <div className="text-xl sm:text-3xl font-bold text-orange-400">{selectedPlayerData.avgPointsPerMatch.toFixed(2)}</div>
+              <div className="text-xs sm:text-sm text-slate-400">Avg Pts</div>
             </div>
 
             {/* Most Valuable Beyblade */}
-            <div className="text-center">
-              <div className="text-xl font-bold text-indigo-400">{selectedPlayerData.mvpCombo || 'N/A'}</div>
-              <div className="text-sm text-slate-400">Most Valuable Beyblade</div>
+            <div className="text-center col-span-2 sm:col-span-2 lg:col-span-1">
+              <div className="text-sm sm:text-xl font-bold text-indigo-400 truncate">{selectedPlayerData.mvpCombo || 'N/A'}</div>
+              <div className="text-xs sm:text-sm text-slate-400">MVP Beyblade</div>
               {selectedPlayerData.mvpCombo && (
-                <div className="text-lg font-bold text-indigo-300 mt-1">
+                <div className="text-sm sm:text-lg font-bold text-indigo-300 mt-1">
                   {selectedPlayerData.mvpComboScore} pts
                 </div>
               )}
@@ -609,38 +609,42 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
 
       {/* Wins & Losses per Finish (side-by-side) */}
       {selectedPlayerData && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6">
           {/* Wins per Finish */}
-          <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+          <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                          transition-all duration-300 hover:border-cyan-400/70 
                          hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
             {/* Animated bottom underline */}
             <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
                              w-0 transition-all duration-500 group-hover:w-full" />
-            <h3 className="text-lg font-bold text-white mb-4">Wins per Finish</h3>
+            <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Wins per Finish</h3>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                 <thead className="bg-slate-800/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">Beyblade</th>
+                    <th className="px-2 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">Beyblade</th>
                     {FINISH_TYPES.map(finish => (
-                      <th key={finish} className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
-                        {finish.split(' ')[0]}
+                      <th key={finish} className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
+                        {finish.split(' ')[0].substring(0, 4)}
                       </th>
                     ))}
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Total Points Gained</th>
+                    <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Pts</th>
                   </tr>
                 </thead>
                 <tbody className="bg-slate-950/50 divide-y divide-slate-800">
                   {Object.keys(selectedPlayerData.winsByFinish).map(beyblade => (
                     <tr key={beyblade} className="hover:bg-slate-800/50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{beyblade}</td>
+                      <td className="px-2 sm:px-6 py-2 sm:py-4 text-sm font-medium text-white">
+                        <div className="truncate max-w-[100px] sm:max-w-none" title={beyblade}>
+                          {beyblade}
+                        </div>
+                      </td>
                       {FINISH_TYPES.map(finish => (
-                        <td key={finish} className="px-6 py-4 text-sm text-center font-medium text-green-400">
+                        <td key={finish} className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-center font-medium text-green-400">
                           {selectedPlayerData.winsByFinish[beyblade]?.[finish] || 0}
                         </td>
                       ))}
-                      <td className="px-6 py-4 text-sm text-center font-bold text-green-300">
+                      <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-center font-bold text-green-300">
                         {selectedPlayerData.pointsGainedByBey[beyblade] || 0}
                       </td>
                     </tr>
@@ -651,36 +655,40 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
           </div>
 
           {/* Losses per Finish */}
-          <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+          <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                          transition-all duration-300 hover:border-cyan-400/70 
                          hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
             {/* Animated bottom underline */}
             <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
                              w-0 transition-all duration-500 group-hover:w-full" />
-            <h3 className="text-lg font-bold text-white mb-4">Losses per Finish</h3>
+            <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Losses per Finish</h3>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                 <thead className="bg-slate-800/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">Beyblade</th>
+                    <th className="px-2 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">Beyblade</th>
                     {FINISH_TYPES.map(finish => (
-                      <th key={finish} className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
-                        {finish.split(' ')[0]}
+                      <th key={finish} className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
+                        {finish.split(' ')[0].substring(0, 4)}
                       </th>
                     ))}
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Total Points Given</th>
+                    <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Pts</th>
                   </tr>
                 </thead>
                 <tbody className="bg-slate-950/50 divide-y divide-slate-800">
                   {Object.keys(selectedPlayerData.lossesByFinish).map(beyblade => (
                     <tr key={beyblade} className="hover:bg-slate-800/50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{beyblade}</td>
+                      <td className="px-2 sm:px-6 py-2 sm:py-4 text-sm font-medium text-white">
+                        <div className="truncate max-w-[100px] sm:max-w-none" title={beyblade}>
+                          {beyblade}
+                        </div>
+                      </td>
                       {FINISH_TYPES.map(finish => (
-                        <td key={finish} className="px-6 py-4 text-sm text-center font-medium text-red-400">
+                        <td key={finish} className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-center font-medium text-red-400">
                           {selectedPlayerData.lossesByFinish[beyblade]?.[finish] || 0}
                         </td>
                       ))}
-                      <td className="px-6 py-4 text-sm text-center font-bold text-red-300">
+                      <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-center font-bold text-red-300">
                         {selectedPlayerData.pointsGivenByBey[beyblade] || 0}
                       </td>
                     </tr>
@@ -696,14 +704,14 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
       {selectedPlayerData && (
         <div className="space-y-6">
           {/* Finish Type Radar Chart */}
-          <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+          <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                          transition-all duration-300 hover:border-cyan-400/70 
                          hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
             {/* Animated bottom underline */}
             <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
                              w-0 transition-all duration-500 group-hover:w-full" />
-            <h3 className="text-lg font-bold text-white mb-4">Points per Finish Type</h3>
-            <ResponsiveContainer width="100%" height={400}>
+            <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Points per Finish Type</h3>
+            <ResponsiveContainer width="100%" height={250}>
               <RadarChart
                 data={Object.entries(selectedPlayerData.finishDistribution).map(([finish, count]) => ({
                   finish,
@@ -721,22 +729,22 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
 
           {/* Phase Performance */}
           {Object.keys(selectedPlayerData.phasePerformance).length > 0 && (
-            <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+            <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                            transition-all duration-300 hover:border-cyan-400/70 
                            hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
               {/* Animated bottom underline */}
               <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
                                w-0 transition-all duration-500 group-hover:w-full" />
-              <h3 className="text-lg font-bold text-white mb-4">Phase Performance</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">Phase Performance</h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                   <thead className="bg-slate-800/50">
                     <tr>
-                      <th className="px-6 py-3 text-xs font-medium text-cyan-400 uppercase">Match</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Matches</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Wins</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Win Rate</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Avg Points</th>
+                      <th className="px-2 sm:px-6 py-2 sm:py-3 text-xs font-medium text-cyan-400 uppercase">Phase</th>
+                      <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">M</th>
+                      <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">W</th>
+                      <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">WR%</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Avg Pts</th>
                     </tr>
                   </thead>
                   <tbody className="bg-slate-950/50 divide-y divide-slate-800">
@@ -744,17 +752,17 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                       .sort(([a], [b]) => parseInt(a) - parseInt(b))
                       .map(([phase, stats]) => (
                         <tr key={phase} className="hover:bg-slate-800/50">
-                          <td className="px-6 py-4 text-sm font-medium text-white text-center">Phase {phase}</td>
-                          <td className="px-6 py-4 text-sm text-white text-center">{stats.matches}</td>
-                          <td className="px-6 py-4 text-sm text-green-400 text-center font-medium">{stats.wins}</td>
-                          <td className="px-6 py-4 text-sm text-center">
+                          <td className="px-2 sm:px-6 py-2 sm:py-4 text-sm font-medium text-white text-center">{phase}</td>
+                          <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-white text-center">{stats.matches}</td>
+                          <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-green-400 text-center font-medium">{stats.wins}</td>
+                          <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-center">
                             <span className={`font-medium ${
                               stats.matches > 0 && (stats.wins / stats.matches) * 100 >= 50 ? 'text-green-400' : 'text-red-400'
                             }`}>
                               {stats.matches > 0 ? ((stats.wins / stats.matches) * 100).toFixed(1) : '0.0'}%
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-sm text-white text-center">
+                          <td className="hidden sm:table-cell px-6 py-4 text-sm text-white text-center">
                             {stats.matches > 0 ? (stats.points / stats.matches).toFixed(2) : '0.00'}
                           </td>
                         </tr>
@@ -769,34 +777,34 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
 
       {/* Head-to-Head */}
       {headToHead.length > 0 && (
-        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-3 sm:p-6 rounded-none 
                        transition-all duration-300 hover:border-cyan-400/70 
                        hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
           {/* Animated bottom underline */}
           <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
                            w-0 transition-all duration-500 group-hover:w-full" />
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-white flex items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 gap-2">
+            <h2 className="text-base sm:text-lg font-bold text-white flex items-center">
               <TrendingUp size={20} className="mr-2 text-green-600" />
               Head-to-Head Matchups
             </h2>
             <button
               onClick={showAllHeadToHead}
-              className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-4 py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-2 shadow-[0_0_15px_rgba(0,200,255,0.3)]"
+              className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-1 sm:space-x-2 shadow-[0_0_15px_rgba(0,200,255,0.3)] text-sm"
             >
               <Eye size={16} />
               <span>Show All</span>
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
               <thead className="bg-slate-800/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">Matchup</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Total Matches</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Player 1 Wins</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Player 2 Wins</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">Player 1 Win Rate</th>
+                  <th className="px-2 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">Matchup</th>
+                  <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">M</th>
+                  <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">P1W</th>
+                  <th className="px-1 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">P2W</th>
+                  <th className="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">P1 WR%</th>
                 </tr>
               </thead>
               <tbody className="bg-slate-950/50 divide-y divide-slate-800">
@@ -805,11 +813,15 @@ export function PlayerAnalyticsSubTab({ tournamentId, loading = false }: PlayerA
                   .slice(0, 10)
                   .map((h2h, index) => (
                     <tr key={index} className="hover:bg-slate-800/50">
-                      <td className="px-6 py-4 text-sm font-medium text-white">{h2h.player1} vs {h2h.player2}</td>
-                      <td className="px-6 py-4 text-sm text-white text-center">{h2h.totalMatches}</td>
-                      <td className="px-6 py-4 text-sm text-green-400 text-center font-medium">{h2h.p1Wins}</td>
-                      <td className="px-6 py-4 text-sm text-red-400 text-center font-medium">{h2h.p2Wins}</td>
-                      <td className="px-6 py-4 text-sm text-center">
+                      <td className="px-2 sm:px-6 py-2 sm:py-4 text-sm font-medium text-white">
+                        <div className="truncate" title={`${h2h.player1} vs ${h2h.player2}`}>
+                          {h2h.player1} vs {h2h.player2}
+                        </div>
+                      </td>
+                      <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-white text-center">{h2h.totalMatches}</td>
+                      <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-green-400 text-center font-medium">{h2h.p1Wins}</td>
+                      <td className="px-1 sm:px-6 py-2 sm:py-4 text-sm text-red-400 text-center font-medium">{h2h.p2Wins}</td>
+                      <td className="hidden sm:table-cell px-6 py-4 text-sm text-center">
                         <span className={`font-medium ${h2h.p1WinRate >= 50 ? 'text-green-400' : 'text-red-400'}`}>
                           {h2h.p1WinRate.toFixed(1)}%
                         </span>
