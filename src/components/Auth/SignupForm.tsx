@@ -199,7 +199,7 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
 
       <div className="mt-6 text-center">
         <p className="text-xs text-slate-500">
-          By creating an account, you agree to participate in tournaments and follow community guidelines. All new accounts start with basic user permissions.
+          By creating an account, you agree to participate in tournaments and follow community guidelines.
         </p>
       </div>
       
