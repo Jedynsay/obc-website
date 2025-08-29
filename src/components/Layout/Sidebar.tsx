@@ -213,35 +213,36 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
             </ul>
           </div>
 
-          {/* Developer */}
-          <div>
-            {isOpen && <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Developer</p>}
-            <ul className="space-y-1">
-              {filteredMenuItems
-                .filter(item => ['database'].includes(item.id))
-                .map(item => (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => onViewChange(item.id)}
-                      className={`w-full flex items-center px-2 py-2 relative transition group
-                        ${currentView === item.id
-                          ? 'text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]'
-                          : 'text-slate-300 hover:text-cyan-400'}
-                      `}
-                    >
-                      <div className="mr-3">{item.icon}</div>
-                      {isOpen && <span className="ml-3 font-medium">{item.label}</span>}
-                      <div
-                        className={`absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-cyan-500 to-purple-500
-                          group-hover:w-full transition-all duration-500
-                          ${currentView === item.id ? 'w-full' : ''}
-                        `}
-                      />
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
+{/* Developer (only shows if there are items) */}
+{filteredMenuItems.some(item => ['database'].includes(item.id)) && (
+  <div>
+    <ul className="space-y-1">
+      {filteredMenuItems
+        .filter(item => ['database'].includes(item.id))
+        .map(item => (
+          <li key={item.id}>
+            <button
+              onClick={() => onViewChange(item.id)}
+              className={`w-full flex items-center px-2 py-2 relative transition group
+                ${currentView === item.id
+                  ? 'text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)]'
+                  : 'text-slate-300 hover:text-cyan-400'}
+              `}
+            >
+              <div className="mr-3">{item.icon}</div>
+              {isOpen && <span className="ml-3 font-medium">{item.label}</span>}
+              <div
+                className={`absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-cyan-500 to-purple-500
+                  group-hover:w-full transition-all duration-500
+                  ${currentView === item.id ? 'w-full' : ''}
+                `}
+              />
+            </button>
+          </li>
+        ))}
+    </ul>
+  </div>
+)}
         </div>
 
         {/* Auth Section */}
