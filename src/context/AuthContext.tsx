@@ -176,6 +176,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('🚪 LOGOUT: Starting logout process...');
       
+      // Clear React state first to prevent auto re-login
+      setUser(null);
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('❌ LOGOUT: Supabase signout error:', error);
@@ -183,16 +186,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('✅ LOGOUT: Supabase signout successful');
       }
       
-      // Clear React state
-      setUser(null);
-  
-      // Optional: rely on state change instead of reload
-      // If you really need reload:
-      setTimeout(() => window.location.reload(), 500);
+      // Force clear any cached session data
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Small delay to ensure cleanup, then reload
+      setTimeout(() => {
+        window.location.href = window.location.origin;
+      }, 100);
     } catch (error) {
       console.error('❌ LOGOUT: Unexpected error:', error);
       setUser(null);
-      setTimeout(() => window.location.reload(), 500);
+      localStorage.clear();
+      sessionStorage.clear();
+      setTimeout(() => {
+        window.location.href = window.location.origin;
+      }, 100);
     }
   };
 
