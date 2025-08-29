@@ -477,7 +477,12 @@ export function OverviewTab() {
     <div className="space-y-8 p-6">
       {/* Global Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-cyan-400 mb-1">{globalStats.totalMatches.toLocaleString()}</div>
@@ -489,7 +494,12 @@ export function OverviewTab() {
           </div>
         </div>
 
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-green-400 mb-1">{globalStats.totalPlayers}</div>
@@ -501,7 +511,12 @@ export function OverviewTab() {
           </div>
         </div>
 
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-purple-400 mb-1">{globalStats.totalTournaments}</div>
@@ -513,7 +528,12 @@ export function OverviewTab() {
           </div>
         </div>
 
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-orange-400 mb-1">{globalStats.avgPointsPerMatch.toFixed(2)}</div>
@@ -528,37 +548,42 @@ export function OverviewTab() {
 
       {/* Personal Overview (if logged in) */}
       {personalOverview && (
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <h2 className="text-xl font-bold text-white mb-6 flex items-center">
             <Users size={24} className="mr-2 text-cyan-400" />
             Your Performance Overview
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="text-center p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+            <div className="text-center p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-none">
               <div className="text-2xl font-bold text-cyan-400">{personalOverview.totalMatches}</div>
               <div className="text-sm text-slate-400">Total Matches</div>
             </div>
-            <div className="text-center p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <div className="text-center p-4 bg-green-500/10 border border-green-500/20 rounded-none">
               <div className="text-2xl font-bold text-green-400">{personalOverview.winRate.toFixed(1)}%</div>
               <div className="text-sm text-slate-400">Win Rate</div>
             </div>
-            <div className="text-center p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+            <div className="text-center p-4 bg-purple-500/10 border border-purple-500/20 rounded-none">
               <div className="text-2xl font-bold text-purple-400">{personalOverview.weightedWinRate.toFixed(1)}%</div>
               <div className="text-sm text-slate-400">Weighted Win Rate</div>
             </div>
-            <div className="text-center p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+            <div className="text-center p-4 bg-orange-500/10 border border-orange-500/20 rounded-none">
               <div className="text-2xl font-bold text-orange-400">{personalOverview.avgPointsPerMatch.toFixed(2)}</div>
               <div className="text-sm text-slate-400">Avg Points/Match</div>
             </div>
           </div>
           
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4">
+            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-none p-4">
               <h4 className="font-semibold text-cyan-400 mb-2">MVP Combo</h4>
               <p className="text-lg font-bold text-white">{personalOverview.mvpCombo}</p>
               <p className="text-sm text-slate-400">Score: {personalOverview.mvpComboScore.toFixed(1)}</p>
             </div>
-            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4">
+            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-none p-4">
               <h4 className="font-semibold text-cyan-400 mb-2">Favorite Finish</h4>
               <p className="text-lg font-bold text-white">{personalOverview.favoriteFinish}</p>
               <p className="text-sm text-slate-400">Tournaments: {personalOverview.tournamentsPlayed}</p>
@@ -569,7 +594,12 @@ export function OverviewTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Global Finish Distribution */}
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <h3 className="text-lg font-bold text-white mb-4">Global Finish Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -593,7 +623,12 @@ export function OverviewTab() {
         </div>
 
         {/* Top Global Combos */}
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <h3 className="text-lg font-bold text-white mb-4">Top Global Combos by Score</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart 
@@ -631,7 +666,12 @@ export function OverviewTab() {
       </div>
 
       {/* Global Combo Rankings Table */}
-      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                     transition-all duration-300 hover:border-cyan-400/70 
+                     hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+        {/* Animated bottom underline */}
+        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                         w-0 transition-all duration-500 group-hover:w-full" />
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-white">Global Combo Rankings</h3>
         </div>
@@ -775,7 +815,12 @@ export function OverviewTab() {
 
       {/* Head-to-Head Records (Personal) */}
       {personalOverview && headToHeadRecords.length > 0 && (
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <h3 className="text-lg font-bold text-white mb-4">Your Head-to-Head Records</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-800">
@@ -842,7 +887,12 @@ export function OverviewTab() {
       )}
 
       {/* Global Player Rankings */}
-      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                     transition-all duration-300 hover:border-cyan-400/70 
+                     hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+        {/* Animated bottom underline */}
+        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                         w-0 transition-all duration-500 group-hover:w-full" />
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-bold text-white">Global Player Rankings</h3>
         </div>
@@ -926,7 +976,12 @@ export function OverviewTab() {
           
           {/* Top Player Spotlight Card */}
           <div className="lg:col-span-1">
-            <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-2 border-yellow-400/30 rounded-xl p-6 text-center backdrop-blur-sm">
+            <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                           transition-all duration-300 hover:border-cyan-400/70 
+                           hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm text-center">
+              {/* Animated bottom underline */}
+              <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                               w-0 transition-all duration-500 group-hover:w-full" />
               <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(251,191,36,0.5)]">
                 <Trophy size={40} className="text-white" />
               </div>
@@ -937,7 +992,7 @@ export function OverviewTab() {
               <p className="text-2xl font-bold text-white mb-1">{globalStats.topPlayer}</p>
               <p className="text-yellow-300 text-sm mb-4">Win Rate: {globalStats.topPlayerWinRate.toFixed(1)}%</p>
               
-              <div className="bg-slate-800/60 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/30">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-none p-4 border border-yellow-400/30">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-lg font-bold text-yellow-400">
