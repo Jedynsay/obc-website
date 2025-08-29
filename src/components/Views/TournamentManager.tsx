@@ -61,6 +61,51 @@ export function TournamentManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+const [searchQuery, setSearchQuery] = useState('');
+const [sortColumn, setSortColumn] = useState<'player' | 'date' | 'payment' | 'status' | ''>('');
+const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+const [currentPage, setCurrentPage] = useState(1);
+const rowsPerPage = 10;
+
+const handleSort = (col: string) => {
+  if (sortColumn === col) {
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  } else {
+    setSortColumn(col as any);
+    setSortDirection('asc');
+  }
+};
+
+const filteredRegistrations = registrations.filter((r) =>
+  r.player_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  r.beyblades.some(b => b.beyblade_name.toLowerCase().includes(searchQuery.toLowerCase()))
+);
+
+const sortedRegistrations = [...filteredRegistrations].sort((a, b) => {
+  let valA: any, valB: any;
+  switch (sortColumn) {
+    case 'player':
+      valA = a.player_name; valB = b.player_name; break;
+    case 'date':
+      valA = new Date(a.registered_at).getTime(); valB = new Date(b.registered_at).getTime(); break;
+    case 'payment':
+      valA = a.payment_mode; valB = b.payment_mode; break;
+    case 'status':
+      valA = a.status; valB = b.status; break;
+    default:
+      return 0;
+  }
+  if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+  if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+  return 0;
+});
+
+const totalPages = Math.ceil(sortedRegistrations.length / rowsPerPage);
+const paginatedRegistrations = sortedRegistrations.slice(
+  (currentPage - 1) * rowsPerPage,
+  currentPage * rowsPerPage
+);
+  
   // Form state (includes unlimited toggle, practice, registration_open)
   const [formData, setFormData] = useState<{
     name: string;
