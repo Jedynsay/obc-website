@@ -859,77 +859,93 @@ export function TournamentManager() {
     </div>
 
     {selectedTournament && (
-      <div className="space-y-3">
+      <>
         {registrations.length === 0 ? (
           <div className="text-center py-10 text-slate-400">
             <Users size={48} className="mx-auto text-slate-600 mb-4" />
             No registrations found for this tournament
           </div>
         ) : (
-          registrations.map((r) => (
-            <div
-              key={r.id}
-              className="border border-slate-700 bg-slate-900/50 p-3 flex justify-between items-start"
-            >
-              {/* Left Column: Player Info */}
-              <div className="flex-1 pr-4">
-                <h3 className="font-semibold text-white text-sm">{r.player_name}</h3>
-                <p className="text-xs text-slate-400 mb-1">
-                  {new Date(r.registered_at).toLocaleDateString()}
-                </p>
-                <p className="text-xs text-slate-400">
-                  <span className="text-slate-500">Payment:</span>{' '}
-                  {r.payment_mode?.replace('_', ' ') || 'N/A'}
-                </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  <span className="text-slate-500">Status:</span>{' '}
-                  <span className={`px-2 py-0.5 text-[11px] rounded-none
-                    ${r.status === 'confirmed'
-                      ? 'text-green-300 bg-green-300/10'
-                      : r.status === 'cancelled'
-                      ? 'text-red-300 bg-red-300/10'
-                      : 'text-yellow-300 bg-yellow-300/10'}`}>
-                    {r.status}
-                  </span>
-                </p>
-              </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-slate-900/70 text-slate-300 text-left">
+                  <th className="px-3 py-2 border-b border-slate-700">Player</th>
+                  <th className="px-3 py-2 border-b border-slate-700">Date</th>
+                  <th className="px-3 py-2 border-b border-slate-700">Payment</th>
+                  <th className="px-3 py-2 border-b border-slate-700">Status</th>
+                  <th className="px-3 py-2 border-b border-slate-700">Beyblades</th>
+                  <th className="px-3 py-2 border-b border-slate-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {registrations.map((r) => (
+                  <tr
+                    key={r.id}
+                    className="border-b border-slate-800 hover:bg-slate-800/30 transition"
+                  >
+                    {/* Player Name */}
+                    <td className="px-3 py-2 font-medium text-white">{r.player_name}</td>
 
-              {/* Right Column: Beyblades */}
-              <div className="flex-1 border-l border-slate-800 pl-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-white">Beyblades</span>
-                  <span className="text-xs text-slate-400">
-                    {r.beyblades.length} registered
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {r.beyblades.length > 0 ? (
-                    r.beyblades.map((b, i) => (
+                    {/* Registered Date */}
+                    <td className="px-3 py-2 text-slate-400">
+                      {new Date(r.registered_at).toLocaleDateString()}
+                    </td>
+
+                    {/* Payment */}
+                    <td className="px-3 py-2 text-slate-400">
+                      {r.payment_mode?.replace('_', ' ') || 'N/A'}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-3 py-2">
                       <span
-                        key={i}
-                        className="inline-block border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px] text-slate-200"
+                        className={`px-2 py-0.5 text-[11px] rounded-sm
+                          ${r.status === 'confirmed'
+                            ? 'text-green-300 bg-green-300/10'
+                            : r.status === 'cancelled'
+                            ? 'text-red-300 bg-red-300/10'
+                            : 'text-yellow-300 bg-yellow-300/10'}`}
                       >
-                        {b.beyblade_name}
+                        {r.status}
                       </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-slate-500 italic">No Beyblades</span>
-                  )}
-                </div>
-              </div>
+                    </td>
 
-              {/* Delete Button */}
-              <button
-                onClick={() => deleteRegistration(r.id)}
-                className="ml-3 p-1.5 text-red-400 hover:text-white hover:bg-red-500/20 transition"
-                title="Delete Registration"
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ))
+                    {/* Beyblades */}
+                    <td className="px-3 py-2">
+                      {r.beyblades.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {r.beyblades.map((b, i) => (
+                            <span
+                              key={i}
+                              className="inline-block border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px] text-slate-200"
+                            >
+                              {b.beyblade_name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-500 italic">No Beyblades</span>
+                      )}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-3 py-2">
+                      <button
+                        onClick={() => deleteRegistration(r.id)}
+                        className="p-1.5 text-red-400 hover:text-white hover:bg-red-500/20 transition rounded-sm"
+                        title="Delete Registration"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </>
     )}
   </>
 )}
