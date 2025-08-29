@@ -483,123 +483,92 @@ const fetchTournamentLeaderboard = async () => {
           </div>
         )}
 
-        {/* Leaderboard Table */}
-        {(currentTab === 'tournament' || currentTab === 'global') && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                  <TrendingUp size={24} className="mr-2 text-gray-700" />
-                  {currentTab === 'tournament' 
-                    ? `${tournaments.find(t => t.id === selectedTournament)?.name || 'Tournament'} Leaderboard`
-                    : 'Global Leaderboard'
-                  }
-                </h2>
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                  {leaderboard.length} participants
-                </span>
-              </div>
-            </div>
+{/* Leaderboard Table */}
+<div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
+  <div className="bg-slate-900/60 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+      <TrendingUp size={22} className="text-cyan-400" />
+      {currentTab === 'tournament'
+        ? `${tournaments.find(t => t.id === selectedTournament)?.name || 'Tournament'} Leaderboard`
+        : 'Global Leaderboard'}
+    </h2>
+    <span className="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full">
+      {leaderboard.length} participants
+    </span>
+  </div>
 
-            {leaderboard.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 size={32} className="text-gray-400" />
+  {leaderboard.length === 0 ? (
+    <div className="text-center py-12 text-slate-400">
+      <BarChart3 size={32} className="mx-auto mb-3 text-slate-600" />
+      <p>No data available</p>
+    </div>
+  ) : (
+    <div className="overflow-x-auto">
+      <table className="min-w-full text-sm text-slate-300">
+        <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400 uppercase text-xs">
+          <tr>
+            <th className="px-6 py-3 text-left">Rank</th>
+            <th className="px-6 py-3 text-left">Player</th>
+            <th className="px-6 py-3 text-center">Match W-L</th>
+            <th className="px-6 py-3 text-center">Score</th>
+            <th className="px-6 py-3 text-center">TB</th>
+            <th className="px-6 py-3 text-center">Buchholz</th>
+            <th className="px-6 py-3 text-center">Pts Diff</th>
+          </tr>
+        </thead>
+        <tbody>
+          {leaderboard.map(entry => (
+            <tr
+              key={entry.participant}
+              className="border-b border-slate-800 hover:bg-slate-900/60 transition"
+            >
+              <td className="px-6 py-4 flex items-center gap-2">
+                {getRankIcon(entry.rank)}
+                <span
+                  className={`${
+                    entry.rank <= 3 ? '' : 'text-slate-400'
+                  } font-semibold`}
+                >
+                  {entry.rank <= 3 ? '' : `#${entry.rank}`}
+                </span>
+              </td>
+              <td className="px-6 py-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                  {entry.participant.charAt(0).toUpperCase()}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Available</h3>
-                <p className="text-gray-500">
-                  {currentTab === 'tournament' && !selectedTournament
-                    ? 'Please select a tournament to view its leaderboard'
-                    : 'No match results found for leaderboard calculation'
-                  }
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Rank
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Participant
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Match W-L
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Score
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        TB
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Buchholz
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Pts Diff
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {leaderboard.map((entry) => (
-                      <tr key={entry.participant} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-3">
-                            {getRankIcon(entry.rank)}
-                            <span className={`font-bold ${getRankColor(entry.rank)}`}>
-                              {entry.rank <= 3 ? '' : `#${entry.rank}`}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                              {entry.participant.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{entry.participant}</div>
-                              <div className="text-sm text-gray-500">
-                                {entry.winRate.toFixed(1)}% win rate
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm">
-                            <span className="text-green-600 font-medium">{entry.matchWins}</span>
-                            <span className="text-gray-400 mx-1">-</span>
-                            <span className="text-red-600 font-medium">{entry.matchLosses}</span>
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {entry.totalMatches} total
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-lg font-bold text-blue-600">{entry.score}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm font-medium text-gray-900">{entry.tb}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm font-medium text-gray-900">{entry.buchholz}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className={`text-sm font-medium ${
-                            entry.ptsDiff > 0 ? 'text-green-600' :
-                            entry.ptsDiff < 0 ? 'text-red-600' : 'text-gray-600'
-                          }`}>
-                            {entry.ptsDiff > 0 ? '+' : ''}{entry.ptsDiff}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                <div>
+                  <p className="font-semibold text-white">{entry.participant}</p>
+                  <p className="text-xs text-slate-400">
+                    {entry.winRate.toFixed(1)}% win rate
+                  </p>
+                </div>
+              </td>
+              <td className="px-6 py-4 text-center">
+                <span className="text-green-400 font-medium">{entry.matchWins}</span>
+                <span className="text-slate-500 mx-1">-</span>
+                <span className="text-red-400 font-medium">{entry.matchLosses}</span>
+              </td>
+              <td className="px-6 py-4 text-center font-bold text-cyan-400">
+                {entry.score}
+              </td>
+              <td className="px-6 py-4 text-center">{entry.tb}</td>
+              <td className="px-6 py-4 text-center">{entry.buchholz}</td>
+              <td className={`px-6 py-4 text-center ${
+                entry.ptsDiff > 0
+                  ? 'text-green-400'
+                  : entry.ptsDiff < 0
+                  ? 'text-red-400'
+                  : 'text-slate-400'
+              }`}>
+                {entry.ptsDiff > 0 ? '+' : ''}{entry.ptsDiff}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
         )}
       </div>
     </div>
