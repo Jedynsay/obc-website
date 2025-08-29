@@ -7,14 +7,20 @@ export function CommunityAnalyticsTab() {
       <div className="max-w-7xl mx-auto">
 
         {/* Coming Soon Card */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-2 border-green-400/30 rounded-2xl p-12 text-center backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto">
+          <div className="group relative border border-slate-700 bg-slate-900/40 p-12 rounded-none 
+                         transition-all duration-300 hover:border-cyan-400/70 
+                         hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] text-center">
+            {/* Animated bottom underline */}
+            <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                             w-0 transition-all duration-500 group-hover:w-full" />
+            
             <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.5)]">
               <BarChart3 size={48} className="text-white" />
             </div>
             
             <h2 className="text-4xl font-bold text-green-400 mb-4">Community Analytics</h2>
-            <div className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-full font-bold text-lg mb-6 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+            <div className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-none font-bold text-lg mb-6 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
               COMING SOON
             </div>
             
@@ -25,7 +31,7 @@ export function CommunityAnalyticsTab() {
 
             {/* Feature Preview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-green-400/30">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-none p-6 border border-green-400/30">
                 <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <TrendingUp size={24} className="text-green-400" />
                 </div>
@@ -33,7 +39,7 @@ export function CommunityAnalyticsTab() {
                 <p className="text-green-300 text-sm">Track new member growth and community activity trends</p>
               </div>
               
-              <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-green-400/30">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-none p-6 border border-green-400/30">
                 <div className="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Target size={24} className="text-emerald-400" />
                 </div>
@@ -41,7 +47,7 @@ export function CommunityAnalyticsTab() {
                 <p className="text-green-300 text-sm">Analyze posts, discussions, and tournament participation</p>
               </div>
               
-              <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-green-400/30">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-none p-6 border border-green-400/30">
                 <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Users size={24} className="text-green-400" />
                 </div>
@@ -50,7 +56,7 @@ export function CommunityAnalyticsTab() {
               </div>
             </div>
 
-            <div className="bg-slate-800/40 backdrop-blur-sm border border-green-400/30 rounded-xl p-6 max-w-md mx-auto">
+            <div className="bg-slate-800/40 backdrop-blur-sm border border-green-400/30 rounded-none p-6 max-w-md mx-auto">
               <h4 className="font-bold text-green-400 mb-3">Planned Features:</h4>
               <div className="space-y-2 text-sm text-green-300 text-left">
                 <div className="flex items-center">
