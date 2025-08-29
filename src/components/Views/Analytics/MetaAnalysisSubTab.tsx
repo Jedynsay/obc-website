@@ -715,8 +715,13 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Combos Chart */}
-        <div className="chart-container">
-          <h3 className="chart-title flex items-center">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center">
             <Target size={24} className="mr-2 text-blue-600" />
             Top Combos by Score
           </h3>
@@ -744,8 +749,13 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         </div>
 
         {/* Finish Distribution */}
-        <div className="chart-container">
-          <h3 className="chart-title">Finish Type Distribution</h3>
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
+          <h3 className="text-lg font-bold text-white mb-4">Finish Type Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -769,8 +779,13 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       </div>
 
       {/* Part Analysis Section */}
-      <div className="chart-container">
-        <h3 className="chart-title flex items-center">
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                     transition-all duration-300 hover:border-cyan-400/70 
+                     hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+        {/* Animated bottom underline */}
+        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                         w-0 transition-all duration-500 group-hover:w-full" />
+        <h3 className="text-lg font-bold text-white mb-4 flex items-center">
           <Search size={24} className="mr-2 text-purple-600" />
           Analysis by Part
         </h3>
@@ -784,7 +799,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
                 setSelectedPartType(e.target.value);
                 setSelectedPartName('');
               }}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full bg-slate-800 border border-cyan-500/30 rounded-none px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             >
               <option value="">Select Part Type</option>
               <option value="blade">Blade</option>
@@ -802,7 +817,7 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
               value={selectedPartName}
               onChange={(e) => setSelectedPartName(e.target.value)}
               disabled={!selectedPartType}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100"
+              className="w-full bg-slate-800 border border-cyan-500/30 rounded-none px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:bg-slate-700"
             >
               <option value="">Select Part Name</option>
               {selectedPartType && Object.values(partStats[selectedPartType] || {})
@@ -892,12 +907,17 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
       </div>
 
       {/* Combo Statistics Table */}
-      <div className="chart-container">
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                     transition-all duration-300 hover:border-cyan-400/70 
+                     hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+        {/* Animated bottom underline */}
+        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                         w-0 transition-all duration-500 group-hover:w-full" />
         <div className="flex justify-between items-center mb-4">
-          <h3 className="chart-title">Combo Performance Rankings</h3>
+          <h3 className="text-lg font-bold text-white">Combo Performance Rankings</h3>
           <button
             onClick={showAllCombos}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-4 py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-2 shadow-[0_0_15px_rgba(0,200,255,0.3)]"
           >
             <Eye size={16} />
             <span>Show All</span>
@@ -964,14 +984,19 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         {/* Blades and Main Blades */}
         <div className="space-y-6">
           {(['blade', 'mainBlade'] as const).map(partType => (
-            <div key={partType} className="chart-container">
+            <div key={partType} className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                               transition-all duration-300 hover:border-cyan-400/70 
+                               hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+              {/* Animated bottom underline */}
+              <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                               w-0 transition-all duration-500 group-hover:w-full" />
               <div className="flex justify-between items-center mb-4">
-                <h3 className="chart-title capitalize">
+                <h3 className="text-lg font-bold text-white capitalize">
                   {partType === 'mainBlade' ? 'Main Blades' : 'Blades'} Performance
                 </h3>
                 <button
                   onClick={() => showAllParts(partType)}
-                  className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 text-sm"
+                  className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-3 py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-2 text-sm shadow-[0_0_12px_rgba(0,200,255,0.25)]"
                 >
                   <Eye size={14} />
                   <span>Show All</span>
@@ -1039,14 +1064,19 @@ export function MetaAnalysisSubTab({ tournamentId, loading = false }: MetaAnalys
         {/* Other Parts */}
         <div className="space-y-6">
           {(['ratchet', 'bit', 'lockchip', 'assistBlade'] as const).map(partType => (
-            <div key={partType} className="chart-container">
+            <div key={partType} className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                               transition-all duration-300 hover:border-cyan-400/70 
+                               hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+              {/* Animated bottom underline */}
+              <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                               w-0 transition-all duration-500 group-hover:w-full" />
               <div className="flex justify-between items-center mb-4">
-                <h3 className="chart-title capitalize">
+                <h3 className="text-lg font-bold text-white capitalize">
                   {partType === 'assistBlade' ? 'Assist Blades' : `${partType}s`} Performance
                 </h3>
                 <button
                   onClick={() => showAllParts(partType)}
-                  className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 text-sm"
+                  className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-3 py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-2 text-sm shadow-[0_0_12px_rgba(0,200,255,0.25)]"
                 >
                   <Eye size={14} />
                   <span>Show All</span>
