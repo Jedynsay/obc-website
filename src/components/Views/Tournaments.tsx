@@ -13,6 +13,7 @@ export function Tournaments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTournament, setSelectedTournament] = useState<string | null>(null);
   const [tournaments, setTournaments] = useState([]);
+  const [tournamentCounts, setTournamentCounts] = useState<{[key: string]: number}>({});
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
@@ -25,6 +26,23 @@ export function Tournaments() {
 
         if (error) throw error;
         setTournaments(data || []);
+        
+        // Fetch participant counts for each tournament
+        if (data && data.length > 0) {
+          const counts: {[key: string]: number} = {};
+          
+          for (const tournament of data) {
+            const { count } = await supabase
+              .from('tournament_registrations')
+              .select('*', { count: 'exact', head: true })
+              .eq('tournament_id', tournament.id)
+              .eq('status', 'confirmed');
+            
+            counts[tournament.id] = count || 0;
+          }
+          
+          setTournamentCounts(counts);
+        }
       } catch (error) {
         console.error('Error fetching tournaments:', error);
         setTournaments([]);
@@ -176,9 +194,9 @@ export function Tournaments() {
             <div className="flex items-center text-slate-400 text-sm mb-4">
               <Users size={14} className="mr-2 text-cyan-400" />
               {tournament.max_participants === 999999 ? (
-                <>{tournament.participants?.length || 0} players</>
+                <>{tournamentCounts[tournament.id] || 0} players</>
               ) : (
-                <>{tournament.participants?.length || 0} / {tournament.max_participants} players</>
+                <>{tournamentCounts[tournament.id] || 0} / {tournament.max_participants} players</>
               )}
             </div>
           
@@ -189,7 +207,7 @@ export function Tournaments() {
                   className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
                   style={{
                     width: `${
-                      ((tournament.participants?.length || 0) / tournament.max_participants) * 100
+                      ((tournamentCounts[tournament.id] || 0) / tournament.max_participants) * 100
                     }%`,
                   }}
                 />
