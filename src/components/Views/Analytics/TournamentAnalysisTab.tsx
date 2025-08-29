@@ -75,7 +75,12 @@ export function TournamentAnalysisTab() {
   return (
     <div className="space-y-8 p-6">
       {/* Tournament Selection */}
-      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                     transition-all duration-300 hover:border-cyan-400/70 
+                     hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+        {/* Animated bottom underline */}
+        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                         w-0 transition-all duration-500 group-hover:w-full" />
         <h2 className="text-xl font-bold text-white mb-4 flex items-center">
           <Database size={24} className="mr-2 text-cyan-400" />
           Tournament Selection
@@ -87,7 +92,7 @@ export function TournamentAnalysisTab() {
           <select
             value={selectedTournament}
             onChange={(e) => setSelectedTournament(e.target.value)}
-            className="w-full bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full bg-slate-800 border border-cyan-500/30 rounded-none px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">-- Select Tournament --</option>
             {tournaments.map(tournament => (
@@ -102,29 +107,42 @@ export function TournamentAnalysisTab() {
       {selectedTournament && (
         <>
           {/* Sub-tabs */}
-          <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
-            <div className="flex items-center space-x-1 bg-slate-800/50 border border-cyan-500/20 rounded-lg p-1">
+          <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                         transition-all duration-300 hover:border-cyan-400/70 
+                         hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+            {/* Animated bottom underline */}
+            <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                             w-0 transition-all duration-500 group-hover:w-full" />
+            <div className="flex items-center space-x-6 border-b border-slate-700 pb-2">
               <button
                 onClick={() => handleSubTabChange('meta')}
-                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
                   currentSubTab === 'meta' 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
-                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50'
+                    ? 'text-cyan-400' 
+                    : 'text-slate-400 hover:text-cyan-300'
                 }`}
               >
                 <BarChart3 size={16} className="mr-2" />
                 Meta Analysis
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${currentSubTab === 'meta' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
               <button
                 onClick={() => handleSubTabChange('player')}
-                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
                   currentSubTab === 'player' 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
-                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50'
+                    ? 'text-cyan-400' 
+                    : 'text-slate-400 hover:text-cyan-300'
                 }`}
               >
                 <Users size={16} className="mr-2" />
                 Player Analytics
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${currentSubTab === 'player' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
             </div>
           </div>
@@ -140,7 +158,12 @@ export function TournamentAnalysisTab() {
       )}
 
       {!selectedTournament && (
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-8 text-center m-6">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-8 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] text-center m-6">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Database size={32} className="text-slate-400" />
           </div>
