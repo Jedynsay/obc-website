@@ -569,8 +569,6 @@ const fetchTournamentLeaderboard = async () => {
             </div>
           )}
         </div>
-        )}
-      </div>
     </div>
   );
 }
