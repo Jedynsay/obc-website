@@ -203,14 +203,6 @@ export function SignupForm({ onBackToLogin, onSignupSuccess }: SignupFormProps) 
         </p>
       </div>
       
-      <div className="mt-6">
-        <button
-          onClick={onBackToLogin}
-          className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 hover:text-white font-medium px-6 py-3 rounded-lg transition-all duration-200"
-        >
-          Back to Login
-        </button>
-      </div>
     </div>
   );
 }
