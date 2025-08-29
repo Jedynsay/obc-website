@@ -828,22 +828,38 @@ export function TournamentManager() {
         {/* Registrations view */}
         {currentView === 'registrations' && (
           <>
-            <div className="mb-6">
-              <label className="block text-sm text-slate-300 mb-1">Select Tournament</label>
-              <select
-                value={selectedTournament}
-                onChange={(e) => setSelectedTournament(e.target.value)}
-                className="bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 max-w-md w-full"
-              >
-                <option value="">-- Select Tournament --</option>
-                {tournaments.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <label className="block text-sm text-slate-300 mb-1">Select Tournament</label>
+                <select
+                  value={selectedTournament}
+                  onChange={(e) => setSelectedTournament(e.target.value)}
+                  className="bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 max-w-md w-full"
+                >
+                  <option value="">-- Select Tournament --</option>
+                  {tournaments.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+        
+              {/* Export Players button */}
+              {registrations.length > 0 && (
+                <button
+                  onClick={() => {
+                    const names = registrations.map(r => r.player_name).join('\n');
+                    navigator.clipboard.writeText(names);
+                    alert('Copied', 'All player names copied to clipboard for Challonge!');
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white text-sm font-medium hover:from-cyan-400 hover:to-purple-500 transition shadow-[0_0_12px_rgba(0,200,255,0.25)]"
+                >
+                  Copy Player List
+                </button>
+              )}
             </div>
-
+        
             {selectedTournament && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {registrations.length === 0 ? (
                   <div className="text-center py-10 text-slate-400">
                     <Users size={48} className="mx-auto text-slate-600 mb-4" />
@@ -851,24 +867,25 @@ export function TournamentManager() {
                   </div>
                 ) : (
                   registrations.map((r) => (
-                    <div key={r.id} className="border border-slate-700 bg-slate-900/50 p-4">
-                      <div className="flex justify-between items-start mb-3">
+                    <div
+                      key={r.id}
+                      className="border border-slate-700 bg-slate-900/50 p-3"
+                    >
+                      <div className="flex justify-between items-start mb-2">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-500 text-white grid place-items-center">
-                              <span className="font-bold text-sm">
-                                {r.player_name?.charAt(0)?.toUpperCase() || '?'}
-                              </span>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <div className="w-7 h-7 bg-gradient-to-r from-cyan-500 to-purple-500 text-white grid place-items-center text-xs font-bold">
+                              {r.player_name?.charAt(0)?.toUpperCase() || '?'}
                             </div>
                             <div className="min-w-0">
-                              <h3 className="font-bold text-white truncate">{r.player_name}</h3>
+                              <h3 className="font-semibold text-white truncate text-sm">{r.player_name}</h3>
                               <p className="text-xs text-slate-400">
                                 {new Date(r.registered_at).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
-
-                          <div className="grid grid-cols-2 gap-4 text-sm text-slate-300">
+        
+                          <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
                             <div>
                               <span className="text-slate-400">Payment:</span>
                               <p className="font-medium capitalize">
@@ -877,7 +894,7 @@ export function TournamentManager() {
                             </div>
                             <div>
                               <span className="text-slate-400">Status:</span>
-                              <span className={`ml-2 px-2 py-0.5 text-xs rounded-none
+                              <span className={`ml-2 px-2 py-0.5 text-[10px] rounded-none
                                 ${r.status === 'confirmed'
                                   ? 'text-green-300 bg-green-300/10'
                                   : r.status === 'cancelled'
@@ -888,32 +905,32 @@ export function TournamentManager() {
                             </div>
                           </div>
                         </div>
-
+        
                         <button
                           onClick={() => deleteRegistration(r.id)}
-                          className="p-2 text-red-400 hover:text-white hover:bg-red-500/20 transition"
+                          className="p-1.5 text-red-400 hover:text-white hover:bg-red-500/20 transition"
                           title="Delete Registration"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
-
-                      <div className="bg-slate-950/50 border border-slate-800 p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-white">Beyblades</span>
-                          <span className="text-sm text-slate-400">
+        
+                      <div className="bg-slate-950/50 border border-slate-800 p-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-white">Beyblades</span>
+                          <span className="text-xs text-slate-400">
                             {r.beyblades.length} registered
                           </span>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1">
                           {r.beyblades.length > 0 ? (
                             r.beyblades.map((b, i) => (
-                              <span key={i} className="inline-block border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200">
+                              <span key={i} className="inline-block border border-slate-700 bg-slate-900 px-2 py-0.5 text-[11px] text-slate-200">
                                 {b.beyblade_name}
                               </span>
                             ))
                           ) : (
-                            <span className="text-sm text-slate-500 italic">No Beyblades registered</span>
+                            <span className="text-xs text-slate-500 italic">No Beyblades</span>
                           )}
                         </div>
                       </div>
@@ -924,6 +941,7 @@ export function TournamentManager() {
             )}
           </>
         )}
+
       </div>
     </div>
   );
