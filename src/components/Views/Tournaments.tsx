@@ -170,17 +170,20 @@ export function Tournaments() {
   )}
 </div>
 
-      {/* Progress Bar */}
-      <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
-          style={{
-            width: `${
-              ((tournament.participants?.length || 0) / tournament.max_participants) * 100
-            }%`,
-          }}
-        />
-      </div>
+{/* Progress Bar (only if not unlimited) */}
+{tournament.max_participants !== 999999 && (
+  <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
+    <div
+      className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-700"
+      style={{
+        width: `${
+          ((tournament.participants?.length || 0) / tournament.max_participants) * 100
+        }%`,
+      }}
+    />
+  </div>
+)}
+
 
       {/* Register Button */}
       {tournament.status === 'upcoming' && (
