@@ -107,7 +107,7 @@ export function Tournaments() {
                 onChange={() => setShowPractice(!showPractice)}
                 className="sr-only"
               />
-              <div className="relative w-10 h-5 bg-slate-700">
+              <div className="w-10 h-5 bg-slate-700 rounded-full p-1 flex items-center">
                 <div
                   className={`absolute top-0.5 left-0.5 h-4 w-4 bg-white transform transition-transform duration-300 ${
                     showPractice ? 'translate-x-5 bg-cyan-400' : ''
