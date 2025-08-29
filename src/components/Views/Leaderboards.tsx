@@ -396,51 +396,67 @@ const fetchTournamentLeaderboard = async () => {
           </div>
         </div>
 
-{/* Tabs + Tournament Selection (compact header) */}
-<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
-  <div className="flex flex-col gap-4 md:flex-row md:items-center">
-    {/* Tabs (left) */}
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => handleTabChange('tournament')}
-        className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-      >
-        <Trophy size={16} className="mr-1" /> Tournament
-      </button>
-      <button
-        onClick={() => handleTabChange('global')}
-        className={`filter-tab ${currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-      >
-        <Target size={16} className="mr-1" /> Global
-      </button>
-      <button
-        onClick={() => handleTabChange('community')}
-        className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
-      >
-        <Users size={16} className="mr-1" /> Community
-      </button>
+{/* Tabs + Tournament Selection */}
+<div className="bg-slate-950 border border-slate-800 rounded-xl p-4 mb-8">
+  <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
+    {/* Tabs */}
+    <div className="flex items-center gap-6">
+      {[
+        { key: 'tournament', label: 'Tournament', icon: <Trophy size={16} /> },
+        { key: 'global', label: 'Global', icon: <Target size={16} /> },
+        { key: 'community', label: 'Community', icon: <Users size={16} /> },
+      ].map(tab => (
+        <button
+          key={tab.key}
+          onClick={() => handleTabChange(tab.key as any)}
+          className={`relative pb-2 text-sm font-semibold transition ${
+            currentTab === tab.key
+              ? 'text-cyan-400'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <div className="flex items-center gap-1">
+            {tab.icon}
+            {tab.label}
+          </div>
+          {currentTab === tab.key && (
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full"></span>
+          )}
+        </button>
+      ))}
     </div>
 
-    {/* Tournament dropdown (right) */}
+    {/* Tournament dropdown */}
     {currentTab === 'tournament' && (
-      <div className="flex items-center gap-2 w-full justify-end md:ml-auto">
-        <label className="text-sm text-gray-600">Tournament:</label>
-        <select
-          value={selectedTournament}
-          onChange={(e) => setSelectedTournament(e.target.value)}
-          className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">-- Select --</option>
-          {tournaments.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name} ({t.status}) - {new Date(t.tournament_date).toLocaleDateString()}
-            </option>
-          ))}
-        </select>
-      </div>
+      <select
+        value={selectedTournament}
+        onChange={(e) => setSelectedTournament(e.target.value)}
+        className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-500"
+      >
+        <option value="">-- Select --</option>
+        {tournaments.map((t) => (
+          <option key={t.id} value={t.id}>
+            {t.name} ({t.status})
+          </option>
+        ))}
+      </select>
     )}
   </div>
 </div>
+
+{/* Leaderboard Table */}
+<div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
+  <div className="bg-slate-900/60 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+      <TrendingUp size={22} className="text-cyan-400" />
+      {currentTab === 'tournament'
+        ? `${tournaments.find(t => t.id === selectedTournament)?.name || 'Tournament'} Leaderboard`
+        : 'Global Leaderboard'}
+    </h2>
+    <span className="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full">
+      {leaderboard.length} participants
+    </span>
+  </div>
 
 
         {/* Community Coming Soon */}
