@@ -51,30 +51,35 @@ export function Analytics() {
 
         {/* Tabs */}
         <div className="border-b border-slate-700 mb-6">
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4">
             {[
-              { id: 'overview', label: 'Overview', icon: <Trophy size={16} className="mr-2" /> },
-              { id: 'personal', label: 'Personal Stats', icon: <User size={16} className="mr-2" /> },
-              { id: 'tournament', label: 'Tournament Analysis', icon: <Database size={16} className="mr-2" /> },
-              { id: 'community', label: 'Community Analytics', icon: <Users size={16} className="mr-2" /> },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id as any)}
-                className={`relative pb-2 text-sm sm:text-base font-medium transition-colors group flex items-center ${
-                  currentTab === tab.id
-                    ? 'text-cyan-400'
-                    : 'text-slate-400 hover:text-cyan-300'
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-                <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
-                  ${currentTab === tab.id ? 'w-full' : 'w-0 group-hover:w-full'}`}
-                />
-              </button>
-            ))}
+              { id: 'overview', label: 'Overview', icon: <Trophy size={16} /> },
+              { id: 'personal', label: 'Personal Stats', icon: <User size={16} /> },
+              { id: 'tournament', label: 'Tournament Analysis', icon: <Database size={16} /> },
+              { id: 'community', label: 'Community Analytics', icon: <Users size={16} /> },
+            ].map((tab) => {
+              const active = currentTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id as any)}
+                  className={`relative group flex items-center justify-center gap-2
+                              px-3 h-11 w-full text-sm sm:text-base font-medium text-center
+                              whitespace-nowrap overflow-hidden
+                              ${active ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'}`}
+                >
+                  {tab.icon}
+                  <span className="truncate">{tab.label}</span>
+        
+                  {/* underline (doesn't affect layout) */}
+                  <span
+                    className={`pointer-events-none absolute bottom-0 left-0 h-0.5
+                                bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                                ${active ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                  />
+                </button>
+              );
+            })}
           </div>
         </div>
 
