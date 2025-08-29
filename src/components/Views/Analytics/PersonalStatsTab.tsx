@@ -369,7 +369,12 @@ export function PersonalStatsTab() {
       
       {/* Personal Performance Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-cyan-400 mb-1">{personalCombos.reduce((sum, combo) => sum + combo.totalMatches, 0)}</div>
@@ -381,7 +386,12 @@ export function PersonalStatsTab() {
           </div>
         </div>
 
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-green-400 mb-1">
@@ -397,7 +407,12 @@ export function PersonalStatsTab() {
           </div>
         </div>
 
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-purple-400 mb-1">{personalCombos.reduce((sum, combo) => sum + combo.totalPoints, 0)}</div>
@@ -409,7 +424,12 @@ export function PersonalStatsTab() {
           </div>
         </div>
 
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm hover:shadow-[0_0_20px_rgba(0,200,255,0.2)] transition-all duration-200">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-bold text-orange-400 mb-1">{tournamentHistory.length}</div>
@@ -424,7 +444,12 @@ export function PersonalStatsTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Personal Finish Distribution */}
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <h3 className="text-lg font-bold text-white mb-4">Your Finish Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -451,7 +476,12 @@ export function PersonalStatsTab() {
         </div>
 
         {/* Points Per Finish Type with Values */}
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <h3 className="text-lg font-bold text-white mb-4">Points Per Finish Type</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ResponsiveContainer width="100%" height={300}>
@@ -467,7 +497,7 @@ export function PersonalStatsTab() {
               </BarChart>
             </ResponsiveContainer>
             
-            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4">
+            <div className="bg-slate-800/50 border border-cyan-500/20 rounded-none p-4">
               <h4 className="font-semibold text-cyan-400 mb-4">Points Breakdown</h4>
               <div className="space-y-3">
                 {pointsPerFinish.map((finish) => (
@@ -483,13 +513,18 @@ export function PersonalStatsTab() {
       </div>
 
       {/* Personal Combo Performance */}
-      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                     transition-all duration-300 hover:border-cyan-400/70 
+                     hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+        {/* Animated bottom underline */}
+        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                         w-0 transition-all duration-500 group-hover:w-full" />
         <h3 className="text-lg font-bold text-white mb-4">Your Combo Performance</h3>
         <div className="mb-4">
           <select
             value={selectedCombo}
             onChange={(e) => setSelectedCombo(e.target.value)}
-            className="bg-slate-800 border border-cyan-500/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="bg-slate-800 border border-cyan-500/30 rounded-none px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">Select combo for detailed view</option>
             {personalCombos.map(combo => (
@@ -578,7 +613,7 @@ export function PersonalStatsTab() {
 
         {/* Selected Combo Details */}
         {selectedComboData && (
-          <div className="mt-6 bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-6">
+          <div className="mt-6 bg-cyan-500/10 border border-cyan-500/30 rounded-none p-6">
             <h4 className="text-lg font-bold text-cyan-400 mb-4">
               Detailed Analysis: {selectedComboData.combo}
             </h4>
@@ -625,7 +660,12 @@ export function PersonalStatsTab() {
 
 
       {/* Tournament History */}
-      <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+      <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                     transition-all duration-300 hover:border-cyan-400/70 
+                     hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+        {/* Animated bottom underline */}
+        <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                         w-0 transition-all duration-500 group-hover:w-full" />
         <h3 className="text-lg font-bold text-white mb-4">Tournament History</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-800">
@@ -692,7 +732,12 @@ export function PersonalStatsTab() {
 
       {/* MVP Combo Spotlight */}
       {personalCombos.length > 0 && (
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-xl p-6 backdrop-blur-sm">
+        <div className="group relative border border-slate-700 bg-slate-900/40 p-6 rounded-none 
+                       transition-all duration-300 hover:border-cyan-400/70 
+                       hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] backdrop-blur-sm">
+          {/* Animated bottom underline */}
+          <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 
+                           w-0 transition-all duration-500 group-hover:w-full" />
           <h3 className="text-lg font-bold text-white mb-4">
             {isDeveloper && devSelectedPlayer ? `${devSelectedPlayer}'s MVP Combo` : 'Your MVP Combo'}
           </h3>
