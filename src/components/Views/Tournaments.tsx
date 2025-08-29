@@ -109,7 +109,7 @@ export function Tournaments() {
               />
               <div className="relative w-10 h-5 bg-slate-700 rounded-full">
                 <div
-                  className={`absolute top-0.5 left-0.5 h-4 w-4 bg-white transform transition-transform duration-300 ${
+                  className={`absolute top-0.5 left-0.5 h-4 w-4 bg-white rounded-full transform transition-transform duration-300 ${
                     showPractice ? 'translate-x-5 bg-cyan-400' : ''
                   }`}
                 />
