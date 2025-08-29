@@ -828,12 +828,15 @@ export function TournamentManager() {
 {/* Registrations view */}
 {currentView === 'registrations' && (
   <>
-    <div className="mb-6 flex items-center justify-between">
+    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <label className="block text-sm text-slate-300 mb-1">Select Tournament</label>
         <select
           value={selectedTournament}
-          onChange={(e) => setSelectedTournament(e.target.value)}
+          onChange={(e) => {
+            setSelectedTournament(e.target.value);
+            setCurrentPage(1); // reset pagination
+          }}
           className="bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 max-w-md w-full"
         >
           <option value="">-- Select Tournament --</option>
@@ -843,11 +846,25 @@ export function TournamentManager() {
         </select>
       </div>
 
+      {/* Search Box */}
+      {selectedTournament && (
+        <input
+          type="text"
+          placeholder="Search players or Beyblades..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setCurrentPage(1); // reset to first page
+          }}
+          className="bg-slate-900/60 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 w-full sm:w-64"
+        />
+      )}
+
       {/* Export Players button */}
       {registrations.length > 0 && (
         <button
           onClick={() => {
-            const names = registrations.map(r => r.player_name).join('\n');
+            const names = filteredRegistrations.map(r => r.player_name).join('\n');
             navigator.clipboard.writeText(names);
             alert('Copied', 'All player names copied to clipboard for Challonge!');
           }}
@@ -860,7 +877,7 @@ export function TournamentManager() {
 
     {selectedTournament && (
       <>
-        {registrations.length === 0 ? (
+        {filteredRegistrations.length === 0 ? (
           <div className="text-center py-10 text-slate-400">
             <Users size={48} className="mx-auto text-slate-600 mb-4" />
             No registrations found for this tournament
@@ -870,16 +887,22 @@ export function TournamentManager() {
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="bg-slate-900/70 text-slate-300 text-left">
-                  <th className="px-3 py-2 border-b border-slate-700">Player</th>
-                  <th className="px-3 py-2 border-b border-slate-700">Date</th>
-                  <th className="px-3 py-2 border-b border-slate-700">Payment</th>
-                  <th className="px-3 py-2 border-b border-slate-700">Status</th>
-                  <th className="px-3 py-2 border-b border-slate-700">Beyblades</th>
-                  <th className="px-3 py-2 border-b border-slate-700">Actions</th>
+                  {['Player', 'Date', 'Payment', 'Status', 'Beyblades', 'Actions'].map((header, idx) => (
+                    <th
+                      key={idx}
+                      onClick={() => handleSort(header.toLowerCase())}
+                      className="px-3 py-2 border-b border-slate-700 cursor-pointer select-none"
+                    >
+                      {header}
+                      {sortColumn === header.toLowerCase() && (
+                        <span className="ml-1">{sortDirection === 'asc' ? '▲' : '▼'}</span>
+                      )}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {registrations.map((r) => (
+                {paginatedRegistrations.map((r) => (
                   <tr
                     key={r.id}
                     className="border-b border-slate-800 hover:bg-slate-800/30 transition"
@@ -945,10 +968,32 @@ export function TournamentManager() {
             </table>
           </div>
         )}
+
+        {/* Pagination */}
+        <div className="flex justify-end items-center gap-2 mt-3">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            className="px-3 py-1 bg-slate-800 text-slate-300 text-xs disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <span className="text-slate-400 text-xs">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+            className="px-3 py-1 bg-slate-800 text-slate-300 text-xs disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </>
     )}
   </>
 )}
+
 
       </div>
     </div>
