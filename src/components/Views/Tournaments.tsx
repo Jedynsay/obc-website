@@ -66,7 +66,7 @@ export function Tournaments() {
 
         {/* Controls */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-700 pb-2 mb-8">
-          {/* Tabs + Practice Toggle */}
+          {/* Tabs */}
           <div className="flex items-center space-x-6">
             {['upcoming', 'active', 'completed', 'all'].map((tab) => (
               <button
@@ -83,9 +83,24 @@ export function Tournaments() {
                 />
               </button>
             ))}
+          </div>
 
-            {/* Practice Toggle inline */}
-            <label className="flex items-center cursor-pointer space-x-2 ml-6">
+          {/* Search & Practice Toggle */}
+          <div className="flex items-center gap-6">
+            {/* Search */}
+            <div className="relative w-full sm:w-64">
+              <Search size={16} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search tournaments..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-8 pr-2 py-2 bg-transparent border-b border-slate-700 text-sm focus:outline-none focus:border-cyan-500 transition"
+              />
+            </div>
+
+            {/* Practice Toggle (bottom-right) */}
+            <label className="flex items-center cursor-pointer space-x-2">
               <input
                 type="checkbox"
                 checked={showPractice}
@@ -101,18 +116,6 @@ export function Tournaments() {
               </div>
               <span className="text-sm text-slate-300">Practice</span>
             </label>
-          </div>
-
-          {/* Search */}
-          <div className="relative w-full sm:w-64">
-            <Search size={16} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search tournaments..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-2 py-2 bg-transparent border-b border-slate-700 text-sm focus:outline-none focus:border-cyan-500 transition"
-            />
           </div>
         </div>
 
@@ -145,9 +148,9 @@ export function Tournaments() {
                   {tournament.status.toUpperCase()}
                 </span>
 
-                {/* Practice Badge (bottom-right) */}
+                {/* Practice Badge (bottom-right of card) */}
                 {tournament.is_practice && (
-                  <span className="absolute bottom-3 right-3 px-2 py-0.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 rounded-sm">
+                  <span className="absolute bottom-14 right-3 px-2 py-0.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 rounded-sm">
                     Practice
                   </span>
                 )}
@@ -188,12 +191,12 @@ export function Tournaments() {
                   </div>
                 )}
 
-                {/* Register / Closed Button (bottom-right aligned) */}
-                <div className="flex justify-end mt-4">
+                {/* Register / Closed Button (full width) */}
+                <div className="mt-4">
                   {tournament.status === 'upcoming' ? (
                     <button
                       onClick={() => setSelectedTournament(tournament.id)}
-                      className="relative px-4 py-2 text-sm font-semibold text-white 
+                      className="w-full relative px-4 py-2 text-sm font-semibold text-white 
                                  bg-gradient-to-r from-cyan-500 to-purple-500 overflow-hidden 
                                  transition-all duration-300 group-hover:shadow-[0_0_12px_rgba(34,211,238,0.6)]"
                     >
@@ -204,7 +207,7 @@ export function Tournaments() {
                   ) : (
                     <button
                       disabled
-                      className="px-4 py-2 text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed"
+                      className="w-full px-4 py-2 text-sm font-semibold text-slate-500 bg-slate-800 cursor-not-allowed"
                     >
                       Registration Closed
                     </button>
