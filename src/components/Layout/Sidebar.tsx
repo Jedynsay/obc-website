@@ -242,8 +242,6 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
         ))}
     </ul>
   </div>
-)}
-
 
         {/* Auth Section */}
         <div className="px-4 py-4 bg-slate-950 border-t border-slate-800">
