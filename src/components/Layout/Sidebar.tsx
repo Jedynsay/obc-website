@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { LoginForm } from '../Auth/LoginForm';
+import { motion, AnimatePresence } from 'framer-motion';
+
 
 interface SidebarProps {
   isOpen: boolean;
