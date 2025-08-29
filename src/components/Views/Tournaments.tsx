@@ -161,10 +161,14 @@ export function Tournaments() {
         <MapPin size={14} className="mr-2 text-cyan-400" />
         {tournament.location}
       </div>
-      <div className="flex items-center text-slate-400 text-sm mb-4">
-        <Users size={14} className="mr-2 text-cyan-400" />
-        {tournament.participants?.length || 0} / {tournament.max_participants} players
-      </div>
+<div className="flex items-center text-slate-400 text-sm mb-4">
+  <Users size={14} className="mr-2 text-cyan-400" />
+  {tournament.max_participants === 999999 ? (
+    <>{tournament.participants?.length || 0} players</>
+  ) : (
+    <>{tournament.participants?.length || 0} / {tournament.max_participants} players</>
+  )}
+</div>
 
       {/* Progress Bar */}
       <div className="w-full h-2 bg-slate-800 mb-4 overflow-hidden">
