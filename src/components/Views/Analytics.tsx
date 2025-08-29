@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, TrendingUp, Trophy, Users, Calendar, Target, User, Database } from 'lucide-react';
+import { BarChart3, TrendingUp, Trophy, Users, Calendar, Target, User, Database, X } from 'lucide-react';
 import { OverviewTab } from './Analytics/OverviewTab';
 import { PersonalStatsTab } from './Analytics/PersonalStatsTab';
 import { TournamentAnalysisTab } from './Analytics/TournamentAnalysisTab';
@@ -38,8 +38,9 @@ export function Analytics() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
         <div className="mb-8">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
             <div>
               <h1 className="text-4xl font-bold flex items-center mb-4">
                 <BarChart3 size={40} className="mr-4 text-cyan-400" />
@@ -49,57 +50,75 @@ export function Analytics() {
               </h1>
               <p className="text-slate-400 text-lg">Analysis of tournament data and player performance</p>
             </div>
-            <div className="flex items-center space-x-1 bg-slate-900/50 border border-cyan-500/30 rounded-lg p-1 backdrop-blur-sm">
+            
+            {/* Tabs */}
+            <div className="flex items-center space-x-6 border-b border-slate-700 pb-2">
               <button
                 onClick={() => handleTabChange('overview')}
-                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
                   currentTab === 'overview' 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
-                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50'
+                    ? 'text-cyan-400' 
+                    : 'text-slate-400 hover:text-cyan-300'
                 }`}
               >
                 <Trophy size={16} className="mr-2" />
                 Overview
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${currentTab === 'overview' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
               <button
                 onClick={() => handleTabChange('personal')}
-                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
                   currentTab === 'personal' 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
-                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50'
+                    ? 'text-cyan-400' 
+                    : 'text-slate-400 hover:text-cyan-300'
                 }`}
               >
                 <User size={16} className="mr-2" />
                 Personal Stats
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${currentTab === 'personal' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
               <button
                 onClick={() => handleTabChange('tournament')}
-                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
                   currentTab === 'tournament' 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
-                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50'
+                    ? 'text-cyan-400' 
+                    : 'text-slate-400 hover:text-cyan-300'
                 }`}
               >
                 <Database size={16} className="mr-2" />
                 Tournament Analysis
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${currentTab === 'tournament' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
               <button
                 onClick={() => handleTabChange('community')}
-                className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center ${
+                className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
                   currentTab === 'community' 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(0,200,255,0.3)]' 
-                    : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50'
+                    ? 'text-cyan-400' 
+                    : 'text-slate-400 hover:text-cyan-300'
                 }`}
               >
                 <Users size={16} className="mr-2" />
                 Community Analytics
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${currentTab === 'community' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
             </div>
           </div>
         </div>
 
         {/* Tab Content */}
-        <div className="bg-slate-900/30 border border-cyan-500/20 rounded-xl backdrop-blur-sm">
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-none backdrop-blur-sm">
           {currentTab === 'overview' && <OverviewTab />}
           {currentTab === 'personal' && <PersonalStatsTab />}
           {currentTab === 'tournament' && <TournamentAnalysisTab />}
