@@ -130,7 +130,7 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
             {isOpen && <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Overview</p>}
             <ul className="space-y-1">
               {filteredMenuItems
-                .filter(item => ['dashboard', 'tournaments', 'analytics'].includes(item.id))
+                .filter(item => ['dashboard', 'tournaments', 'analytics', 'leaderboards'].includes(item.id))
                 .map(item => (
                   <li key={item.id}>
                     <button
