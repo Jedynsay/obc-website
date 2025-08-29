@@ -444,21 +444,6 @@ const fetchTournamentLeaderboard = async () => {
   </div>
 </div>
 
-{/* Leaderboard Table */}
-<div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
-  <div className="bg-slate-900/60 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
-    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-      <TrendingUp size={22} className="text-cyan-400" />
-      {currentTab === 'tournament'
-        ? `${tournaments.find(t => t.id === selectedTournament)?.name || 'Tournament'} Leaderboard`
-        : 'Global Leaderboard'}
-    </h2>
-    <span className="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full">
-      {leaderboard.length} participants
-    </span>
-  </div>
-
-
         {/* Community Coming Soon */}
         {currentTab === 'community' && (
           <div className="max-w-4xl mx-auto">
