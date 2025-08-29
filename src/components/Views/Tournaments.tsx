@@ -216,7 +216,6 @@ export function Tournaments() {
   </button>
 )}
 
-  )}
 </div>
 
   ))}
