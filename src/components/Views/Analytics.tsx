@@ -51,7 +51,7 @@ export function Analytics() {
 
         {/* Tabs */}
         <div className="border-b border-slate-700 mb-6">
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
+          <div className="flex flex-wrap justify-evenly gap-y-3">
             {[
               { id: 'overview', label: 'Overview', icon: <Trophy size={16} className="mr-2" /> },
               { id: 'personal', label: 'Personal Stats', icon: <User size={16} className="mr-2" /> },
@@ -61,8 +61,8 @@ export function Analytics() {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id as any)}
-                className={`relative pb-2 text-sm sm:text-base font-medium transition-colors group flex items-center ${
-                  currentTab === tab.id
+                className={`relative pb-2 text-sm sm:text-base font-medium transition-colors group flex items-center justify-center flex-1
+                  ${currentTab === tab.id
                     ? 'text-cyan-400'
                     : 'text-slate-400 hover:text-cyan-300'
                 }`}
