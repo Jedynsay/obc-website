@@ -269,8 +269,8 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
           tournament_id: tournament.id,
           player_name: playerName.trim(),
           payment_mode: paymentMode,
-          status: 'confirmed',
-          payment_status: paymentStatus
+          status: 'pending',
+          payment_status: 'unpaid'
         })
         .select()
         .single();
@@ -306,6 +306,7 @@ export function TournamentRegistration({ tournament, onClose }: TournamentRegist
       }
 
       await alert('Registration Successful', `You have registered ${playerName} for ${tournament.name}!`);
+      await alert('Registration Submitted', `Registration for ${playerName} has been submitted and is pending payment confirmation. Tournament organizers will confirm your payment before the tournament begins.`);
       onClose();
     } catch (err: any) {
       console.error(err);
