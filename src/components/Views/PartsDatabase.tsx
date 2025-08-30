@@ -245,9 +245,12 @@ const renderPartCard = (part: Part) => {
     <div
       key={part.id}
       onClick={() => setSelectedPart(part)}
-      className="cursor-pointer bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition"
+      className="group cursor-pointer bg-slate-900/40 border border-slate-700 rounded-none p-3 hover:border-cyan-400/70 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all duration-300 relative"
     >
-      <div className="w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
+      {/* Animated bottom underline */}
+      <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 w-0 transition-all duration-500 group-hover:w-full" />
+      
+      <div className="w-full aspect-square bg-slate-800 rounded-lg flex items-center justify-center mb-2 overflow-hidden">
         <img
           src={imageUrl}
           alt={part.name}
@@ -258,22 +261,22 @@ const renderPartCard = (part: Part) => {
             const target = e.target as HTMLImageElement;
             const fallback = document.createElement('div');
             fallback.textContent = 'Picture Not Available';
-            fallback.className = 'text-gray-400 text-xs text-center';
+            fallback.className = 'text-slate-400 text-xs text-center';
             target.replaceWith(fallback);
           }}
           className="object-contain w-full h-full"
         />
       </div>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold truncate break-words">{part.name}</h3>
+        <h3 className="text-sm font-semibold truncate break-words text-white">{part.name}</h3>
         {part.role && (
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-cyan-500/20 text-cyan-400">
             {part.role}
           </span>
         )}
       </div>
       {part.line && (
-        <p className="text-xs text-gray-500 mt-1 truncate">{part.line}</p>
+        <p className="text-xs text-slate-400 mt-1 truncate">{part.line}</p>
       )}
     </div>
   );
@@ -294,16 +297,19 @@ const renderPartCard = (part: Part) => {
   }
 
   return (
-    <div className="page-container">
-      <div className="content-wrapper">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
-        <div className="page-header">
-          <div className="flex justify-between items-center">
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <h1 className="page-title flex items-center">
+              <h1 className="text-4xl font-bold flex items-center mb-4">
+                <Database size={40} className="mr-4 text-cyan-400" />
+                <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 Parts Database
+                </span>
               </h1>
-              <p className="page-subtitle">
+              <p className="text-slate-400 text-lg">
                 Explore all available Beyblade parts and their statistics
               </p>
             </div>
@@ -329,20 +335,20 @@ const renderPartCard = (part: Part) => {
         </div>
 
         {/* Search + Role Filter */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-none backdrop-blur-sm p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="relative">
               <Search
                 size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
               />
               <input
                 type="text"
                 placeholder="Search parts..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-cyan-500/30 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
@@ -351,7 +357,7 @@ const renderPartCard = (part: Part) => {
               <select
                 value={activeRole}
                 onChange={(e) => setActiveRole(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-slate-900 border border-cyan-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
                 <option value="">All Roles</option>
                 <option value="attack">Attack</option>
@@ -363,16 +369,20 @@ const renderPartCard = (part: Part) => {
           </div>
 
           {/* Tabs */}
-          <div className="mt-6 flex space-x-2 border-b overflow-x-auto">
+          <div className="mt-6 flex space-x-8 border-b border-slate-700 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab}
-                className={`px-4 py-2 text-sm font-medium capitalize ${activeTab === tab
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'}`}
+                className={`relative pb-2 text-sm font-medium capitalize transition-colors group ${
+                  activeTab === tab ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'
+                }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab}
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                  ${activeTab === tab ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                />
               </button>
             ))}
           </div>
@@ -383,7 +393,7 @@ const renderPartCard = (part: Part) => {
               <select
                 value={bladeFilter}
                 onChange={(e) => setBladeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg"
+                className="px-3 py-2 bg-slate-900 border border-cyan-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
                 <option value="">All</option>
                 <option value="Basic">Basic</option>
@@ -397,11 +407,11 @@ const renderPartCard = (part: Part) => {
         {/* Parts Display */}
         {roleFilteredParts.length === 0 ? (
           <div className="text-center py-12">
-            <Database size={48} className="mx-auto text-gray-400 mb-4" />
+            <Database size={48} className="mx-auto text-slate-400 mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               No Parts Found
             </h3>
-            <p className="text-gray-500">
+            <p className="text-slate-400">
               Try adjusting your search or filter criteria
             </p>
           </div>
@@ -410,16 +420,16 @@ const renderPartCard = (part: Part) => {
             {roleFilteredParts.map(renderPartCard)}
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-slate-900/50 border border-cyan-500/30 rounded-none backdrop-blur-sm overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-slate-800/50">
                 <tr>
                   {['name','role','attack','defense','stamina']
                     .concat(activeTab === 'bits' ? ['dash','burstRes'] : [])
                     .map((col) => (
                       <th
                         key={col}
-                        className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-blue-600 ${
+                        className={`px-6 py-3 text-xs font-medium text-cyan-400 uppercase cursor-pointer hover:text-cyan-300 ${
                           col === 'name' ? 'text-left' : 'text-center'
                         }`}
                         onClick={() => {
@@ -438,24 +448,24 @@ const renderPartCard = (part: Part) => {
                   <th></th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-slate-950/50 divide-y divide-slate-800">
                 {roleFilteredParts.map((part) => (
-                  <tr key={part.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-left truncate break-words">{part.name}</td>
-                    <td className="px-6 py-4 text-center">{part.role || '-'}</td>
-                    <td className="px-6 py-4 text-center">{part.stats.attack}</td>
-                    <td className="px-6 py-4 text-center">{part.stats.defense}</td>
-                    <td className="px-6 py-4 text-center">{part.stats.stamina}</td>
+                  <tr key={part.id} className="hover:bg-slate-800/50">
+                    <td className="px-6 py-4 text-left truncate break-words text-white">{part.name}</td>
+                    <td className="px-6 py-4 text-center text-white">{part.role || '-'}</td>
+                    <td className="px-6 py-4 text-center text-white">{part.stats.attack}</td>
+                    <td className="px-6 py-4 text-center text-white">{part.stats.defense}</td>
+                    <td className="px-6 py-4 text-center text-white">{part.stats.stamina}</td>
                     {activeTab === 'bits' && (
                       <>
-                        <td className="px-6 py-4 text-center">{part.stats.dash}</td>
-                        <td className="px-6 py-4 text-center">{part.stats.burstRes}</td>
+                        <td className="px-6 py-4 text-center text-white">{part.stats.dash}</td>
+                        <td className="px-6 py-4 text-center text-white">{part.stats.burstRes}</td>
                       </>
                     )}
                     <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => setSelectedPart(part)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-cyan-400 hover:bg-cyan-500/20 rounded-lg transition-colors"
                       >
                         View
                       </button>
@@ -470,8 +480,8 @@ const renderPartCard = (part: Part) => {
         {/* Part Details Modal */}
         {selectedPart && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 text-white">
+            <div className="bg-slate-950 border border-cyan-500/30 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.3)] max-w-2xl w-full max-h-[90vh] overflow-hidden">
+              <div className="bg-gradient-to-r from-cyan-500 to-purple-500 px-6 py-4 text-white">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-2xl font-bold truncate">{selectedPart.name}</h2>
@@ -503,7 +513,7 @@ const renderPartCard = (part: Part) => {
               {/* Modal Content */}
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">Statistics</h3>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     {Object.entries(selectedPart.stats)
                       .filter(([stat]) =>
@@ -514,17 +524,17 @@ const renderPartCard = (part: Part) => {
                       .map(([stat, value]) => (
                         <div key={stat} className="text-center">
                           <div className="flex justify-center mb-1">{getStatIcon(stat)}</div>
-                          <div className="text-sm font-medium capitalize">{stat}</div>
-                          <div className="text-lg font-bold text-gray-900">{value}</div>
+                          <div className="text-sm font-medium capitalize text-slate-300">{stat}</div>
+                          <div className="text-lg font-bold text-white">{value}</div>
                         </div>
                       ))}
                   </div>
                 </div>
                 
-                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Preview</h4>
+                <div className="mb-6 bg-slate-800/50 border border-cyan-500/20 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-white mb-2">Preview</h4>
                   {selectedPart && (
-                    <div className="w-full aspect-square flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden mx-auto max-h-64">
+                    <div className="w-full aspect-square flex items-center justify-center bg-slate-900 rounded-lg overflow-hidden mx-auto max-h-64">
                       <img
                         src={`https://eymxpphofhhfeuvaqfad.supabase.co/storage/v1/object/public/beyblade-parts/${
                           tableFolderMap[selectedPart.category]
@@ -534,7 +544,7 @@ const renderPartCard = (part: Part) => {
                           const target = e.target as HTMLImageElement;
                           const fallback = document.createElement('div');
                           fallback.textContent = 'Picture Not Available';
-                          fallback.className = 'text-gray-400 text-sm text-center';
+                          fallback.className = 'text-slate-400 text-sm text-center';
                           target.replaceWith(fallback);
                         }}
                         className="object-contain w-full h-full"
@@ -543,14 +553,14 @@ const renderPartCard = (part: Part) => {
                   )}
                 </div>
 
-                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Win Rate</h4>
-                  <p className="text-gray-600">Coming Soon</p>
+                <div className="mb-6 bg-slate-800/50 border border-cyan-500/20 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-white mb-2">Win Rate</h4>
+                  <p className="text-slate-400">Coming Soon</p>
                 </div>
 
-                <div className="mb-6 bg-gray-50 rounded-xl p-6 text-center">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Top 3 Combos</h4>
-                  <p className="text-gray-600">Coming Soon</p>
+                <div className="mb-6 bg-slate-800/50 border border-cyan-500/20 rounded-xl p-6 text-center">
+                  <h4 className="text-lg font-semibold text-white mb-2">Top 3 Combos</h4>
+                  <p className="text-slate-400">Coming Soon</p>
                 </div>
               </div>
             </div>
