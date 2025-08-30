@@ -37,21 +37,20 @@ export function Analytics() {
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold flex items-center mb-3">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold flex items-center mb-4">
             <BarChart3 size={32} className="mr-3 text-cyan-400" />
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Tournament Analytics
             </span>
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base">
+          <p className="text-slate-400 text-lg">
             Analysis of tournament data and player performance
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-slate-700 mb-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4">
+        <div className="flex space-x-8 border-b border-slate-700 mb-8">
             {[
               { id: 'overview', label: 'Overview', icon: <Trophy size={16} /> },
               { id: 'personal', label: 'Personal Stats', icon: <User size={16} /> },
@@ -63,28 +62,23 @@ export function Analytics() {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id as any)}
-                  className={`relative group flex items-center justify-center gap-2
-                              px-3 h-11 w-full text-sm sm:text-base font-medium text-center
-                              whitespace-nowrap overflow-hidden
-                              ${active ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'}`}
+                  className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
+                    active ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'
+                  }`}
                 >
                   {tab.icon}
-                  <span className="truncate">{tab.label}</span>
-        
-                  {/* underline (doesn't affect layout) */}
+                  <span className="ml-2">{tab.label}</span>
                   <span
-                    className={`pointer-events-none absolute bottom-0 left-0 h-0.5
-                                bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
-                                ${active ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                    className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+                    ${active ? 'w-full' : 'w-0 group-hover:w-full'}`}
                   />
                 </button>
               );
             })}
-          </div>
         </div>
 
         {/* Tab Content */}
-        <div className="bg-slate-900/50 border border-cyan-500/30 rounded-none backdrop-blur-sm p-4 sm:p-6">
+        <div>
           {currentTab === 'overview' && <OverviewTab />}
           {currentTab === 'personal' && <PersonalStatsTab />}
           {currentTab === 'tournament' && <TournamentAnalysisTab />}
