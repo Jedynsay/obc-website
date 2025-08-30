@@ -402,6 +402,33 @@ const paginatedRegistrations = sortedRegistrations.slice(
     }
   };
 
+  const confirmPayment = async (registrationId: string) => {
+    const confirmed = await confirm(
+      'Confirm Payment',
+      'Mark this registration as paid and confirmed?'
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from('tournament_registrations')
+        .update({ 
+          status: 'confirmed',
+          payment_status: 'paid'
+        })
+        .eq('id', registrationId);
+
+      if (error) throw error;
+      
+      await fetchRegistrations();
+      await alert('Success', 'Payment confirmed successfully!');
+    } catch (error) {
+      console.error('Error confirming payment:', error);
+      await alert('Error', 'Failed to confirm payment. Please try again.');
+    }
+  };
+
   /* ===================== Guards / Loading ===================== */
   if (!isAdmin) {
     return (
@@ -999,6 +1026,15 @@ const paginatedRegistrations = sortedRegistrations.slice(
 
                     {/* Actions */}
                     <td className="px-3 py-2">
+                      <div className="flex items-center space-x-2">
+                        {r.status === 'pending' && (
+                          <button
+                            onClick={() => confirmPayment(r.id)}
+                            className="px-2 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-medium hover:from-green-400 hover:to-emerald-500 transition-all duration-200 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                          >
+                            Confirm Payment
+                          </button>
+                        )}
                       <button
                         onClick={() => deleteRegistration(r.id)}
                         className="p-1.5 text-red-400 hover:text-white hover:bg-red-500/20 transition rounded-sm"
@@ -1006,6 +1042,7 @@ const paginatedRegistrations = sortedRegistrations.slice(
                       >
                         <Trash2 size={14} />
                       </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
