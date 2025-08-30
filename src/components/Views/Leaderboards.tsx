@@ -374,21 +374,23 @@ const fetchTournamentLeaderboard = async () => {
   }
 
   return (
-    <div className="page-container">
-      <div className="content-wrapper">
-        <div className="page-header">
-          <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <h1 className="page-title flex items-center">
-                <Crown size={32} className="mr-3 text-yellow-600" />
+              <h1 className="text-4xl font-bold flex items-center mb-4">
+                <Crown size={40} className="mr-4 text-cyan-400" />
+                <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 Leaderboards
+                </span>
               </h1>
-              <p className="page-subtitle">Tournament rankings and player standings</p>
+              <p className="text-slate-400 text-lg">Tournament rankings and player standings</p>
             </div>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 disabled:opacity-50"
+              className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-4 py-2 rounded-none hover:from-cyan-400 hover:to-purple-500 transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 shadow-[0_0_15px_rgba(0,200,255,0.3)]"
             >
               <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
               <span>Refresh</span>
@@ -397,38 +399,56 @@ const fetchTournamentLeaderboard = async () => {
         </div>
 
 {/* Tabs + Tournament Selection (compact header) */}
-<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
+<div className="bg-slate-900/50 border border-cyan-500/30 rounded-none backdrop-blur-sm p-4 mb-8">
   <div className="flex flex-col gap-4 md:flex-row md:items-center">
     {/* Tabs (left) */}
-    <div className="flex items-center gap-2">
+    <div className="flex items-center space-x-8 border-b border-slate-700 pb-2">
       <button
         onClick={() => handleTabChange('tournament')}
-        className={`filter-tab ${currentTab === 'tournament' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+        className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
+          currentTab === 'tournament' ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'
+        }`}
       >
         <Trophy size={16} className="mr-1" /> Tournament
+        <span
+          className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+          ${currentTab === 'tournament' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+        />
       </button>
       <button
         onClick={() => handleTabChange('global')}
-        className={`filter-tab ${currentTab === 'global' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+        className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
+          currentTab === 'global' ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'
+        }`}
       >
         <Target size={16} className="mr-1" /> Global
+        <span
+          className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+          ${currentTab === 'global' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+        />
       </button>
       <button
         onClick={() => handleTabChange('community')}
-        className={`filter-tab ${currentTab === 'community' ? 'filter-tab-active' : 'filter-tab-inactive'}`}
+        className={`relative pb-2 text-sm font-medium transition-colors group flex items-center ${
+          currentTab === 'community' ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-300'
+        }`}
       >
         <Users size={16} className="mr-1" /> Community
+        <span
+          className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all duration-500
+          ${currentTab === 'community' ? 'w-full' : 'w-0 group-hover:w-full'}`}
+        />
       </button>
     </div>
 
     {/* Tournament dropdown (right) */}
     {currentTab === 'tournament' && (
-      <div className="flex items-center gap-2 w-full justify-end md:ml-auto">
-        <label className="text-sm text-gray-600">Tournament:</label>
+      <div className="flex items-center gap-2 w-full justify-end md:ml-auto mt-4 md:mt-0">
+        <label className="text-sm text-slate-400">Tournament:</label>
         <select
           value={selectedTournament}
           onChange={(e) => setSelectedTournament(e.target.value)}
-          className="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-slate-900 border border-cyan-500/30 rounded-lg px-2 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
         >
           <option value="">-- Select --</option>
           {tournaments.map((t) => (
@@ -446,34 +466,37 @@ const fetchTournamentLeaderboard = async () => {
         {/* Community Coming Soon */}
         {currentTab === 'community' && (
           <div className="max-w-4xl mx-auto">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-12 text-center">
-              <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+            <div className="group relative border border-slate-700 bg-slate-900/40 p-12 rounded-none transition-all duration-300 hover:border-cyan-400/70 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] text-center">
+              {/* Animated bottom underline */}
+              <span className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 w-0 transition-all duration-500 group-hover:w-full" />
+              
+              <div className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(0,200,255,0.5)]">
                 <Users size={48} className="text-white" />
               </div>
               
-              <h2 className="text-4xl font-bold text-blue-900 mb-4">Community Leaderboards</h2>
-              <div className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full font-bold text-lg mb-6 shadow-lg">
+              <h2 className="text-4xl font-bold text-cyan-400 mb-4">Community Leaderboards</h2>
+              <div className="inline-block bg-gradient-to-r from-cyan-600 to-purple-600 text-white px-6 py-2 rounded-none font-bold text-lg mb-6 shadow-[0_0_20px_rgba(0,200,255,0.3)]">
                 COMING SOON
               </div>
               
-              <p className="text-blue-800 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-cyan-300 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
                 Soon, every community will have their own leaderboards to track local champions and rising stars. 
                 Compare performance within your community and see who's dominating the local meta.
               </p>
 
-              <div className="bg-white/40 backdrop-blur-sm border border-blue-200 rounded-xl p-6 max-w-md mx-auto">
-                <h4 className="font-bold text-blue-900 mb-3">Planned Features:</h4>
-                <div className="space-y-2 text-sm text-blue-800 text-left">
+              <div className="bg-slate-800/40 backdrop-blur-sm border border-cyan-400/30 rounded-none p-6 max-w-md mx-auto">
+                <h4 className="font-bold text-cyan-400 mb-3">Planned Features:</h4>
+                <div className="space-y-2 text-sm text-cyan-300 text-left">
                   <div className="flex items-center">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                    <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></span>
                     Community-specific rankings
                   </div>
                   <div className="flex items-center">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                    <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></span>
                     Local tournament leaderboards
                   </div>
                   <div className="flex items-center">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                    <span className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></span>
                     Community comparison tools
                   </div>
                 </div>
@@ -484,17 +507,17 @@ const fetchTournamentLeaderboard = async () => {
 
         {/* Leaderboard Table */}
         {(currentTab === 'tournament' || currentTab === 'global') && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+          <div className="bg-slate-900/50 border border-cyan-500/30 rounded-none backdrop-blur-sm overflow-hidden">
+            <div className="bg-slate-800/50 px-6 py-4 border-b border-slate-700">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                  <TrendingUp size={24} className="mr-2 text-gray-700" />
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <TrendingUp size={24} className="mr-2 text-cyan-400" />
                   {currentTab === 'tournament' 
                     ? `${tournaments.find(t => t.id === selectedTournament)?.name || 'Tournament'} Leaderboard`
                     : 'Global Leaderboard'
                   }
                 </h2>
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                <span className="text-sm text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full">
                   {leaderboard.length} participants
                 </span>
               </div>
@@ -502,11 +525,11 @@ const fetchTournamentLeaderboard = async () => {
 
             {leaderboard.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 size={32} className="text-gray-400" />
+                <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 size={32} className="text-slate-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Available</h3>
-                <p className="text-gray-500">
+                <h3 className="text-lg font-semibold text-white mb-2">No Data Available</h3>
+                <p className="text-slate-400">
                   {currentTab === 'tournament' && !selectedTournament
                     ? 'Please select a tournament to view its leaderboard'
                     : 'No match results found for leaderboard calculation'
@@ -516,34 +539,34 @@ const fetchTournamentLeaderboard = async () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-slate-800/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">
                         Rank
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-cyan-400 uppercase tracking-wider">
                         Participant
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                         Match W-L
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                         Score
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                         TB
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                         Buchholz
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider">
                         Pts Diff
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-slate-950/50 divide-y divide-slate-800">
                     {leaderboard.map((entry) => (
-                      <tr key={entry.participant} className="hover:bg-gray-50">
+                      <tr key={entry.participant} className="hover:bg-slate-800/50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-3">
                             {getRankIcon(entry.rank)}
@@ -554,12 +577,12 @@ const fetchTournamentLeaderboard = async () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                            <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                               {entry.participant.charAt(0).toUpperCase()}
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{entry.participant}</div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm font-medium text-white">{entry.participant}</div>
+                              <div className="text-sm text-slate-400">
                                 {entry.winRate.toFixed(1)}% win rate
                               </div>
                             </div>
@@ -568,26 +591,26 @@ const fetchTournamentLeaderboard = async () => {
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <div className="text-sm">
                             <span className="text-green-600 font-medium">{entry.matchWins}</span>
-                            <span className="text-gray-400 mx-1">-</span>
+                            <span className="text-slate-400 mx-1">-</span>
                             <span className="text-red-600 font-medium">{entry.matchLosses}</span>
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-slate-500">
                             {entry.totalMatches} total
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-lg font-bold text-blue-600">{entry.score}</div>
+                          <div className="text-lg font-bold text-cyan-400">{entry.score}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm font-medium text-gray-900">{entry.tb}</div>
+                          <div className="text-sm font-medium text-white">{entry.tb}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm font-medium text-gray-900">{entry.buchholz}</div>
+                          <div className="text-sm font-medium text-white">{entry.buchholz}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <div className={`text-sm font-medium ${
                             entry.ptsDiff > 0 ? 'text-green-600' :
-                            entry.ptsDiff < 0 ? 'text-red-600' : 'text-gray-600'
+                            entry.ptsDiff < 0 ? 'text-red-600' : 'text-slate-400'
                           }`}>
                             {entry.ptsDiff > 0 ? '+' : ''}{entry.ptsDiff}
                           </div>
