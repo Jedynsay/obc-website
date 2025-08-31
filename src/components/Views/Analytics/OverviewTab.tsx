@@ -919,9 +919,7 @@ export function OverviewTab() {
                     <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
                       Win Rate
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-700/50">
-                      Tournaments
-                    </th>
+
                   </tr>
                 </thead>
                 <tbody className="bg-slate-950/50 divide-y divide-slate-800">
