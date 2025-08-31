@@ -965,7 +965,7 @@ export function OverviewTab() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
-                          {Math.ceil(stats.matches / 10)}
+                          {tournamentHistory.length}
                         </td>
                       </tr>
                     ))}
