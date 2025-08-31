@@ -213,7 +213,7 @@ export function OverviewTab() {
       }
 
       // Calculate global stats
-      const playerStatsMap: { [name: string]: {wins: number; matches: number; points: number; tournaments: Set<string>;} } = {};
+      const playerStatsMap: { [name: string]: { wins: number; matches: number; points: number } } = {};
       const comboStats: { [key: string]: GlobalCombo } = {};
       const finishCounts: { [finish: string]: number } = {};
       let totalPoints = 0;
@@ -237,12 +237,10 @@ export function OverviewTab() {
           const displayName = index === 0 ? match.player1_name : match.player2_name;
           
           if (!playerStatsMap[displayName]) {
-            playerStatsMap[displayName] = { wins: 0, matches: 0, points: 0, tournaments: new Set() };
+            playerStatsMap[displayName] = { wins: 0, matches: 0, points: 0 };
           }
-        
           playerStatsMap[displayName].matches++;
-          playerStatsMap[displayName].tournaments.add(match.tournament_id);
-        
+          
           if (normalizedWinner === normalizedName) {
             playerStatsMap[displayName].wins++;
             playerStatsMap[displayName].points += points;
@@ -966,9 +964,9 @@ export function OverviewTab() {
                             {((stats.wins / stats.matches) * 100).toFixed(1)}%
                           </span>
                         </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
-                        {stats.tournaments.size}
-                      </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white text-center">
+                          {Math.ceil(stats.matches / 10)}
+                        </td>
                       </tr>
                     ))}
                 </tbody>
