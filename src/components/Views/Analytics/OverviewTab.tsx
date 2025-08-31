@@ -213,7 +213,7 @@ export function OverviewTab() {
       }
 
       // Calculate global stats
-      const playerStatsMap: { [name: string]: { wins: number; matches: number; points: number } } = {};
+      const playerStatsMap: { [name: string]: { wins: number; matches: number; points: number; tournaments: Set<string>; } } = {};
       const comboStats: { [key: string]: GlobalCombo } = {};
       const finishCounts: { [finish: string]: number } = {};
       let totalPoints = 0;
