@@ -37,6 +37,7 @@ function AppContent() {
       case 'tournament-manager': return <TournamentManager />;
       case 'user-management': return <UserManagement />;
       case 'database': return <DatabaseView />;
+      case 'settings': return <Settings />;
       default: return <Dashboard />;
     }
   };
