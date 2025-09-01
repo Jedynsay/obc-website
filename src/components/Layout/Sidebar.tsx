@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import {
-  Home, Trophy, Users, BarChart3, Settings,
+  Home, Trophy, Users, BarChart3, Settings, User,
   Database, Package, X, LogIn, LogOut, Crown
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -35,6 +35,7 @@ const menuItems: MenuItem[] = [
   { id: 'tournament-manager', label: 'Tournament Manager', icon: <Settings size={20} />, roles: ['admin', 'developer'] },
   { id: 'user-management', label: 'User Management', icon: <Users size={20} />, roles: ['admin', 'developer'] },
   { id: 'database', label: 'Database', icon: <Database size={20} />, roles: ['developer'] },
+  { id: 'settings', label: 'Settings', icon: <Settings size={20} />, roles: ['user', 'technical_officer', 'admin', 'developer'], requiresAuth: true },
 ];
 
 export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: SidebarProps) {
@@ -249,6 +250,36 @@ export function Sidebar({ isOpen, currentView, onViewChange, onToggle }: Sidebar
 
         {/* Auth Section */}
         <div className="px-4 py-4 bg-slate-950 border-t border-slate-800">
+          {/* User Info (if logged in) */}
+          {user && !user.id.startsWith('guest-') && isOpen && (
+            <div className="mb-4 p-3 bg-slate-900/50 rounded-lg border border-cyan-500/20">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{user.username}</p>
+                  <p className="text-xs text-cyan-400 capitalize">{user.role.replace('_', ' ')}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Settings (only for authenticated users) */}
+          {user && !user.id.startsWith('guest-') && (
+            <button
+              onClick={() => onViewChange('settings')}
+              className={`w-full flex items-center px-3 py-3 mb-2 transition-all duration-200 ${
+                currentView === 'settings'
+                  ? 'text-cyan-400 bg-cyan-500/20'
+                  : 'text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/10'
+              }`}
+            >
+              <Settings size={20} />
+              {isOpen && <span className="ml-3 font-medium">Settings</span>}
+            </button>
+          )}
+
           {user && !user.id.startsWith('guest-') ? (
             <button
               onClick={handleLogout}
